@@ -9,6 +9,12 @@
       content="Abhyansh Anand — M.S. Data Science (UMD). Analytics, ML engineering, and data platforms. PwC · Cornell · UMD."
     />
     <title>Abhyansh Anand — Portfolio</title>
+    <!-- Avoid a white screen if CSS/JS paths 404 (e.g. wrong Vite `base` on deploy). -->
+    <style>
+      html {
+        background: #0a0a0f;
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,5 +25,10 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <noscript>
+      <p style="padding: 2rem; font-family: system-ui, sans-serif; color: #fff; background: #0a0a0f">
+        This portfolio needs JavaScript enabled.
+      </p>
+    </noscript>
   </body>
 </html>

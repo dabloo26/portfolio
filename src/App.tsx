@@ -40,10 +40,17 @@ function Shell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Match React Router to Vite `base` so subpath deploys (e.g. GitHub Pages) don’t render a blank tree. */
+function routerBasename(): string | undefined {
+  const base = import.meta.env.BASE_URL;
+  if (!base || base === "/") return undefined;
+  return base.replace(/\/$/, "") || undefined;
+}
+
 function App() {
   return (
     <RoleProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={routerBasename()}>
         <div className="relative min-h-screen overflow-x-hidden bg-base text-white">
           <Routes>
             <Route
