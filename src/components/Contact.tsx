@@ -46,6 +46,14 @@ export function Contact() {
               LinkedIn →
             </a>
             <a
+              href={person.github}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-fit items-center gap-2 text-slate-400 transition hover:text-cyan-200"
+            >
+              GitHub (@dabloo26) →
+            </a>
+            <a
               href={person.resumeUrl}
               className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 font-medium text-slate-100 transition hover:border-cyan-400/35"
               download

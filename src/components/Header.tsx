@@ -44,6 +44,14 @@ export function Header() {
               {label}
             </a>
           ))}
+          <a
+            href={person.github}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full px-2.5 py-1 text-slate-300 transition hover:bg-white/[0.06] hover:text-cyan-200"
+          >
+            GitHub
+          </a>
         </nav>
       </div>
       <div className="border-t border-white/[0.04] bg-ink-950/40 px-4 py-2 sm:px-6">

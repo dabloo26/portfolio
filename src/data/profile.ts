@@ -39,17 +39,71 @@ export type EducationItem = {
   detail: string;
 };
 
+/** Public GitHub repos to spotlight (subset of github.com/dabloo26). */
+export type GithubRepoHighlight = {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  analyst: number;
+  scientist: number;
+  engineer: number;
+};
+
 export const person = {
   name: "Abhyansh Anand",
   rolesLabel: "Data Science · Analytics · ML Engineering · Data Platforms",
-  /** Primary contact — update if you prefer a different inbox. */
-  email: "abhyansh@g.umd.edu",
+  email: "abhyanshsri@gmail.com",
   phone: "+1 (240) 467-1567",
   linkedin: "https://www.linkedin.com/in/abhyansh-anand",
+  github: "https://github.com/dabloo26",
   location: "College Park, MD",
-  /** Served from /public — PDF copied from your SDE+ML resume. Swap file anytime. */
+  /** Served from /public — swap PDF anytime. */
   resumeUrl: "/resume.pdf",
 };
+
+export const githubHighlights: GithubRepoHighlight[] = [
+  {
+    id: "resume-chat-fast-recovery",
+    name: "resume-chat-fast-recovery",
+    description:
+      "UMD DATA650 — serverless resume editor on AWS (FastAPI/Lambda, React on CloudFront, DynamoDB + S3 session recovery, debounced autosave).",
+    url: "https://github.com/dabloo26/resume-chat-fast-recovery",
+    analyst: 55,
+    scientist: 72,
+    engineer: 100,
+  },
+  {
+    id: "nmt-english-hindi",
+    name: "nmt-english-hindi",
+    description:
+      "DATA641 capstone — English–Hindi Transformer NMT (PyTorch), BPE tokenization, evaluation harness, Streamlit demo.",
+    url: "https://github.com/dabloo26/nmt-english-hindi",
+    analyst: 35,
+    scientist: 100,
+    engineer: 50,
+  },
+  {
+    id: "google-forms-automation",
+    name: "google-forms-automation",
+    description:
+      "Selenium-based automation for reliable Google Forms submission workflows with structured logging and retries.",
+    url: "https://github.com/dabloo26/google-forms-automation",
+    analyst: 40,
+    scientist: 45,
+    engineer: 85,
+  },
+  {
+    id: "ds-java",
+    name: "DS-Java",
+    description:
+      "Java solutions for data structures & algorithms coursework — clean patterns for interviews and fundamentals.",
+    url: "https://github.com/dabloo26/DS-Java",
+    analyst: 30,
+    scientist: 40,
+    engineer: 55,
+  },
+];
 
 export const education: EducationItem[] = [
   {
@@ -221,6 +275,7 @@ export const projects: Project[] = [
     analyst: 55,
     scientist: 70,
     engineer: 100,
+    link: "https://github.com/dabloo26/resume-chat-fast-recovery",
   },
   {
     id: "rate-limit",
@@ -269,6 +324,7 @@ export const projects: Project[] = [
     analyst: 30,
     scientist: 100,
     engineer: 45,
+    link: "https://github.com/dabloo26/nmt-english-hindi",
   },
   {
     id: "fraud",
