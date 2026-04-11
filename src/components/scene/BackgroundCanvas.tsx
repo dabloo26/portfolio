@@ -1,18 +1,8 @@
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useMemo } from "react";
-import { DataUniverse } from "./DataUniverse";
+import { useMemo } from "react";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
-import { useIsCoarsePointer } from "../../hooks/useIsCoarsePointer";
 
 export function BackgroundCanvas() {
   const reduced = usePrefersReducedMotion();
-  const coarse = useIsCoarsePointer();
-  const count = coarse ? 380 : 720;
-
-  const dpr = useMemo((): [number, number] => {
-    if (typeof window === "undefined") return [1, 1];
-    return [1, Math.min(window.devicePixelRatio, 2)];
-  }, []);
 
   const fallback = useMemo(
     () => (
@@ -39,23 +29,6 @@ export function BackgroundCanvas() {
   return (
     <div className="pointer-events-none absolute inset-0">
       {fallback}
-      <Canvas
-        className="h-full w-full"
-        dpr={dpr}
-        gl={{
-          antialias: true,
-          alpha: true,
-          powerPreference: "high-performance",
-          stencil: false,
-          depth: true,
-        }}
-        camera={{ position: [0, 0, 14], fov: 52, near: 0.1, far: 70 }}
-      >
-        <Suspense fallback={null}>
-          <DataUniverse count={count} />
-        </Suspense>
-      </Canvas>
-      {/* Lighter overlay so the scene stays vivid while text stays readable */}
       <div
         className="absolute inset-0 bg-gradient-to-b from-ink-950/40 via-ink-950/55 to-ink-950/95"
         aria-hidden

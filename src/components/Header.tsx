@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { person } from "../data/profile";
+import { person, roleLensKeywords } from "../data/profile";
+import { useRole } from "../hooks/useRole";
 import { RoleLens } from "./RoleLens";
 
 const links = [
@@ -12,6 +13,7 @@ const links = [
 ] as const;
 
 export function Header() {
+  const { role } = useRole();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -68,8 +70,14 @@ export function Header() {
         </nav>
       </div>
       <div className="border-t border-white/[0.05] bg-base/50 px-4 py-2 sm:px-6">
-        <div className="mx-auto flex max-w-6xl justify-end">
+        <div className="mx-auto flex max-w-6xl flex-col items-end gap-1.5">
           <RoleLens />
+          <p
+            key={role}
+            className="max-w-full text-right font-mono text-[10px] text-meta sm:text-[11px]"
+          >
+            {roleLensKeywords[role]}
+          </p>
         </div>
       </div>
     </motion.header>

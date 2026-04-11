@@ -1,8 +1,13 @@
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useRole } from "../hooks/useRole";
 import { heroCopy, person } from "../data/profile";
 import { HeroTicker } from "./HeroTicker";
-import { HeroRoleMorph } from "./HeroRoleMorph";
+
+const ParticleWordMorphCanvas = lazy(async () => {
+  const m = await import("./scene/ParticleWordMorph");
+  return { default: m.ParticleWordMorphCanvas };
+});
 
 export function Hero() {
   const { role } = useRole();
@@ -11,9 +16,14 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative z-10 flex min-h-[90vh] flex-col justify-center bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
+      className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-hidden bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
     >
-      <div className="mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1fr_360px] lg:items-center">
+      <Suspense
+        fallback={<div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 bg-transparent md:block" aria-hidden />}
+      >
+        <ParticleWordMorphCanvas role={role} />
+      </Suspense>
+      <div className="relative z-20 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-2 lg:items-center">
         <div>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -67,15 +77,6 @@ export function Hero() {
             </a>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="hidden lg:block"
-        >
-          <HeroRoleMorph />
-        </motion.div>
       </div>
     </section>
   );

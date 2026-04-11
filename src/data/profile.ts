@@ -173,6 +173,13 @@ export const heroCopy: Record<
   },
 };
 
+/** Shown under the Role Lens control in the header. */
+export const roleLensKeywords: Record<Role, string> = {
+  analyst: "Metrics · storytelling · SQL",
+  scientist: "Experimentation · modeling · evaluation",
+  engineer: "Pipelines · reliability · platforms",
+};
+
 export const aboutParagraphs = [
   "I am an M.S. Data Science student at UMD (expected May 2026) with a consulting background at PwC and earlier engineering work at Infosys. The through-line is the same: make data easier to trust, faster to query, and clearer to act on — whether the interface is a dashboard, a model score, or an API.",
   "At Maryland I have worked on student success analytics end-to-end: validated ingestion for 200+ student records, Tableau views for cohort and risk signals, and an early-warning classifier (logistic regression, cross-validated) that reached 82% precision with an A/B loop to study intervention impact. On the industry side I have migrated enterprise warehouses (Teradata → Snowflake), hardened ETL with CI/CD, and built ingestion layers that feed Power BI and downstream applications.",
