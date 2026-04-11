@@ -1,102 +1,90 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useMemo } from "react";
 import { useRole } from "../hooks/useRole";
-import {
-  skills,
-  sortByRole,
-  type Skill,
-  type SkillCategory,
-} from "../data/profile";
+import { skills, sortByRole, type SkillCategory } from "../data/profile";
 import { sectionViewport } from "../motion/section";
 
 const categoryLabel: Record<SkillCategory, string> = {
-  analytics: "Data Analytics",
-  ml: "Machine Learning",
-  engineering: "Data Engineering",
+  analytics: "ANALYTICS",
+  ml: "ML",
+  engineering: "ENGINEERING",
 };
 
-const categoryOrder: SkillCategory[] = ["analytics", "ml", "engineering"];
+function weightBar(score: number) {
+  const filled = Math.round((score / 100) * 10);
+  const empty = 10 - filled;
+  return "█".repeat(filled) + "░".repeat(empty);
+}
 
-const fade = {
-  initial: { opacity: 0, y: 12 },
+const headerFade = {
+  initial: { opacity: 0, y: 8 },
   whileInView: { opacity: 1, y: 0 },
   viewport: sectionViewport,
-  transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+  transition: { duration: 0.4 },
 };
-
-function SkillChip({ skill, score }: { skill: Skill; score: number }) {
-  return (
-    <motion.div
-      layout
-      initial={false}
-      animate={{ opacity: 0.55 + (score / 100) * 0.45 }}
-      transition={{ type: "spring", stiffness: 300, damping: 28 }}
-      className="group relative overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
-    >
-      <span
-        className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500/15 to-violet-500/10 opacity-0 transition group-hover:opacity-100"
-        style={{ width: `${Math.max(18, score)}%` }}
-      />
-      <span className="relative">{skill.name}</span>
-    </motion.div>
-  );
-}
 
 export function Skills() {
   const { role } = useRole();
 
-  const grouped = useMemo(() => {
-    const byCat: Record<SkillCategory, Skill[]> = {
-      analytics: [],
-      ml: [],
-      engineering: [],
-    };
+  const rows = useMemo(() => {
     const sorted = sortByRole(skills, role);
-    for (const s of sorted) {
-      byCat[s.category].push(s);
-    }
-    for (const c of categoryOrder) {
-      byCat[c] = sortByRole(byCat[c], role);
-    }
-    return byCat;
+    return sorted.map((s) => ({
+      skill: s,
+      score: s[role],
+      cat: categoryLabel[s.category],
+    }));
   }, [role]);
 
   return (
-    <section id="skills" className="scroll-mt-32 px-4 py-24 sm:px-6 sm:py-28">
+    <section
+      id="skills"
+      className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:py-28"
+    >
       <div className="mx-auto max-w-6xl">
-        <motion.div {...fade}>
-          <h2 className="font-display text-4xl text-white sm:text-5xl">Skills</h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
-            One consolidated stack — ordered by relevance for your selected role
-            lens. Swap labels and weights easily in{" "}
-            <code className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-cyan-200/90">
-              src/data/profile.ts
-            </code>
-            .
+        <motion.div {...headerFade}>
+          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
+            Skills
+          </h2>
+          <p className="mt-3 max-w-xl font-mono text-sm text-meta">
+            Ordered by relevance for your selected role.
           </p>
         </motion.div>
-        <div className="mt-14 grid gap-10 lg:grid-cols-3">
-          {categoryOrder.map((cat, idx) => (
-            <motion.div
-              key={cat}
-              {...fade}
-              transition={{ ...fade.transition, delay: idx * 0.08 }}
-              className="rounded-2xl border border-white/[0.07] bg-ink-900/40 p-6"
-            >
-              <h3 className="text-sm font-semibold tracking-wide text-slate-200">
-                {categoryLabel[cat]}
-              </h3>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {grouped[cat].map((skill) => (
-                  <SkillChip
-                    key={skill.name}
-                    skill={skill}
-                    score={skill[role]}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          ))}
+
+        <div className="mt-10 overflow-hidden rounded-lg border border-white/[0.08] font-mono text-[11px] sm:text-xs">
+          <div className="grid grid-cols-1 gap-2 border-b border-white/[0.08] bg-[#111118] px-3 py-2 text-meta sm:grid-cols-[1fr_auto_9rem] sm:px-4">
+            <span>SKILL</span>
+            <span className="hidden sm:inline">CATEGORY</span>
+            <span className="text-left sm:text-right">WEIGHT</span>
+          </div>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {rows.map(({ skill, score, cat }, i) => (
+              <motion.div
+                key={skill.name}
+                layout
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  layout: { type: "spring", stiffness: 350, damping: 28 },
+                  opacity: { delay: i * 0.03 },
+                }}
+                className={`grid grid-cols-1 items-start gap-1 border-b border-white/[0.05] px-3 py-2.5 sm:grid-cols-[1fr_auto_9rem] sm:items-center sm:gap-2 sm:px-4 ${
+                  i % 2 === 0 ? "bg-base" : "bg-[#111118]"
+                }`}
+              >
+                <div>
+                  <span className="text-white">{skill.name}</span>
+                  <span className="mt-0.5 block text-[10px] text-accent-violet/90 sm:hidden">
+                    {cat}
+                  </span>
+                </div>
+                <span className="hidden text-accent-violet/90 sm:inline">{cat}</span>
+                <span className="text-left text-accent-acid tabular-nums sm:text-right">
+                  {weightBar(score)}
+                </span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </div>
     </section>

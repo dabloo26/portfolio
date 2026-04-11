@@ -150,33 +150,6 @@ function SparkBurst({ count = 220 }: { count?: number }) {
   );
 }
 
-function WireTorusKnot() {
-  const mesh = useRef<THREE.Mesh>(null);
-  const geo = useMemo(
-    () => new THREE.TorusKnotGeometry(2.4, 0.72, 200, 32),
-    []
-  );
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (!mesh.current) return;
-    mesh.current.rotation.x = t * 0.09 + mouse.y * 0.25;
-    mesh.current.rotation.y = t * 0.12 + mouse.x * 0.35 + scrollY.value * 0.0001;
-    mesh.current.rotation.z = Math.sin(t * 0.15) * 0.12;
-  });
-
-  return (
-    <mesh ref={mesh} geometry={geo} position={[1.2, -0.3, -2]}>
-      <meshBasicMaterial
-        color="#22d3ee"
-        wireframe
-        transparent
-        opacity={0.45}
-      />
-    </mesh>
-  );
-}
-
 function OrbitRings() {
   const ref = useRef<THREE.Group>(null);
   useFrame((state) => {
@@ -244,15 +217,14 @@ export function DataUniverse({ count = 720 }: Props) {
 
   return (
     <>
-      <color attach="background" args={["#03040a"]} />
-      <fog attach="fog" args={["#03040a", 14, 42]} />
+      <color attach="background" args={["#0a0a0f"]} />
+      <fog attach="fog" args={["#0a0a0f", 14, 42]} />
       <ambientLight intensity={0.35} />
       <pointLight position={[8, 6, 10]} intensity={1.1} color="#22d3ee" />
       <pointLight position={[-10, -4, 6]} intensity={0.75} color="#f472b6" />
       <pointLight position={[0, 8, -6]} intensity={0.45} color="#a78bfa" />
       <PointsField count={count} />
       <SparkBurst count={200} />
-      <WireTorusKnot />
       <OrbitRings />
       <DataGridFloor />
     </>

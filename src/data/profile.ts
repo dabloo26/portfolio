@@ -35,6 +35,8 @@ export type ExperienceItem = {
   titles?: Partial<Record<Role, string>>;
   /** Optional per–role bullet sets. */
   bulletsByRole?: Partial<Record<Role, string[]>>;
+  /** Shown under the date range when roles overlap (e.g. concurrent with UMD). */
+  timelineNote?: string;
   analyst: number;
   scientist: number;
   engineer: number;
@@ -174,7 +176,6 @@ export const heroCopy: Record<
 export const aboutParagraphs = [
   "I am an M.S. Data Science student at UMD (expected May 2026) with a consulting background at PwC and earlier engineering work at Infosys. The through-line is the same: make data easier to trust, faster to query, and clearer to act on — whether the interface is a dashboard, a model score, or an API.",
   "At Maryland I have worked on student success analytics end-to-end: validated ingestion for 200+ student records, Tableau views for cohort and risk signals, and an early-warning classifier (logistic regression, cross-validated) that reached 82% precision with an A/B loop to study intervention impact. On the industry side I have migrated enterprise warehouses (Teradata → Snowflake), hardened ETL with CI/CD, and built ingestion layers that feed Power BI and downstream applications.",
-  "This portfolio is intentionally one URL. Use the Role Lens (or add ?lens=analyst | scientist | engineer to the link) to emphasize the slice of my work that best matches the job — without maintaining three separate sites.",
 ];
 
 export const skills: Skill[] = [
@@ -355,13 +356,31 @@ export const projects: Project[] = [
   },
 ];
 
-/** Reverse chronological (most recent first). Do not re-sort by Role Lens — order stays consistent. */
+/**
+ * Timeline top-to-bottom: most recent *start* among overlapping roles first (Cornell TA began May 2025
+ * while UMD continued from Dec 2024), then UMD, then earlier roles.
+ */
 export const experience: ExperienceItem[] = [
+  {
+    id: "cornell",
+    company: "Cornell University",
+    title: "Teaching assistant — data science & machine learning",
+    chronology: 5,
+    period: "May 2025 — Aug 2025",
+    timelineNote: "Concurrent with UMD (graduate program ongoing).",
+    bullets: [
+      "Designed labs and coursework for introductory data science and ML engineering tracks (100+ students), emphasizing reproducible workflows, EDA, and scikit-learn pipelines.",
+      "Coached debugging using bias–variance framing and proper evaluation metrics, helping lift assessment scores by ~18%.",
+    ],
+    analyst: 85,
+    scientist: 100,
+    engineer: 72,
+  },
   {
     id: "umd",
     company: "University of Maryland, College Park",
     title: "Graduate researcher — student success analytics & ML",
-    chronology: 5,
+    chronology: 4,
     titles: {
       analyst: "Student data analyst",
       scientist: "Data science analyst",
@@ -376,20 +395,6 @@ export const experience: ExperienceItem[] = [
     analyst: 100,
     scientist: 98,
     engineer: 88,
-  },
-  {
-    id: "cornell",
-    company: "Cornell University",
-    title: "Teaching assistant — data science & machine learning",
-    chronology: 4,
-    period: "May 2025 — Aug 2025",
-    bullets: [
-      "Designed labs and coursework for introductory data science and ML engineering tracks (100+ students), emphasizing reproducible workflows, EDA, and scikit-learn pipelines.",
-      "Coached debugging using bias–variance framing and proper evaluation metrics, helping lift assessment scores by ~18%.",
-    ],
-    analyst: 85,
-    scientist: 100,
-    engineer: 72,
   },
   {
     id: "pwc2",

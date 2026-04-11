@@ -18,21 +18,23 @@ export function Experience() {
   const { role } = useRole();
 
   return (
-    <section id="experience" className="scroll-mt-32 px-4 py-24 sm:px-6 sm:py-28">
+    <section
+      id="experience"
+      className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:py-28"
+    >
       <div className="mx-auto max-w-6xl">
         <motion.div {...fade}>
-          <h2 className="font-display text-4xl text-white sm:text-5xl">
+          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Experience
           </h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
-            Reverse chronological — most recent first. Job titles and bullets
-            adjust slightly by Role Lens (e.g. Infosys reads analytics-first for
-            Data Analyst).
+          <p className="mt-3 max-w-xl font-mono text-sm text-meta">
+            Reverse chronological. Overlapping roles are labeled — Cornell ran
+            concurrent with UMD.
           </p>
         </motion.div>
         <div className="relative mx-auto mt-16 max-w-3xl">
           <div
-            className="absolute left-[7px] top-2 bottom-4 w-px bg-gradient-to-b from-cyan-500/50 via-white/10 to-transparent sm:left-3"
+            className="absolute left-[11px] top-2 bottom-4 w-px bg-gradient-to-b from-accent-violet/50 via-white/10 to-transparent sm:left-[13px]"
             aria-hidden
           />
           <ol className="space-y-12">
@@ -41,30 +43,43 @@ export function Experience() {
                 key={job.id}
                 {...fade}
                 transition={{ ...fade.transition, delay: i * 0.06 }}
-                className="relative pl-8 sm:pl-12"
+                className="relative pl-10 sm:pl-14"
               >
-                <span className="absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-cyan-400/40 bg-ink-950 sm:left-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
+                <span
+                  className="absolute left-0 top-1 font-mono text-sm text-accent-acid sm:left-0.5"
+                  aria-hidden
+                >
+                  <span className="animate-cursor-blink">▮</span>
                 </span>
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+                <motion.div
+                  initial={{ clipPath: "inset(0 100% 0 0)" }}
+                  whileInView={{ clipPath: "inset(0 0% 0 0)" }}
+                  viewport={{ once: false, amount: 0.2 }}
+                  transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="flex flex-col gap-1">
+                    <p className="font-mono text-xs uppercase tracking-wide text-accent-acid">
                       {job.period}
                     </p>
+                    {job.timelineNote ? (
+                      <p className="font-mono text-[10px] text-meta">{job.timelineNote}</p>
+                    ) : null}
                     <h3 className="mt-1 text-lg font-semibold text-white">
                       {experienceTitle(job, role)}
                     </h3>
-                    <p className="text-sm text-slate-400">{job.company}</p>
+                    <p className="text-sm font-normal uppercase tracking-[0.15em] text-white/80">
+                      {job.company}
+                    </p>
                   </div>
-                </div>
-                <ul className="mt-4 space-y-2 text-sm leading-relaxed text-slate-400">
-                  {experienceBullets(job, role).map((b, j) => (
-                    <li key={j} className="flex gap-2">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-600" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
+                  <ul className="mt-4 space-y-2 text-sm leading-relaxed text-meta">
+                    {experienceBullets(job, role).map((b, j) => (
+                      <li key={j} className="flex gap-2">
+                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/20" />
+                        <span className="text-white/85">{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
               </motion.li>
             ))}
           </ol>

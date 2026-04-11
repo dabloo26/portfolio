@@ -15,6 +15,8 @@ function linkLabel(url: string) {
   return url.includes("github.com") ? "View on GitHub →" : "View details →";
 }
 
+const walkthroughMail = `mailto:${person.email}?subject=${encodeURIComponent("Portfolio walkthrough request")}`;
+
 export function Projects() {
   const { role } = useRole();
   const ordered = useMemo(() => sortByRole(projects, role), [role]);
@@ -24,41 +26,36 @@ export function Projects() {
   );
 
   return (
-    <section id="projects" className="scroll-mt-32 px-4 py-24 sm:px-6 sm:py-28">
+    <section
+      id="projects"
+      className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:py-28"
+    >
       <div className="mx-auto max-w-6xl">
         <motion.div {...fade}>
-          <h2 className="font-display text-4xl text-white sm:text-5xl">
+          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Projects
           </h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
-            Flagship work with problem, build, and impact — ordering follows your
-            Role Lens. Repos below are live on{" "}
-            <span className="text-slate-400">
+          <p className="mt-3 max-w-xl font-mono text-sm text-meta">
+            Flagship work — ordering follows your Role Lens. Repos:{" "}
+            <span className="text-white/70">
               {person.github.replace(/^https?:\/\//, "")}
             </span>
-            .
           </p>
         </motion.div>
 
-        <motion.div
-          {...fade}
-          transition={{ ...fade.transition, delay: 0.06 }}
-          className="mt-10 rounded-2xl border border-cyan-500/15 bg-gradient-to-br from-cyan-500/[0.07] via-transparent to-violet-500/[0.06] p-5 sm:p-6"
-        >
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-cyan-200/70">
-                Featured on GitHub
-              </p>
-              <h3 className="mt-1 text-sm font-semibold text-slate-100">
-                Top repos for this lens
-              </h3>
-            </div>
-            <p className="text-[11px] text-slate-500 sm:text-xs">
-              Ranked by relevance to the selected role.
-            </p>
+        <motion.div {...fade} transition={{ ...fade.transition, delay: 0.06 }} className="mt-10">
+          <div className="mb-3 flex items-center gap-2">
+            <h3 className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
+              GitHub Repos
+            </h3>
+            <span
+              className="cursor-help font-mono text-[10px] text-meta underline decoration-dotted decoration-white/25"
+              title="Repos reorder by relevance to the selected Role Lens."
+            >
+              ⓘ
+            </span>
           </div>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+          <ul className="grid gap-3 sm:grid-cols-3">
             {topRepos.map((repo, i) => (
               <motion.li
                 key={repo.id}
@@ -71,15 +68,11 @@ export function Projects() {
                   href={repo.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-full flex-col rounded-xl border border-white/[0.08] bg-ink-950/50 p-4 transition hover:border-cyan-400/25 hover:bg-ink-900/60"
+                  className="flex h-full flex-col rounded-lg border border-white/[0.08] bg-[#111118] p-4 transition hover:border-accent-violet/40"
                 >
-                  <span className="font-mono text-[11px] text-cyan-200/90">
-                    {repo.name}
-                  </span>
-                  <span className="mt-2 text-xs leading-relaxed text-slate-400">
-                    {repo.description}
-                  </span>
-                  <span className="mt-3 text-[11px] font-medium text-cyan-300/90">
+                  <span className="font-mono text-[11px] text-accent-violet">{repo.name}</span>
+                  <span className="mt-2 text-xs leading-relaxed text-meta">{repo.description}</span>
+                  <span className="mt-3 font-mono text-[11px] text-accent-acid">
                     Open repository →
                   </span>
                 </a>
@@ -94,43 +87,47 @@ export function Projects() {
               key={p.id}
               {...fade}
               transition={{ ...fade.transition, delay: i * 0.07 }}
-              whileHover={{ y: -4 }}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-ink-900/60 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
+              className="scanline-hover group relative flex flex-col overflow-hidden rounded-lg bg-[#111118] p-[1px] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]"
             >
-              <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl transition group-hover:bg-cyan-400/15" />
-              <h3 className="relative text-lg font-semibold text-white">
-                {p.title}
-              </h3>
-              <p className="relative mt-3 text-sm leading-relaxed text-slate-400">
-                {p.summary}
-              </p>
-              <p className="relative mt-4 text-sm font-medium leading-relaxed text-cyan-100/90">
-                <span className="text-slate-500">Impact:</span> {p.impact}
-              </p>
-              <div className="relative mt-5 flex flex-wrap gap-1.5">
-                {p.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full border border-white/[0.06] bg-black/20 px-2 py-0.5 text-[11px] text-slate-300"
+              <div
+                className="absolute inset-y-0 left-0 w-1 animate-gradient-shift bg-gradient-to-b from-accent-violet via-accent-acid to-accent-violet bg-[length:100%_300%]"
+                aria-hidden
+              />
+              <div className="relative flex flex-1 flex-col rounded-lg bg-[#111118] pl-5 pr-5 pt-5 pb-6">
+                <h3 className="relative text-lg font-semibold text-white">{p.title}</h3>
+                <p className="relative mt-3 text-sm leading-relaxed text-meta">{p.summary}</p>
+                <p className="relative mt-4 font-mono text-sm leading-relaxed text-white/90">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-acid">
+                    IMPACT
+                  </span>{" "}
+                  <span className="text-meta"> </span>
+                  {p.impact}
+                </p>
+                <div className="relative mt-5 flex flex-wrap gap-x-2 gap-y-1 font-mono text-[11px] text-accent-violet">
+                  {p.tech.map((t) => (
+                    <span key={t}>
+                      [<span className="text-white/90">{t}</span>]
+                    </span>
+                  ))}
+                </div>
+                {p.link ? (
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="relative mt-6 inline-flex font-mono text-xs font-medium text-accent-violet hover:text-accent-acid"
                   >
-                    {t}
-                  </span>
-                ))}
+                    {linkLabel(p.link)}
+                  </a>
+                ) : (
+                  <a
+                    href={walkthroughMail}
+                    className="relative mt-6 inline-flex w-fit items-center rounded-full border border-accent-acid/40 bg-base px-3 py-1.5 font-mono text-[11px] font-medium text-accent-acid transition hover:border-accent-acid hover:bg-accent-acid/10"
+                  >
+                    📞 Request walkthrough
+                  </a>
+                )}
               </div>
-              {p.link ? (
-                <a
-                  href={p.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="relative mt-6 inline-flex text-xs font-medium text-cyan-300 hover:text-cyan-200"
-                >
-                  {linkLabel(p.link)}
-                </a>
-              ) : (
-                <span className="relative mt-6 text-[11px] text-slate-600">
-                  Case-study / private code — happy to walk through on a call.
-                </span>
-              )}
             </motion.article>
           ))}
         </div>

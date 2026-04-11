@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useCallback, useState } from "react";
 import { person } from "../data/profile";
 import { sectionViewport } from "../motion/section";
 
@@ -19,57 +20,91 @@ const fade = {
 };
 
 export function Contact() {
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copy = useCallback(async (label: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(label);
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopied(null);
+    }
+  }, []);
+
   return (
-    <section id="contact" className="scroll-mt-32 px-4 py-24 sm:px-6 sm:pb-32 sm:pt-20">
+    <section
+      id="contact"
+      className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:pb-32 sm:pt-20"
+    >
       <div className="mx-auto max-w-6xl">
-        <motion.div
-          {...fade}
-          className="overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.06] via-ink-900/80 to-ink-950 p-8 sm:p-12"
-        >
-          <h2 className="font-display text-4xl text-white sm:text-5xl">
+        <motion.div {...fade}>
+          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Contact
           </h2>
-          <p className="mt-3 max-w-lg text-sm text-slate-400">
-            Email is the fastest path — resume PDF is attached for recruiters who
-            prefer a traditional packet.
+          <p className="mt-3 max-w-lg font-mono text-sm text-meta">
+            Copy-friendly — same details as my resume header.
           </p>
-          <div className="mt-10 flex flex-col flex-wrap gap-4 text-sm sm:flex-row sm:items-center sm:gap-8">
-            <a
-              href={`mailto:${person.email}`}
-              className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-black/30 px-5 py-2.5 font-medium text-slate-100 transition hover:border-cyan-400/35 hover:text-white"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-              {person.email}
-            </a>
-            <a
-              href={`tel:${person.phone.replace(/\s/g, "")}`}
-              className="inline-flex w-fit items-center gap-2 text-slate-400 transition hover:text-cyan-200"
-            >
-              {person.phone}
-            </a>
-            <a
-              href={person.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex w-fit items-center gap-2 text-slate-400 transition hover:text-cyan-200"
-            >
-              LinkedIn →
-            </a>
-            <a
-              href={person.github}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex w-fit items-center gap-2 text-slate-400 transition hover:text-cyan-200"
-            >
-              GitHub (@{githubHandle}) →
-            </a>
-            <a
-              href={person.resumeUrl}
-              className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 font-medium text-slate-100 transition hover:border-cyan-400/35"
-              download
-            >
-              Download resume (PDF)
-            </a>
+          <div className="mt-10 space-y-3 font-mono text-sm">
+            <div className="flex flex-col gap-1 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
+              <span className="shrink-0 text-meta">$ email</span>
+              <button
+                type="button"
+                onClick={() => copy("email", person.email)}
+                className="text-left text-white transition hover:text-accent-acid"
+              >
+                {person.email}
+              </button>
+              {copied === "email" ? (
+                <span className="text-xs text-accent-acid">✓ copied</span>
+              ) : (
+                <span className="text-xs text-meta">click to copy</span>
+              )}
+            </div>
+            <div className="flex flex-col gap-1 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
+              <span className="shrink-0 text-meta">$ phone</span>
+              <button
+                type="button"
+                onClick={() => copy("phone", person.phone.replace(/\s/g, ""))}
+                className="text-left text-white transition hover:text-accent-acid"
+              >
+                {person.phone}
+              </button>
+              {copied === "phone" ? (
+                <span className="text-xs text-accent-acid">✓ copied</span>
+              ) : (
+                <span className="text-xs text-meta">click to copy</span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-white/[0.06] py-3">
+              <span className="text-meta">$ open</span>
+              <a
+                href={person.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent-violet transition hover:text-accent-acid"
+              >
+                LinkedIn ↗
+              </a>
+              <a
+                href={person.github}
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent-violet transition hover:text-accent-acid"
+              >
+                GitHub (@{githubHandle}) ↗
+              </a>
+            </div>
+            <div className="py-3">
+              <span className="text-meta">$ cat </span>
+              <a
+                href={person.resumeUrl}
+                className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
+                download
+              >
+                resume.pdf
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>
