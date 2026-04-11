@@ -123,10 +123,49 @@ const RIG: Record<
   Role,
   { tx: number; ty: number; smooth: number; yaw: number; pulseDecay: number }
 > = {
-  analyst: { tx: 0.22, ty: 0.26, smooth: 6.5, yaw: 0.018, pulseDecay: 4.2 },
-  scientist: { tx: 0.42, ty: 0.38, smooth: 10, yaw: 0.055, pulseDecay: 5.5 },
-  engineer: { tx: 0.18, ty: 0.2, smooth: 5.5, yaw: 0.032, pulseDecay: 6 },
+  analyst: { tx: 0.28, ty: 0.32, smooth: 6.5, yaw: 0.018, pulseDecay: 4.2 },
+  scientist: { tx: 0.5, ty: 0.45, smooth: 10, yaw: 0.055, pulseDecay: 5.5 },
+  engineer: { tx: 0.24, ty: 0.28, smooth: 5.5, yaw: 0.032, pulseDecay: 6 },
 };
+
+/** Maps viewport pointer to NDC so the scene reacts even when the cursor is over copy or off the canvas. */
+function ViewportPointerBridge({ interaction }: { interaction: FieldInteraction }) {
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      interaction.ndc.x = (e.clientX / w) * 2 - 1;
+      interaction.ndc.y = -((e.clientY / h) * 2 - 1);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [interaction]);
+  return null;
+}
+
+function CameraParallax({
+  interaction,
+  baseZ,
+}: {
+  interaction: FieldInteraction;
+  baseZ: number;
+}) {
+  const { camera } = useThree();
+
+  useFrame(() => {
+    const px = interaction.ndc.x;
+    const py = interaction.ndc.y;
+    const targetX = px * 0.42;
+    const targetY = 0.06 + py * 0.32;
+    const k = 0.085;
+    camera.position.x += (targetX - camera.position.x) * k;
+    camera.position.y += (targetY - camera.position.y) * k;
+    camera.position.z = baseZ;
+    camera.lookAt(-px * 0.12, 0.04 - py * 0.09, 0);
+  });
+
+  return null;
+}
 
 function InteractiveRig({
   children,
@@ -155,16 +194,17 @@ function InteractiveRig({
 
   useFrame((state, delta) => {
     const cfg = RIG[roleRef.current];
-    const px = state.pointer.x;
-    const py = state.pointer.y;
+    const px = interaction.ndc.x;
+    const py = interaction.ndc.y;
     const k = 1 - Math.exp(-cfg.smooth * delta);
     tiltX.current = THREE.MathUtils.lerp(tiltX.current, -py * cfg.tx, k);
     tiltY.current = THREE.MathUtils.lerp(tiltY.current, px * cfg.ty, k);
-    interaction.ndc.set(px, py);
     interaction.pulse *= Math.exp(-delta * cfg.pulseDecay);
     if (interaction.pulse < 0.02) interaction.pulse = 0;
     if (!rig.current) return;
     const t = state.clock.elapsedTime;
+    rig.current.position.x = px * 0.18;
+    rig.current.position.y = py * 0.12;
     rig.current.rotation.x = tiltX.current;
     rig.current.rotation.y = tiltY.current + t * cfg.yaw;
     rig.current.rotation.z =
@@ -200,8 +240,8 @@ function AnalystChartRoom({ interaction }: { interaction: FieldInteraction }) {
     for (let i = 0; i < 14; i++) {
       const y = -0.85 + i * 0.12;
       const g = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(-2.35, y, 0.02),
-        new THREE.Vector3(2.35, y, 0.02),
+        new THREE.Vector3(-3.5, y, 0.02),
+        new THREE.Vector3(3.5, y, 0.02),
       ]);
       geoms.push(g);
     }
@@ -230,7 +270,7 @@ function AnalystChartRoom({ interaction }: { interaction: FieldInteraction }) {
   return (
     <group ref={root}>
       <mesh position={[0, -0.05, -0.55]} receiveShadow>
-        <planeGeometry args={[4.8, 3.2]} />
+        <planeGeometry args={[7.2, 3.8]} />
         <meshStandardMaterial
           color={ANALYST.panel}
           roughness={0.92}
@@ -295,10 +335,10 @@ function ScientistBioSphere({ interaction }: { interaction: FieldInteraction }) 
   return (
     <group position={[0, 0.05, 0]}>
       <mesh material={mat}>
-        <sphereGeometry args={[0.92, 64, 64]} />
+        <sphereGeometry args={[1.02, 64, 64]} />
       </mesh>
       <mesh position={[0, 0, -0.35]}>
-        <planeGeometry args={[5, 4]} />
+        <planeGeometry args={[7.5, 5.2]} />
         <meshBasicMaterial color={SCIENTIST.void} />
       </mesh>
     </group>
@@ -375,12 +415,12 @@ function EngineerRackField({ interaction }: { interaction: FieldInteraction }) {
   return (
     <group position={[0, 0.02, 0.12]}>
       <mesh position={[0, 0, -0.45]}>
-        <planeGeometry args={[4.2, 3]} />
+        <planeGeometry args={[6.2, 3.8]} />
         <meshBasicMaterial color={ENGINEER.chassis} />
       </mesh>
       <instancedMesh ref={inst} args={[boxGeo, mat, count]} />
       <mesh position={[0, 0.05, 0.18]} material={scanMat}>
-        <planeGeometry args={[2.6, 1.85]} />
+        <planeGeometry args={[3.2, 2.15]} />
       </mesh>
     </group>
   );
@@ -462,7 +502,7 @@ export function ParticleWordMorphCanvas({ role }: { role: Role }) {
     return () => mq.removeEventListener("change", fn);
   }, []);
 
-  const camZ = role === "scientist" ? 3.15 : role === "engineer" ? 3.55 : 3.85;
+  const camZ = role === "scientist" ? 3.35 : role === "engineer" ? 3.75 : 4.05;
 
   if (!wide) {
     return <MobileRoleGradient role={role} />;
@@ -470,13 +510,13 @@ export function ParticleWordMorphCanvas({ role }: { role: Role }) {
 
   return (
     <div
-      className="pointer-events-auto absolute inset-y-0 right-0 z-[5] hidden min-h-[90vh] w-1/2 min-w-0 cursor-grab touch-manipulation active:cursor-grabbing md:block"
-      title="Each role has its own scene — move and click to play"
+      className="pointer-events-auto absolute inset-0 z-[5] hidden min-h-[90vh] min-w-0 cursor-grab touch-manipulation active:cursor-grabbing md:block"
+      title="Full hero field — move anywhere; click here to pulse the scene"
     >
       <Suspense fallback={canvasFallback}>
         <Canvas
           key={role}
-          className="h-full w-full"
+          className="h-full min-h-[90vh] w-full"
           dpr={[1, 1.5]}
           gl={{
             antialias: true,
@@ -485,12 +525,14 @@ export function ParticleWordMorphCanvas({ role }: { role: Role }) {
             stencil: false,
             depth: true,
           }}
-          camera={{ position: [0, 0.05, camZ], fov: 44, near: 0.1, far: 100 }}
+          camera={{ position: [0, 0.06, camZ], fov: 48, near: 0.1, far: 120 }}
           onCreated={({ gl, scene }) => {
             gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
             scene.background = null;
           }}
         >
+          <ViewportPointerBridge interaction={interaction} />
+          <CameraParallax interaction={interaction} baseZ={camZ} />
           <InteractiveRig interaction={interaction} role={role}>
             <RolePersonalScene role={role} interaction={interaction} />
           </InteractiveRig>

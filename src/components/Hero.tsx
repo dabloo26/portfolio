@@ -21,10 +21,10 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-hidden bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
+      className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-x-clip bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
     >
-      <div className="relative z-20 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-2 lg:items-center">
-        <div>
+      <div className="pointer-events-none relative z-20 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-2 lg:items-center">
+        <div className="pointer-events-auto">
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -81,7 +81,7 @@ export function Hero() {
       <Suspense
         fallback={
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-[5] hidden w-1/2 bg-transparent md:block"
+            className="pointer-events-none absolute inset-0 z-[5] hidden bg-transparent md:block"
             aria-hidden
           />
         }
