@@ -4,10 +4,15 @@ import { useRole } from "../hooks/useRole";
 import { heroCopy, person } from "../data/profile";
 import { HeroTicker } from "./HeroTicker";
 
-const ParticleWordMorphCanvas = lazy(async () => {
-  const m = await import("./scene/ParticleWordMorph");
-  return { default: m.ParticleWordMorphCanvas };
-});
+const ParticleWordMorphCanvas = lazy(() =>
+  import("./scene/ParticleWordMorph")
+    .then((m) => ({ default: m.ParticleWordMorphCanvas }))
+    .catch(() => ({
+      default: function CanvasChunkError() {
+        return <></>;
+      },
+    }))
+);
 
 export function Hero() {
   const { role } = useRole();
@@ -18,11 +23,6 @@ export function Hero() {
       id="top"
       className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-hidden bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
     >
-      <Suspense
-        fallback={<div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 bg-transparent md:block" aria-hidden />}
-      >
-        <ParticleWordMorphCanvas role={role} />
-      </Suspense>
       <div className="relative z-20 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-2 lg:items-center">
         <div>
           <motion.h1
@@ -78,6 +78,16 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
+      <Suspense
+        fallback={
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 z-[5] hidden w-1/2 bg-transparent md:block"
+            aria-hidden
+          />
+        }
+      >
+        <ParticleWordMorphCanvas role={role} />
+      </Suspense>
     </section>
   );
 }

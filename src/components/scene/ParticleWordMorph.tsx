@@ -58,7 +58,7 @@ varying vec3 vColor;
 void main() {
   vColor = aColor;
   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = aSize * (350.0 / max(-mvPosition.z, 0.1)) * uPixelRatio;
+  gl_PointSize = aSize * (420.0 / max(-mvPosition.z, 0.12)) * uPixelRatio;
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -69,8 +69,11 @@ void main() {
   vec2 p = gl_PointCoord - vec2(0.5);
   float d = length(p);
   if (d > 0.5) discard;
-  float alpha = smoothstep(0.5, 0.32, d);
-  gl_FragColor = vec4(vColor, alpha);
+  float disk = smoothstep(0.5, 0.22, d);
+  float core = exp(-d * d * 14.0);
+  vec3 rgb = vColor * (0.72 + 0.55 * core);
+  float alpha = clamp(disk * 0.92 + core * 0.35, 0.0, 1.0);
+  gl_FragColor = vec4(rgb, alpha);
 }
 `;
 
@@ -107,13 +110,13 @@ function sampleWordPositions(
 ): CachedWord {
   const geo = new TextGeometry(text, {
     font,
-    size: 0.42,
-    depth: 0.06,
-    curveSegments: 10,
+    size: 0.5,
+    depth: 0.1,
+    curveSegments: 12,
     bevelEnabled: true,
-    bevelThickness: 0.01,
-    bevelSize: 0.008,
-    bevelSegments: 2,
+    bevelThickness: 0.014,
+    bevelSize: 0.01,
+    bevelSegments: 3,
   });
   geo.center();
   geo.computeBoundingBox();
@@ -173,6 +176,21 @@ function randomSpherePoints(count: number, radius: number, out: Float32Array) {
   }
 }
 
+function buildWordCache(
+  font: TypefaceFont,
+  particleCount: number
+): Record<Role, CachedWord> {
+  const roles: Role[] = ["analyst", "scientist", "engineer"];
+  const map = {} as Record<Role, CachedWord>;
+  for (const r of roles) {
+    const cw = sampleWordPositions(font, WORDS[r], particleCount);
+    fillColorsForRole(cw, r, cw.colors);
+    map[r] = cw;
+  }
+  return map;
+}
+
+/** Defers ~120k MeshSurfaceSampler ops so the main thread can paint the page first. */
 function WordParticles({
   font,
   role,
@@ -184,22 +202,48 @@ function WordParticles({
   particleCount: number;
   mouseEnabled: boolean;
 }) {
+  const [cached, setCached] = useState<Record<Role, CachedWord> | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const id = window.setTimeout(() => {
+      const map = buildWordCache(font, particleCount);
+      if (!cancelled) setCached(map);
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
+  }, [font, particleCount]);
+
+  if (!cached) return null;
+
+  return (
+    <WordParticlesInner
+      cached={cached}
+      role={role}
+      particleCount={particleCount}
+      mouseEnabled={mouseEnabled}
+    />
+  );
+}
+
+function WordParticlesInner({
+  cached,
+  role,
+  particleCount,
+  mouseEnabled,
+}: {
+  cached: Record<Role, CachedWord>;
+  role: Role;
+  particleCount: number;
+  mouseEnabled: boolean;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const { camera, gl } = useThree();
 
-  const easePo3 = useMemo(() => gsap.parseEase("power3.out"), []);
-  const easePo2In = useMemo(() => gsap.parseEase("power2.in"), []);
-
-  const cached = useMemo(() => {
-    const roles: Role[] = ["analyst", "scientist", "engineer"];
-    const map = {} as Record<Role, CachedWord>;
-    for (const r of roles) {
-      const cw = sampleWordPositions(font, WORDS[r], particleCount);
-      fillColorsForRole(cw, r, cw.colors);
-      map[r] = cw;
-    }
-    return map;
-  }, [font, particleCount]);
+  const easeOut = useMemo(() => gsap.parseEase("power4.out"), []);
+  const easeIn = useMemo(() => gsap.parseEase("expo.in"), []);
 
   const posAttr = useMemo(() => {
     const a = new THREE.BufferAttribute(
@@ -221,7 +265,9 @@ function WordParticles({
 
   const sizeAttr = useMemo(() => {
     const s = new Float32Array(particleCount);
-    s.fill(0.028);
+    for (let i = 0; i < particleCount; i++) {
+      s[i] = 0.024 + (i % 97) * 0.00014;
+    }
     return new THREE.BufferAttribute(s, 1);
   }, [particleCount]);
 
@@ -243,7 +289,9 @@ function WordParticles({
         fragmentShader: wordFragmentShader,
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        depthTest: true,
+        blending: THREE.NormalBlending,
+        premultipliedAlpha: false,
       }),
     []
   );
@@ -274,6 +322,7 @@ function WordParticles({
 
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const elasticTween = useRef<gsap.core.Tween | null>(null);
+  const mouseSkipRef = useRef(0);
   const roleProp = useRef(role);
   roleProp.current = role;
   const morphToRef = useRef<(next: Role) => void>(() => {});
@@ -295,29 +344,57 @@ function WordParticles({
       w.repelTarget.fill(0);
 
       const explodeDirs = new Float32Array(particleCount * 3);
-      for (let i = 0; i < particleCount; i++) {
-        const j = i * 3;
-        let vx = w.rnd[j] + (Math.random() - 0.5) * 0.5;
-        let vy = w.rnd[j + 1] + (Math.random() - 0.5) * 0.5;
-        let vz = w.rnd[j + 2] + (Math.random() - 0.5) * 0.5;
-        const len = Math.sqrt(vx * vx + vy * vy + vz * vz) || 1;
-        const mag = 2.25;
-        vx = (vx / len) * mag;
-        vy = (vy / len) * mag;
-        vz = (vz / len) * mag;
-        explodeDirs[j] = vx;
-        explodeDirs[j + 1] = vy;
-        explodeDirs[j + 2] = vz;
-      }
-
       const explodeEnd = w.explodeEnd;
       const nextPos = cached[next].positions;
       const nextCol = new Float32Array(particleCount * 3);
       fillColorsForRole(cached[next], next, nextCol);
       const prevColArr = new Float32Array(particleCount * 3);
       prevColArr.set(cached[prev].colors);
+      {
+        const carr = colAttr.array as Float32Array;
+        carr.set(prevColArr);
+        colAttr.needsUpdate = true;
+      }
+
+      let cx = 0;
+      let cy = 0;
+      let cz = 0;
+      for (let i = 0; i < particleCount; i++) {
+        const j = i * 3;
+        cx += startSnapshot[j];
+        cy += startSnapshot[j + 1];
+        cz += startSnapshot[j + 2];
+      }
+      const invN = 1 / particleCount;
+      cx *= invN;
+      cy *= invN;
+      cz *= invN;
+
+      for (let i = 0; i < particleCount; i++) {
+        const j = i * 3;
+        let vx = w.rnd[j] + (Math.random() - 0.5) * 0.35;
+        let vy = w.rnd[j + 1] + (Math.random() - 0.5) * 0.35;
+        let vz = w.rnd[j + 2] + (Math.random() - 0.5) * 0.35;
+        const ox = startSnapshot[j] - cx;
+        const oy = startSnapshot[j + 1] - cy;
+        const oz = startSnapshot[j + 2] - cz;
+        const rlen = Math.sqrt(ox * ox + oy * oy + oz * oz) || 0.02;
+        const br = 0.68;
+        vx = (ox / rlen) * br + vx * (1 - br);
+        vy = (oy / rlen) * br + vy * (1 - br);
+        vz = (oz / rlen) * br + vz * (1 - br);
+        const len = Math.sqrt(vx * vx + vy * vy + vz * vz) || 1;
+        const mag = 3.4;
+        explodeDirs[j] = (vx / len) * mag;
+        explodeDirs[j + 1] = (vy / len) * mag;
+        explodeDirs[j + 2] = (vz / len) * mag;
+      }
 
       const clock = { t: 0 };
+      const explodeDur = 0.34;
+      const settleDur = 0.88;
+      const settleEaseWindow = 0.82;
+
       const tl = gsap.timeline({
         onComplete: () => {
           w.morphActive = false;
@@ -335,15 +412,15 @@ function WordParticles({
       timelineRef.current = tl;
 
       tl.to(clock, {
-        t: 0.3,
-        duration: 0.3,
+        t: explodeDur,
+        duration: explodeDur,
         ease: "none",
         onUpdate: () => {
           const wall = clock.t;
           for (let i = 0; i < particleCount; i++) {
-            const d = w.delays[i];
-            const raw = Math.min(1, Math.max(0, (wall - d) / 0.3));
-            const e = easePo2In(raw);
+            const d = w.delays[i] * 0.85;
+            const raw = Math.min(1, Math.max(0, (wall - d) / explodeDur));
+            const e = easeIn(raw);
             const j = i * 3;
             explodeEnd[j] = startSnapshot[j] + explodeDirs[j] * e;
             explodeEnd[j + 1] = startSnapshot[j + 1] + explodeDirs[j + 1] * e;
@@ -351,48 +428,46 @@ function WordParticles({
             w.basePos[j] = explodeEnd[j];
             w.basePos[j + 1] = explodeEnd[j + 1];
             w.basePos[j + 2] = explodeEnd[j + 2];
-            const cu = easePo3(Math.min(1, raw * 1.05));
-            const carr = colAttr.array as Float32Array;
-            for (let c = 0; c < 3; c++) {
-              const k = j + c;
-              carr[k] =
-                prevColArr[k] + (nextCol[k] - prevColArr[k]) * cu * 0.25;
-            }
           }
           posAttr.needsUpdate = true;
-          colAttr.needsUpdate = true;
         },
-      }).to(clock, {
-        t: 1.3,
-        duration: 1.0,
-        ease: "none",
-        onUpdate: () => {
-          const wall = clock.t - 0.3;
-          for (let i = 0; i < particleCount; i++) {
-            const d = w.delays[i];
-            const raw = Math.min(1, Math.max(0, (wall - d) / 1.0));
-            const e = easePo3(raw);
-            const j = i * 3;
-            w.basePos[j] = explodeEnd[j] + (nextPos[j] - explodeEnd[j]) * e;
-            w.basePos[j + 1] =
-              explodeEnd[j + 1] + (nextPos[j + 1] - explodeEnd[j + 1]) * e;
-            w.basePos[j + 2] =
-              explodeEnd[j + 2] + (nextPos[j + 2] - explodeEnd[j + 2]) * e;
-            const cu = easePo3(raw);
-            const carr = colAttr.array as Float32Array;
-            for (let c = 0; c < 3; c++) {
-              const k = j + c;
-              carr[k] =
-                prevColArr[k] +
-                (nextCol[k] - prevColArr[k]) * (0.25 + cu * 0.75);
+      }).to(
+        clock,
+        {
+          t: explodeDur + settleDur,
+          duration: settleDur,
+          ease: "none",
+          onUpdate: () => {
+            const wall = clock.t - explodeDur;
+            for (let i = 0; i < particleCount; i++) {
+              const d = w.delays[i] * 0.75;
+              const raw = Math.min(
+                1,
+                Math.max(0, (wall - d) / settleEaseWindow)
+              );
+              const e = easeOut(raw);
+              const j = i * 3;
+              w.basePos[j] =
+                explodeEnd[j] + (nextPos[j] - explodeEnd[j]) * e;
+              w.basePos[j + 1] =
+                explodeEnd[j + 1] + (nextPos[j + 1] - explodeEnd[j + 1]) * e;
+              w.basePos[j + 2] =
+                explodeEnd[j + 2] + (nextPos[j + 2] - explodeEnd[j + 2]) * e;
+              const carr = colAttr.array as Float32Array;
+              for (let c = 0; c < 3; c++) {
+                const k = j + c;
+                carr[k] =
+                  prevColArr[k] + (nextCol[k] - prevColArr[k]) * e;
+              }
             }
-          }
-          posAttr.needsUpdate = true;
-          colAttr.needsUpdate = true;
+            posAttr.needsUpdate = true;
+            colAttr.needsUpdate = true;
+          },
         },
-      });
+        ">0.055"
+      );
     },
-    [cached, colAttr, easePo2In, easePo3, particleCount, posAttr]
+    [cached, colAttr, easeIn, easeOut, particleCount, posAttr]
   );
 
   morphToRef.current = morphTo;
@@ -400,8 +475,8 @@ function WordParticles({
   useEffect(() => {
     const w = wRef.current;
     for (let i = 0; i < particleCount; i++) {
-      w.delays[i] = Math.random() * 0.15;
-      w.breatheFreq[i] = 0.8 + Math.random() * 1.4;
+      w.delays[i] = Math.pow(Math.random(), 0.52) * 0.14;
+      w.breatheFreq[i] = 0.65 + Math.random() * 1.1;
       w.breathePhase[i] = Math.random() * Math.PI * 2;
       w.rnd[i * 3] = Math.random() * 2 - 1;
       w.rnd[i * 3 + 1] = Math.random() * 2 - 1;
@@ -435,16 +510,18 @@ function WordParticles({
     });
     timelineRef.current = tl;
 
+    const introEase = 1.02;
+    const introDur = 1.18;
     tl.to(clock, {
-      t: 1.35,
-      duration: 1.35,
+      t: introDur,
+      duration: introDur,
       ease: "none",
       onUpdate: () => {
         const wall = clock.t;
         for (let i = 0; i < particleCount; i++) {
           const d = w.delays[i];
-          const raw = Math.min(1, Math.max(0, (wall - d) / 1.2));
-          const e = easePo3(raw);
+          const raw = Math.min(1, Math.max(0, (wall - d) / introEase));
+          const e = easeOut(raw);
           const j = i * 3;
           w.basePos[j] = w.startPos[j] + (w.endPos[j] - w.startPos[j]) * e;
           w.basePos[j + 1] =
@@ -458,7 +535,7 @@ function WordParticles({
         colAttr.needsUpdate = true;
       },
     });
-  }, [cached.analyst.colors, cached.analyst.positions, easePo3, particleCount, posAttr, colAttr]);
+  }, [cached.analyst.colors, cached.analyst.positions, easeOut, particleCount, posAttr, colAttr]);
 
   useEffect(() => {
     runInitial();
@@ -478,12 +555,16 @@ function WordParticles({
       if (w.morphActive) return;
       const tgt = cached[w.currentRole];
       for (let i = 0; i < particleCount; i++) {
+        const x0 = tgt.positions[i * 3];
+        const y0 = tgt.positions[i * 3 + 1];
         const z0 = tgt.positions[i * 3 + 2];
-        const breathe =
-          Math.sin(elapsed * w.breatheFreq[i] + w.breathePhase[i]) * 0.05;
-        w.basePos[i * 3] = tgt.positions[i * 3];
-        w.basePos[i * 3 + 1] = tgt.positions[i * 3 + 1];
-        w.basePos[i * 3 + 2] = z0 + breathe;
+        const ph = w.breathePhase[i];
+        const fq = w.breatheFreq[i];
+        const wob = Math.sin(elapsed * fq + ph);
+        const wob2 = Math.sin(elapsed * fq * 1.31 + ph * 0.7);
+        w.basePos[i * 3] = x0 + wob2 * 0.012;
+        w.basePos[i * 3 + 1] = y0 + wob * 0.01;
+        w.basePos[i * 3 + 2] = z0 + wob * 0.042;
       }
     },
     [cached, particleCount]
@@ -495,39 +576,47 @@ function WordParticles({
       1.5
     );
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.0003;
+      const t = state.clock.elapsedTime;
+      groupRef.current.rotation.y +=
+        0.00022 + Math.sin(t * 0.09) * 0.00007;
     }
     const w = wRef.current;
     applyBreathing(state.clock.elapsedTime);
 
-    if (mouseEnabled && !w.morphActive && w.initialDone) {
-      w.raycaster.setFromCamera(w.mouse, camera);
-      const hit = new THREE.Vector3();
-      w.raycaster.ray.intersectPlane(w.plane, hit);
-      w.mouse3d.copy(hit);
-      const falloff = 1.5;
-      const push = 0.4;
-      for (let i = 0; i < particleCount; i++) {
-        w.tmp.set(
-          w.basePos[i * 3],
-          w.basePos[i * 3 + 1],
-          w.basePos[i * 3 + 2]
-        );
-        w.tmp2.copy(w.tmp).sub(w.mouse3d);
-        const d = w.tmp2.length();
-        if (d < falloff && d > 1e-6) {
-          w.tmp2.normalize().multiplyScalar(push * (1 - d / falloff));
-          w.repelTarget[i * 3] = w.tmp2.x;
-          w.repelTarget[i * 3 + 1] = w.tmp2.y;
-          w.repelTarget[i * 3 + 2] = w.tmp2.z;
-        } else {
-          w.repelTarget[i * 3] = 0;
-          w.repelTarget[i * 3 + 1] = 0;
-          w.repelTarget[i * 3 + 2] = 0;
+    const mouseLive =
+      mouseEnabled && !w.morphActive && w.initialDone;
+
+    if (mouseLive) {
+      mouseSkipRef.current += 1;
+      if (mouseSkipRef.current % 2 === 0) {
+        w.raycaster.setFromCamera(w.mouse, camera);
+        const hit = new THREE.Vector3();
+        w.raycaster.ray.intersectPlane(w.plane, hit);
+        w.mouse3d.copy(hit);
+        const falloff = 1.5;
+        const push = 0.4;
+        for (let i = 0; i < particleCount; i++) {
+          w.tmp.set(
+            w.basePos[i * 3],
+            w.basePos[i * 3 + 1],
+            w.basePos[i * 3 + 2]
+          );
+          w.tmp2.copy(w.tmp).sub(w.mouse3d);
+          const d = w.tmp2.length();
+          if (d < falloff && d > 1e-6) {
+            w.tmp2.normalize().multiplyScalar(push * (1 - d / falloff));
+            w.repelTarget[i * 3] = w.tmp2.x;
+            w.repelTarget[i * 3 + 1] = w.tmp2.y;
+            w.repelTarget[i * 3 + 2] = w.tmp2.z;
+          } else {
+            w.repelTarget[i * 3] = 0;
+            w.repelTarget[i * 3 + 1] = 0;
+            w.repelTarget[i * 3 + 2] = 0;
+          }
         }
       }
-      const stiff = 0.28;
-      const damp = 0.82;
+      const stiff = 0.32;
+      const damp = 0.84;
       const em = w.elasticMul;
       for (let i = 0; i < particleCount * 3; i++) {
         const target = w.repelTarget[i] * em;
