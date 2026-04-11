@@ -1,25 +1,18 @@
-import { lazy, Suspense } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useRole } from "../hooks/useRole";
 import { heroCopy, person } from "../data/profile";
+import { HeroMorphField } from "./HeroMorphField";
 import { HeroTicker } from "./HeroTicker";
-
-const ParticleWordMorphCanvas = lazy(() =>
-  import("./scene/ParticleWordMorph")
-    .then((m) => ({ default: m.ParticleWordMorphCanvas }))
-    .catch(() => ({
-      default: function CanvasChunkError() {
-        return <></>;
-      },
-    }))
-);
 
 export function Hero() {
   const { role } = useRole();
   const copy = heroCopy[role];
+  const heroBoundsRef = useRef<HTMLElement>(null);
 
   return (
     <section
+      ref={heroBoundsRef}
       id="top"
       className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-x-clip bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
     >
@@ -78,16 +71,7 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
-      <Suspense
-        fallback={
-          <div
-            className="pointer-events-none absolute inset-0 z-[5] hidden bg-transparent md:block"
-            aria-hidden
-          />
-        }
-      >
-        <ParticleWordMorphCanvas role={role} />
-      </Suspense>
+      <HeroMorphField role={role} boundsRef={heroBoundsRef} />
     </section>
   );
 }
