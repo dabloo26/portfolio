@@ -1,6 +1,15 @@
 import { motion } from "framer-motion";
 import { person } from "../data/profile";
 
+const githubHandle = (() => {
+  try {
+    const path = new URL(person.github).pathname.replace(/\/$/, "");
+    return path.split("/").filter(Boolean).pop() ?? "GitHub";
+  } catch {
+    return "GitHub";
+  }
+})();
+
 const fade = {
   initial: { opacity: 0, y: 12 },
   whileInView: { opacity: 1, y: 0 },
@@ -51,7 +60,7 @@ export function Contact() {
               rel="noreferrer"
               className="inline-flex w-fit items-center gap-2 text-slate-400 transition hover:text-cyan-200"
             >
-              GitHub (@dabloo26) →
+              GitHub (@{githubHandle}) →
             </a>
             <a
               href={person.resumeUrl}
