@@ -75,8 +75,8 @@ export const person = {
   linkedin: "https://www.linkedin.com/in/abhyansh-anand",
   github: "https://github.com/dabloo26",
   location: "College Park, MD",
-  /** Served from /public — swap PDF anytime. */
-  resumeUrl: "/resume.pdf",
+  /** Served from `public/resume.pdf` (synced from your résumé PDF). Uses Vite base for subpath deploys. */
+  resumeUrl: `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}resume.pdf`,
 };
 
 export const githubHighlights: GithubRepoHighlight[] = [

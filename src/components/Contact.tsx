@@ -102,7 +102,7 @@ export function Contact() {
               <a
                 href={person.resumeUrl}
                 className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
-                download
+                download="Abhyansh_Anand_Resume.pdf"
               >
                 resume.pdf
               </a>

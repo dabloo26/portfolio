@@ -31,17 +31,32 @@ export type SectionBackdropVariant =
   | "projects"
   | "contact";
 
-function FloatMesh({ hue }: { hue: string }) {
+function FloatMesh({
+  hue,
+  scale = 1,
+  spin = 1,
+  shape = "torusKnot",
+}: {
+  hue: string;
+  scale?: number;
+  spin?: number;
+  shape?: "torusKnot" | "icosahedron";
+}) {
   const ref = useRef<THREE.Mesh>(null);
   useFrame((_, delta) => {
     const m = ref.current;
     if (!m) return;
-    m.rotation.x += delta * 0.35;
-    m.rotation.y += delta * 0.45;
+    const s = spin * delta;
+    m.rotation.x += s * 0.35;
+    m.rotation.y += s * 0.45;
   });
   return (
-    <mesh ref={ref}>
-      <torusKnotGeometry args={[0.55, 0.16, 48, 12]} />
+    <mesh ref={ref} scale={scale}>
+      {shape === "torusKnot" ? (
+        <torusKnotGeometry args={[0.55, 0.16, 48, 12]} />
+      ) : (
+        <icosahedronGeometry args={[0.72, 1]} />
+      )}
       <meshStandardMaterial
         color={hue}
         emissive={hue}
@@ -50,7 +65,7 @@ function FloatMesh({ hue }: { hue: string }) {
         roughness={0.35}
         wireframe
         transparent
-        opacity={0.35}
+        opacity={shape === "icosahedron" ? 0.28 : 0.35}
       />
     </mesh>
   );
@@ -66,16 +81,38 @@ function MiniScene({ hue }: { hue: string }) {
   );
 }
 
+/** Wider, two-shape layout so wireframe fills the section behind content (Key Impact). */
+function ImpactWideScene({ hue }: { hue: string }) {
+  return (
+    <>
+      <ambientLight intensity={0.55} />
+      <pointLight position={[4, 2.5, 5]} intensity={0.75} color={hue} />
+      <pointLight position={[-3.5, 0.5, 3]} intensity={0.45} color="#a78bfa" />
+      <pointLight position={[0, -2, 2]} intensity={0.35} color={hue} />
+      <group position={[0.42, -0.06, 0]} scale={1.35}>
+        <FloatMesh hue={hue} scale={1.05} spin={1} />
+      </group>
+      <group position={[-0.52, 0.1, -0.15]} scale={1.1}>
+        <FloatMesh hue="#94a3b8" shape="icosahedron" scale={0.95} spin={-0.85} />
+      </group>
+    </>
+  );
+}
+
 /** Fills unused margin space: CSS wash on all breakpoints; lightweight wireframe on md+. */
 export function SectionBackdropLayer({
   variant,
+  coverage = "margin",
 }: {
   variant: SectionBackdropVariant;
+  /** `full` = wireframe across the whole section (e.g. Key Impact behind cards). */
+  coverage?: "margin" | "full";
 }) {
   const root = useRef<HTMLDivElement>(null);
   const inView = useInView(root, { amount: 0.05, margin: "0px 0px -15% 0px" });
   const hue = meshColor[variant];
   const css = cssBlob[variant];
+  const full = coverage === "full";
 
   return (
     <div
@@ -85,19 +122,40 @@ export function SectionBackdropLayer({
     >
       <div className={`absolute inset-0 opacity-100 md:opacity-95 ${css}`} />
       {inView && (
-        <div className="absolute -right-6 bottom-0 top-0 hidden w-[min(44vw,400px)] md:block">
+        <div
+          className={
+            full
+              ? "absolute inset-0 hidden md:block"
+              : "absolute -right-6 bottom-0 top-0 hidden w-[min(44vw,400px)] md:block"
+          }
+        >
           <Canvas
             className="h-full w-full"
-            camera={{ position: [0, 0, 2.2], fov: 42 }}
+            camera={{
+              position: full ? [0, 0.05, 2.45] : [0, 0, 2.2],
+              fov: full ? 48 : 42,
+            }}
             dpr={[1, 1.25]}
             gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
             onCreated={({ gl }) => gl.setClearColor("#000000", 0)}
           >
             <Suspense fallback={null}>
-              <MiniScene hue={hue} />
+              {full && variant === "impact" ? (
+                <ImpactWideScene hue={hue} />
+              ) : (
+                <MiniScene hue={hue} />
+              )}
             </Suspense>
           </Canvas>
-          <div className="absolute inset-0 bg-gradient-to-l from-base via-base/25 to-transparent" />
+          {full ? (
+            <>
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_95%_80%_at_50%_45%,transparent_0%,#050a14_82%)] opacity-[0.72]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#050a14]/55 via-[#050a14]/22 to-[#050a14]/12" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#050a14]/40 via-transparent to-[#050a14]/55" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-l from-base via-base/25 to-transparent" />
+          )}
         </div>
       )}
     </div>
