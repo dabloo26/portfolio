@@ -35,7 +35,6 @@ export function Projects() {
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Projects
           </h2>
-          <p className="mt-3 max-w-xl font-mono text-sm text-meta">Selected work.</p>
         </motion.div>
 
         <motion.div {...fade} transition={{ ...fade.transition, delay: 0.06 }} className="mt-10">
@@ -79,10 +78,11 @@ export function Projects() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {ordered.map((p, i) => (
             <motion.article
+              id={`project-${p.id}`}
               key={p.id}
               {...fade}
               transition={{ ...fade.transition, delay: i * 0.07 }}
-              className="scanline-hover group relative flex flex-col overflow-hidden rounded-lg bg-[#111118] p-[1px] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]"
+              className="scanline-hover group relative flex flex-col scroll-mt-36 overflow-hidden rounded-lg bg-[#111118] p-[1px] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]"
             >
               <div
                 className="absolute inset-y-0 left-0 w-1 animate-gradient-shift bg-gradient-to-b from-accent-violet via-accent-acid to-accent-violet bg-[length:100%_300%]"

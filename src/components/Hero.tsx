@@ -1,18 +1,15 @@
-import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useRole } from "../hooks/useRole";
 import { heroCopy, person } from "../data/profile";
-import { HeroMorphField } from "./HeroMorphField";
+import { HeroScene } from "./HeroScene";
 import { HeroTicker } from "./HeroTicker";
 
 export function Hero() {
   const { role } = useRole();
   const copy = heroCopy[role];
-  const heroBoundsRef = useRef<HTMLElement>(null);
 
   return (
     <section
-      ref={heroBoundsRef}
       id="top"
       className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-x-clip bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
     >
@@ -71,7 +68,7 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
-      <HeroMorphField role={role} boundsRef={heroBoundsRef} />
+      <HeroScene />
     </section>
   );
 }

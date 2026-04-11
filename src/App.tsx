@@ -8,6 +8,7 @@ const BackgroundCanvas = lazy(async () => {
 });
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
+import { KeyImpact } from "./components/KeyImpact";
 import { About } from "./components/About";
 import { Skills } from "./components/Skills";
 import { Projects } from "./components/Projects";
@@ -36,6 +37,7 @@ function App() {
           <Header />
           <main>
             <Hero />
+            <KeyImpact />
             <About />
             <Skills />
             <Projects />

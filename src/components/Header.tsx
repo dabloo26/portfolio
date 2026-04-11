@@ -6,6 +6,7 @@ import { RoleLens } from "./RoleLens";
 
 const links = [
   ["ABOUT", "#about"],
+  ["IMPACT", "#impact"],
   ["SKILLS", "#skills"],
   ["PROJECTS", "#projects"],
   ["EXPERIENCE", "#experience"],

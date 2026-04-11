@@ -173,6 +173,16 @@ export const heroCopy: Record<
   },
 };
 
+export type KeyImpactMetric = {
+  value: string;
+  suffix: string;
+  /** Factual line — tied to `projects` / `experience` copy below. */
+  label: string;
+  href?: string;
+};
+
+export const keyImpactTitle = "Key Impact";
+
 /** Shown under the Role Lens control in the header. */
 export const roleLensKeywords: Record<Role, string> = {
   analyst: "Metrics · storytelling · SQL",
@@ -470,6 +480,55 @@ export const experience: ExperienceItem[] = [
     engineer: 95,
   },
 ];
+
+export function getKeyImpactMetrics(): KeyImpactMetric[] {
+  const titles = projects.map((p) => p.title);
+  const ecom = projects.find((p) => p.id === "ecom");
+  const fraud = projects.find((p) => p.id === "fraud");
+  const kpi = projects.find((p) => p.id === "kpi-anomaly");
+  const umd = experience.find((e) => e.id === "umd");
+  const pwc2 = experience.find((e) => e.id === "pwc2");
+  const pwc1 = experience.find((e) => e.id === "pwc1");
+
+  const pipelineMilestones = [
+    umd?.bullets[0],
+    pwc2?.bullets[0],
+    pwc2?.bullets[1],
+    pwc1?.bullets[0],
+    kpi?.summary,
+  ].filter((s): s is string => Boolean(s));
+
+  const pipelineCount = pipelineMilestones.length;
+
+  return [
+    {
+      value: String(projects.length),
+      suffix: "",
+      label: titles.join(" · "),
+      href: "#projects",
+    },
+    {
+      value: "1M",
+      suffix: "+",
+      label: ecom ? `${ecom.summary} ${ecom.impact}` : "",
+      href: "#project-ecom",
+    },
+    {
+      value: String(pipelineCount),
+      suffix: "",
+      label: pipelineMilestones.join(" · "),
+      href: "#experience",
+    },
+    {
+      value: "0.93",
+      suffix: "",
+      label: fraud
+        ? `${fraud.impact} ${umd?.bullets[2] ?? ""}`.trim()
+        : "",
+      href: "#project-fraud",
+    },
+  ];
+}
 
 export function scoreForRole<T extends { analyst: number; scientist: number; engineer: number }>(
   item: T,
