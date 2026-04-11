@@ -27,10 +27,6 @@ export function Experience() {
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Experience
           </h2>
-          <p className="mt-3 max-w-xl font-mono text-sm text-meta">
-            Reverse chronological. Overlapping roles are labeled — Cornell ran
-            concurrent with UMD.
-          </p>
         </motion.div>
         <div className="relative mx-auto mt-16 max-w-3xl">
           <div
@@ -41,8 +37,10 @@ export function Experience() {
             {experience.map((job, i) => (
               <motion.li
                 key={job.id}
-                {...fade}
-                transition={{ ...fade.transition, delay: i * 0.06 }}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={sectionViewport}
+                transition={{ duration: 0.45, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
                 className="relative pl-10 sm:pl-14"
               >
                 <span
@@ -51,35 +49,28 @@ export function Experience() {
                 >
                   <span className="animate-cursor-blink">▮</span>
                 </span>
-                <motion.div
-                  initial={{ clipPath: "inset(0 100% 0 0)" }}
-                  whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-                  viewport={{ once: false, amount: 0.2 }}
-                  transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <div className="flex flex-col gap-1">
-                    <p className="font-mono text-xs uppercase tracking-wide text-accent-acid">
-                      {job.period}
-                    </p>
-                    {job.timelineNote ? (
-                      <p className="font-mono text-[10px] text-meta">{job.timelineNote}</p>
-                    ) : null}
-                    <h3 className="mt-1 text-lg font-semibold text-white">
-                      {experienceTitle(job, role)}
-                    </h3>
-                    <p className="text-sm font-normal uppercase tracking-[0.15em] text-white/80">
-                      {job.company}
-                    </p>
-                  </div>
-                  <ul className="mt-4 space-y-2 text-sm leading-relaxed text-meta">
-                    {experienceBullets(job, role).map((b, j) => (
-                      <li key={j} className="flex gap-2">
-                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/20" />
-                        <span className="text-white/85">{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
+                <div className="flex flex-col gap-1">
+                  <p className="font-mono text-xs uppercase tracking-wide text-accent-acid">
+                    {job.period}
+                  </p>
+                  {job.timelineNote ? (
+                    <p className="font-mono text-[10px] text-meta">{job.timelineNote}</p>
+                  ) : null}
+                  <h3 className="mt-1 text-lg font-semibold text-white">
+                    {experienceTitle(job, role)}
+                  </h3>
+                  <p className="text-sm font-normal uppercase tracking-[0.15em] text-white/80">
+                    {job.company}
+                  </p>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm leading-relaxed text-meta">
+                  {experienceBullets(job, role).map((b, j) => (
+                    <li key={j} className="flex gap-2">
+                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/20" />
+                      <span className="text-white/85">{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </motion.li>
             ))}
           </ol>

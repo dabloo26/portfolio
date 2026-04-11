@@ -35,12 +35,7 @@ export function Projects() {
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Projects
           </h2>
-          <p className="mt-3 max-w-xl font-mono text-sm text-meta">
-            Flagship work — ordering follows your Role Lens. Repos:{" "}
-            <span className="text-white/70">
-              {person.github.replace(/^https?:\/\//, "")}
-            </span>
-          </p>
+          <p className="mt-3 max-w-xl font-mono text-sm text-meta">Selected work.</p>
         </motion.div>
 
         <motion.div {...fade} transition={{ ...fade.transition, delay: 0.06 }} className="mt-10">
