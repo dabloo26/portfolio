@@ -183,6 +183,18 @@ export type KeyImpactMetric = {
 
 export const keyImpactTitle = "Key Impact";
 
+export const keyImpactEyebrow = "By the numbers";
+
+export type KeyImpactCardDisplay = {
+  icon: "bars" | "ring" | "nodes" | "flask";
+  value: string;
+  suffix: string;
+  shortLabel: string;
+  href: string;
+  /** Long copy for tooltips / accessibility */
+  detail: string;
+};
+
 /** Shown under the Role Lens control in the header. */
 export const roleLensKeywords: Record<Role, string> = {
   analyst: "Metrics · storytelling · SQL",
@@ -505,19 +517,19 @@ export function getKeyImpactMetrics(): KeyImpactMetric[] {
       value: String(projects.length),
       suffix: "",
       label: titles.join(" · "),
-      href: "#projects",
+      href: "/#projects",
     },
     {
       value: "1M",
       suffix: "+",
       label: ecom ? `${ecom.summary} ${ecom.impact}` : "",
-      href: "#project-ecom",
+      href: "/#project-ecom",
     },
     {
       value: String(pipelineCount),
       suffix: "",
       label: pipelineMilestones.join(" · "),
-      href: "#experience",
+      href: "/#experience",
     },
     {
       value: "0.93",
@@ -525,7 +537,46 @@ export function getKeyImpactMetrics(): KeyImpactMetric[] {
       label: fraud
         ? `${fraud.impact} ${umd?.bullets[2] ?? ""}`.trim()
         : "",
-      href: "#project-fraud",
+      href: "/#project-fraud",
+    },
+  ];
+}
+
+/** Compact tiles for the Key Impact strip; numbers + links stay tied to `getKeyImpactMetrics()`. */
+export function getKeyImpactDisplayCards(): KeyImpactCardDisplay[] {
+  const m = getKeyImpactMetrics();
+  return [
+    {
+      icon: "bars",
+      value: m[0].value,
+      suffix: "+",
+      shortLabel: "End-to-end portfolio builds",
+      href: m[0].href ?? "/#projects",
+      detail: "AWS, Snowflake, ML, fraud triage, NMT — see Projects",
+    },
+    {
+      icon: "ring",
+      value: m[1].value,
+      suffix: m[1].suffix,
+      shortLabel: "Rows modeled (retail)",
+      href: m[1].href ?? "/#project-ecom",
+      detail: "Snowflake star schema + Power BI KPIs",
+    },
+    {
+      icon: "nodes",
+      value: m[2].value,
+      suffix: "+",
+      shortLabel: "Ingestion & ETL programs",
+      href: m[2].href ?? "/#experience",
+      detail: "UMD, PwC FMCG & migration tracks + KPI automation",
+    },
+    {
+      icon: "flask",
+      value: m[3].value,
+      suffix: m[3].suffix,
+      shortLabel: "Peak PR-AUC (fraud triage)",
+      href: m[3].href ?? "/#project-fraud",
+      detail: "Imbalanced claims + UMD early-warning precision",
     },
   ];
 }

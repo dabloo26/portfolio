@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useRole } from "../hooks/useRole";
 import { heroCopy, person } from "../data/profile";
+import { HeroInteractiveHeading, HeroInteractiveParagraph } from "./HeroInteractiveText";
 import { HeroScene } from "./HeroScene";
 import { HeroTicker } from "./HeroTicker";
 
@@ -11,42 +12,32 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative z-10 flex min-h-[90vh] flex-col justify-center overflow-x-clip bg-transparent px-4 pb-24 pt-32 sm:px-6 sm:pt-36"
+      className="relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-x-clip bg-transparent px-4 pb-28 pt-32 sm:px-6 sm:pb-32 sm:pt-36"
     >
       <div className="pointer-events-none relative z-20 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-2 lg:items-center">
         <div className="pointer-events-auto">
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display text-5xl leading-[0.95] text-white sm:text-6xl md:text-7xl"
-          >
-            <span className="block">{person.name}</span>
-            <span className="mt-3 block text-2xl font-sans font-medium tracking-tight text-meta sm:text-3xl md:text-4xl">
-              {person.rolesLabel}
-            </span>
-          </motion.h1>
+          <HeroInteractiveHeading name={person.name} rolesLabel={person.rolesLabel} />
 
           <HeroTicker />
 
-          <motion.p
+          <motion.div
             key={role + "-headline"}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.12 }}
             className="mt-6 max-w-2xl text-lg leading-relaxed text-white sm:text-xl"
           >
-            {copy.headline}
-          </motion.p>
-          <motion.p
+            <HeroInteractiveParagraph>{copy.headline}</HeroInteractiveParagraph>
+          </motion.div>
+          <motion.div
             key={role + "-sub"}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.18 }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-meta sm:text-[15px]"
           >
-            {copy.sub}
-          </motion.p>
+            <HeroInteractiveParagraph>{copy.sub}</HeroInteractiveParagraph>
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -54,7 +45,7 @@ export function Hero() {
             className="mt-10 flex flex-wrap gap-3"
           >
             <a
-              href="#projects"
+              href="/#projects"
               className="glitch-cta inline-flex items-center justify-center rounded-sm bg-accent-violet px-6 py-2.5 text-sm font-semibold text-white"
             >
               {copy.ctaPrimary}

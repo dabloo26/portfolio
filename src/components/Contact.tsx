@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useCallback, useState } from "react";
 import { person } from "../data/profile";
+import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 
 const githubHandle = (() => {
@@ -37,7 +38,8 @@ export function Contact() {
       id="contact"
       className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:pb-32 sm:pt-20"
     >
-      <div className="mx-auto max-w-6xl">
+      <SectionBackdropLayer variant="contact" />
+      <div className="relative z-10 mx-auto max-w-6xl">
         <motion.div {...fade}>
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Contact

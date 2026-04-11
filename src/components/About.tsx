@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { aboutParagraphs, person } from "../data/profile";
+import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 
 const fade = {
@@ -51,7 +52,8 @@ export function About() {
       id="about"
       className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl">
+      <SectionBackdropLayer variant="about" />
+      <div className="relative z-10 mx-auto max-w-6xl">
         <motion.div {...fade} className="max-w-3xl">
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             About

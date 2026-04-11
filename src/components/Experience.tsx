@@ -5,6 +5,7 @@ import {
   experienceBullets,
   experienceTitle,
 } from "../data/profile";
+import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 
 const fade = {
@@ -22,7 +23,8 @@ export function Experience() {
       id="experience"
       className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl">
+      <SectionBackdropLayer variant="experience" />
+      <div className="relative z-10 mx-auto max-w-6xl">
         <motion.div {...fade}>
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Experience

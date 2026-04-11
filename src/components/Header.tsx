@@ -1,16 +1,16 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { person, roleLensKeywords } from "../data/profile";
 import { useRole } from "../hooks/useRole";
 import { RoleLens } from "./RoleLens";
 
 const links = [
-  ["ABOUT", "#about"],
-  ["IMPACT", "#impact"],
-  ["SKILLS", "#skills"],
-  ["PROJECTS", "#projects"],
-  ["EXPERIENCE", "#experience"],
-  ["CONTACT", "#contact"],
+  ["ABOUT", "/#about"],
+  ["EXPERIENCE", "/#experience"],
+  ["IMPACT", "/#impact"],
+  ["PROJECTS", "/#projects"],
+  ["CONTACT", "/#contact"],
 ] as const;
 
 export function Header() {
@@ -36,8 +36,8 @@ export function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <a
-          href="#top"
+        <Link
+          to="/"
           className="group flex items-center gap-1.5 font-mono text-sm font-medium tracking-tight text-white"
         >
           <span className="inline-block w-2 animate-cursor-blink text-accent-acid" aria-hidden>
@@ -46,19 +46,19 @@ export function Header() {
           <span className="font-display text-lg italic text-white transition group-hover:text-accent-violet">
             {person.name}
           </span>
-        </a>
+        </Link>
         <nav
           className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-meta sm:gap-x-4 sm:text-xs"
           aria-label="Primary"
         >
-          {links.map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
+          {links.map(([label, to]) => (
+            <Link
+              key={to}
+              to={to}
               className="transition-colors duration-150 hover:text-accent-acid hover:underline"
             >
               {label}
-            </a>
+            </Link>
           ))}
           <a
             href={person.github}

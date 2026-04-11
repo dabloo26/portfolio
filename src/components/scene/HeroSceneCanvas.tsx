@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
-import { Suspense, useMemo, useRef, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import type { Role } from "../../data/profile";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
@@ -83,7 +83,15 @@ function Starfield({
   );
 }
 
-function WireAccent({ emissive }: { emissive: string }) {
+function WireAccent({
+  emissive,
+  position,
+  scale = 0.38,
+}: {
+  emissive: string;
+  position: [number, number, number];
+  scale?: number;
+}) {
   const mesh = useRef<THREE.Mesh>(null);
   useFrame((state, delta) => {
     const m = mesh.current;
@@ -91,11 +99,11 @@ function WireAccent({ emissive }: { emissive: string }) {
     m.rotation.x += delta * 0.11;
     m.rotation.y += delta * 0.16;
     const t = state.clock.elapsedTime;
-    m.position.y = Math.sin(t * 0.55) * 0.06;
+    m.position.y = position[1] + Math.sin(t * 0.55 + position[0]) * 0.05;
   });
 
   return (
-    <mesh ref={mesh} position={[0.2, 0, 0.1]} scale={0.38}>
+    <mesh ref={mesh} position={position} scale={scale}>
       <icosahedronGeometry args={[1, 1]} />
       <meshStandardMaterial
         color={emissive}
@@ -105,7 +113,7 @@ function WireAccent({ emissive }: { emissive: string }) {
         roughness={0.25}
         wireframe
         transparent
-        opacity={0.42}
+        opacity={0.38}
       />
     </mesh>
   );
@@ -113,14 +121,27 @@ function WireAccent({ emissive }: { emissive: string }) {
 
 function ParallaxStage({ children }: { children: ReactNode }) {
   const rig = useRef<THREE.Group>(null);
-  useFrame((state) => {
+  const ptr = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const fn = (e: PointerEvent) => {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      ptr.current.x = (e.clientX / w) * 2 - 1;
+      ptr.current.y = -((e.clientY / h) * 2 - 1);
+    };
+    window.addEventListener("pointermove", fn, { passive: true });
+    return () => window.removeEventListener("pointermove", fn);
+  }, []);
+
+  useFrame(() => {
     const g = rig.current;
     if (!g) return;
-    const x = state.pointer.x;
-    const y = state.pointer.y;
-    const k = 0.06;
-    g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, y * 0.14, k);
-    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, -x * 0.1, k);
+    const x = ptr.current.x;
+    const y = ptr.current.y;
+    const k = 0.07;
+    g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, y * 0.16, k);
+    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, -x * 0.12, k);
   });
   return <group ref={rig}>{children}</group>;
 }
@@ -135,25 +156,23 @@ function SceneContent({
   const cfg = ROLE[role];
   return (
     <ParallaxStage>
-      <group position={[0.95, 0.02, 0]} scale={1.62}>
-        <ambientLight intensity={0.22} />
+      <group position={[0, 0, 0]} scale={1.78}>
+        <ambientLight intensity={0.28} />
         <pointLight
           position={[4, 2.5, 5]}
-          intensity={0.85}
+          intensity={0.9}
           color={cfg.emissive}
         />
-        <pointLight
-          position={[-3, -1.5, 2]}
-          intensity={0.35}
-          color="#a78bfa"
-        />
+        <pointLight position={[-4, 1.5, 3]} intensity={0.45} color="#a78bfa" />
+        <pointLight position={[0, -2, 2]} intensity={0.25} color={cfg.star} />
         <Starfield
           count={particleCount}
           color={cfg.star}
           size={cfg.pointSize}
           spin={cfg.spin}
         />
-        <WireAccent emissive={cfg.emissive} />
+        <WireAccent emissive={cfg.emissive} position={[0.55, 0.05, 0.15]} scale={0.42} />
+        <WireAccent emissive="#94a3b8" position={[-0.85, -0.08, 0.1]} scale={0.32} />
       </group>
     </ParallaxStage>
   );
@@ -168,7 +187,7 @@ function HeroSceneStatic({ role }: { role: Role }) {
         : "radial-gradient(ellipse 100% 70% at 55% 100%, rgba(74,222,128,0.2), transparent 55%), #030806";
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-[5] min-h-[90vh] opacity-95"
+      className="pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] opacity-95"
       style={{ background: grad }}
       aria-hidden
     />
@@ -190,9 +209,9 @@ export function HeroSceneCanvas({
   }
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-[5] min-h-[90vh] w-full overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] w-full overflow-hidden">
       <Canvas
-        camera={{ position: [0, 0, 2.35], fov: 42, near: 0.1, far: 100 }}
+        camera={{ position: [0, 0, 2.65], fov: 48, near: 0.1, far: 100 }}
         dpr={[1, 1.75]}
         gl={{
           alpha: true,
@@ -212,11 +231,15 @@ export function HeroSceneCanvas({
         </Suspense>
       </Canvas>
       <div
-        className="absolute inset-0 bg-gradient-to-r from-[#05060a] via-[#05060a]/55 to-transparent md:from-[#05060a]/98 md:via-[#05060a]/35 md:to-transparent"
+        className="absolute inset-0 bg-gradient-to-r from-[#030712]/88 via-[#030712]/35 to-transparent md:from-[#030712]/72 md:via-transparent md:to-transparent"
         aria-hidden
       />
       <div
-        className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.6)]"
+        className="absolute inset-x-0 bottom-0 h-[min(28vh,240px)] bg-gradient-to-t from-base via-base/65 to-transparent md:from-base/90"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 shadow-[inset_0_0_120px_rgba(0,0,0,0.45)]"
         aria-hidden
       />
     </div>
