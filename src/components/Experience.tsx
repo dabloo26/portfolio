@@ -1,18 +1,21 @@
 import { motion } from "framer-motion";
-import { useMemo } from "react";
 import { useRole } from "../hooks/useRole";
-import { experience, sortByRole } from "../data/profile";
+import {
+  experience,
+  experienceBullets,
+  experienceTitle,
+} from "../data/profile";
+import { sectionViewport } from "../motion/section";
 
 const fade = {
   initial: { opacity: 0, y: 14 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-70px" },
+  viewport: sectionViewport,
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
 };
 
 export function Experience() {
   const { role } = useRole();
-  const ordered = useMemo(() => sortByRole(experience, role), [role]);
 
   return (
     <section id="experience" className="scroll-mt-32 px-4 py-24 sm:px-6 sm:py-28">
@@ -22,8 +25,9 @@ export function Experience() {
             Experience
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
-            Results-first narrative — bullets are written to read well for data
-            hiring loops across IC tracks.
+            Reverse chronological — most recent first. Job titles and bullets
+            adjust slightly by Role Lens (e.g. Infosys reads analytics-first for
+            Data Analyst).
           </p>
         </motion.div>
         <div className="relative mx-auto mt-16 max-w-3xl">
@@ -32,7 +36,7 @@ export function Experience() {
             aria-hidden
           />
           <ol className="space-y-12">
-            {ordered.map((job, i) => (
+            {experience.map((job, i) => (
               <motion.li
                 key={job.id}
                 {...fade}
@@ -48,13 +52,13 @@ export function Experience() {
                       {job.period}
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-white">
-                      {job.title}
+                      {experienceTitle(job, role)}
                     </h3>
                     <p className="text-sm text-slate-400">{job.company}</p>
                   </div>
                 </div>
                 <ul className="mt-4 space-y-2 text-sm leading-relaxed text-slate-400">
-                  {job.bullets.map((b, j) => (
+                  {experienceBullets(job, role).map((b, j) => (
                     <li key={j} className="flex gap-2">
                       <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-600" />
                       <span>{b}</span>

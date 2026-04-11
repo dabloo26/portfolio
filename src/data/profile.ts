@@ -25,13 +25,28 @@ export type Project = {
 export type ExperienceItem = {
   id: string;
   company: string;
+  /** Default title when no role-specific override. */
   title: string;
+  /** Reverse-chronological rank (higher = more recent). Used for ordering only. */
+  chronology: number;
   period: string;
   bullets: string[];
+  /** Optional per–role lens titles (e.g. Infosys: analyst vs software). */
+  titles?: Partial<Record<Role, string>>;
+  /** Optional per–role bullet sets. */
+  bulletsByRole?: Partial<Record<Role, string[]>>;
   analyst: number;
   scientist: number;
   engineer: number;
 };
+
+export function experienceTitle(job: ExperienceItem, role: Role): string {
+  return job.titles?.[role] ?? job.title;
+}
+
+export function experienceBullets(job: ExperienceItem, role: Role): string[] {
+  return job.bulletsByRole?.[role] ?? job.bullets;
+}
 
 export type EducationItem = {
   school: string;
@@ -340,11 +355,18 @@ export const projects: Project[] = [
   },
 ];
 
+/** Reverse chronological (most recent first). Do not re-sort by Role Lens — order stays consistent. */
 export const experience: ExperienceItem[] = [
   {
     id: "umd",
     company: "University of Maryland, College Park",
     title: "Graduate researcher — student success analytics & ML",
+    chronology: 5,
+    titles: {
+      analyst: "Student data analyst",
+      scientist: "Data science analyst",
+      engineer: "ML software engineer",
+    },
     period: "Dec 2024 — Present",
     bullets: [
       "Built an automated Python pipeline for 200+ student records with schema validation, deduplication, and anomaly checks — improving record accuracy ~10%, cutting prep overhead ~40%, and creating a structured foundation for dashboards and model training.",
@@ -359,6 +381,7 @@ export const experience: ExperienceItem[] = [
     id: "cornell",
     company: "Cornell University",
     title: "Teaching assistant — data science & machine learning",
+    chronology: 4,
     period: "May 2025 — Aug 2025",
     bullets: [
       "Designed labs and coursework for introductory data science and ML engineering tracks (100+ students), emphasizing reproducible workflows, EDA, and scikit-learn pipelines.",
@@ -372,6 +395,7 @@ export const experience: ExperienceItem[] = [
     id: "pwc2",
     company: "PwC",
     title: "Technology consultant (Associate 2)",
+    chronology: 3,
     period: "Aug 2022 — Nov 2023",
     bullets: [
       "Owned a standardized SQL-based profiling and ingestion layer across financial source systems for PepsiCo North America, reducing downstream transformation failures ~30%.",
@@ -386,6 +410,7 @@ export const experience: ExperienceItem[] = [
     id: "pwc1",
     company: "PwC",
     title: "Technology consultant (Associate 1)",
+    chronology: 2,
     period: "Sep 2021 — Aug 2022",
     bullets: [
       "Led Teradata → Snowflake migration for ConocoPhillips Canada with parameterized Informatica IICS mappings and full schema reconciliation — zero critical errors and under 2 hours downtime.",
@@ -400,12 +425,30 @@ export const experience: ExperienceItem[] = [
     id: "infosys",
     company: "Infosys",
     title: "Software engineering intern",
+    chronology: 1,
+    titles: {
+      analyst: "Data analyst intern",
+      scientist: "Data science intern",
+      engineer: "Software engineering intern",
+    },
     period: "Jan 2021 — May 2021",
     bullets: [
       "Developed Angular modules with reactive forms and RxJS (lazy loading, OnPush), improving perceived performance ~30% on a large enterprise portal.",
       "Shipped ASP.NET Core REST APIs with Entity Framework and SQL Server using repository + DI patterns, reducing average API latency ~25%.",
       "Profiled multi-source datasets with Python and SQL, isolating top drivers of reporting inaccuracy and cutting error rates ~15% via targeted fixes and scorecards.",
     ],
+    bulletsByRole: {
+      analyst: [
+        "Profiled multi-source datasets with Python and SQL; used statistical validation and root-cause analysis to isolate the top drivers of reporting inaccuracy, reducing error rates ~15%.",
+        "Built data quality scorecards on the reporting pipeline to establish a reliability baseline that informed quarterly operational improvement decisions.",
+        "Partnered with engineering and reporting owners on SQL extracts, validation rules, and metric definitions used in leadership reviews.",
+      ],
+      scientist: [
+        "Implemented statistical anomaly detection (z-score, IQR) on multi-source datasets; isolated key drivers of reporting inaccuracy and reduced error rates ~15%.",
+        "Automated data quality scorecards with Python and SQL to baseline reliability for operational and analytics consumers.",
+        "Worked with stakeholders to clarify metric definitions and hand off validated datasets for downstream modeling and reporting.",
+      ],
+    },
     analyst: 70,
     scientist: 65,
     engineer: 95,

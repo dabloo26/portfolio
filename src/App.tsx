@@ -17,7 +17,8 @@ function App() {
   return (
     <RoleProvider>
       <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-slate-100">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] max-h-[820px]">
+        {/* Full-viewport 3D so motion + scroll parallax stay visible site-wide */}
+        <div className="pointer-events-none fixed inset-0 z-0 min-h-screen">
           <Suspense
             fallback={
               <div

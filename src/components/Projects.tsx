@@ -2,11 +2,12 @@ import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { useRole } from "../hooks/useRole";
 import { githubHighlights, person, projects, sortByRole } from "../data/profile";
+import { sectionViewport } from "../motion/section";
 
 const fade = {
   initial: { opacity: 0, y: 16 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-70px" },
+  viewport: sectionViewport,
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
 };
 
@@ -63,7 +64,7 @@ export function Projects() {
                 key={repo.id}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={sectionViewport}
                 transition={{ ...fade.transition, delay: 0.05 + i * 0.05 }}
               >
                 <a
