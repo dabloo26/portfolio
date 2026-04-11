@@ -1,27 +1,20 @@
-import { Preload } from "@react-three/drei";
-import {
-  Canvas,
-  useFrame,
-  useLoader,
-  useThree,
-} from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Suspense,
-  useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import * as THREE from "three";
-import {
-  FontLoader,
-  type Font as TypefaceFont,
-} from "three/addons/loaders/FontLoader.js";
-import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
-import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler.js";
-import gsap from "gsap";
 import type { Role } from "../../data/profile";
+
+export type FieldInteraction = {
+  pulse: number;
+  ndc: THREE.Vector2;
+};
 
 const WORDS: Record<Role, string> = {
   analyst: "ANALYST",
@@ -29,759 +22,418 @@ const WORDS: Record<Role, string> = {
   engineer: "ENGINEER",
 };
 
-const VIOLET = new THREE.Color("#7C3AFF");
-const CYAN = new THREE.Color("#22d3ee");
-const HOT_PINK = new THREE.Color("#FF2D78");
-const ACID = new THREE.Color("#39FF14");
-
-function gradientForWord(role: Role, t: number): [number, number, number] {
-  const c = new THREE.Color();
-  switch (role) {
-    case "analyst":
-      c.copy(VIOLET).lerp(CYAN, t);
-      break;
-    case "scientist":
-      c.copy(VIOLET).lerp(HOT_PINK, t);
-      break;
-    case "engineer":
-      c.copy(VIOLET).lerp(ACID, t);
-      break;
-  }
-  return [c.r, c.g, c.b];
-}
-
-const wordVertexShader = `
-uniform float uPixelRatio;
-attribute float aSize;
-attribute vec3 aColor;
-varying vec3 vColor;
-void main() {
-  vColor = aColor;
-  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = aSize * (420.0 / max(-mvPosition.z, 0.12)) * uPixelRatio;
-  gl_Position = projectionMatrix * mvPosition;
-}
-`;
-
-const wordFragmentShader = `
-varying vec3 vColor;
-void main() {
-  vec2 p = gl_PointCoord - vec2(0.5);
-  float d = length(p);
-  if (d > 0.5) discard;
-  float disk = smoothstep(0.5, 0.22, d);
-  float core = exp(-d * d * 14.0);
-  vec3 rgb = vColor * (0.72 + 0.55 * core);
-  float alpha = clamp(disk * 0.92 + core * 0.35, 0.0, 1.0);
-  gl_FragColor = vec4(rgb, alpha);
-}
-`;
-
-const streamVertexShader = `
-uniform float uPixelRatio;
-attribute float aStreamSize;
-void main() {
-  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = aStreamSize * (280.0 / max(-mvPosition.z, 0.1)) * uPixelRatio;
-  gl_Position = projectionMatrix * mvPosition;
-}
-`;
-
-const streamFragmentShader = `
-void main() {
-  vec2 p = gl_PointCoord - vec2(0.5);
-  float d = length(p);
-  if (d > 0.5) discard;
-  gl_FragColor = vec4(1.0, 1.0, 1.0, 0.15);
-}
-`;
-
-type CachedWord = {
-  positions: Float32Array;
-  colors: Float32Array;
-  minY: number;
-  maxY: number;
+/* ─── Analyst: cool slate + KPI strip (nothing like the other two) ─── */
+const ANALYST = {
+  panel: new THREE.Color("#0f172a"),
+  rule: new THREE.Color("#334155"),
+  barMuted: new THREE.Color("#1e293b"),
+  barHi: new THREE.Color("#38bdf8"),
+  ink: new THREE.Color("#64748b"),
 };
 
-function sampleWordPositions(
-  font: TypefaceFont,
-  text: string,
-  count: number
-): CachedWord {
-  const geo = new TextGeometry(text, {
-    font,
-    size: 0.5,
-    depth: 0.1,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.014,
-    bevelSize: 0.01,
-    bevelSegments: 3,
-  });
-  geo.center();
-  geo.computeBoundingBox();
-  const box = geo.boundingBox!;
-  const mesh = new THREE.Mesh(
-    geo,
-    new THREE.MeshBasicMaterial({ visible: false })
-  );
-  const sampler = new MeshSurfaceSampler(mesh).build();
-  const p = new THREE.Vector3();
-  const positions = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    sampler.sample(p);
-    positions[i * 3] = p.x;
-    positions[i * 3 + 1] = p.y;
-    positions[i * 3 + 2] = p.z;
-  }
-  const minY = box.min.y;
-  const maxY = box.max.y;
-  mesh.geometry.dispose();
-  (mesh.material as THREE.MeshBasicMaterial).dispose();
+/* ─── Scientist: bioluminescent specimen (organic shader sphere) ─── */
+const SCIENTIST = {
+  void: new THREE.Color("#1a0518"),
+  membrane: new THREE.Color("#86198f"),
+  core: new THREE.Color("#f472b6"),
+  spark: new THREE.Color("#e879f9"),
+};
 
-  return { positions, colors: new Float32Array(count * 3), minY, maxY };
+const scientistVert = `
+varying vec3 vN;
+varying vec3 vP;
+uniform float uTime;
+uniform float uPulse;
+uniform vec2 uPointer;
+
+void main() {
+  vec3 pos = position;
+  float n =
+    sin(pos.x * 7.0 + uTime * 1.1) *
+    cos(pos.y * 6.0 + uTime * 0.85) *
+    0.14;
+  n += sin(pos.z * 8.0 + uTime * 1.35) * 0.09;
+  n += sin((pos.x + pos.y) * 5.0 + uTime * 0.6) * 0.06;
+  n *= 1.0 + uPulse * 1.8;
+  vec3 dir = normalize(pos + vec3(0.0002));
+  pos += dir * n;
+  pos += dir * uPulse * 0.18;
+  pos.x += uPointer.x * 0.08 * (0.5 + sin(uTime + pos.y * 3.0) * 0.5);
+  pos.y += uPointer.y * 0.06 * (0.5 + cos(uTime + pos.x * 3.0) * 0.5);
+  vN = normalize(normalMatrix * normal);
+  vP = pos;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
+`;
 
-function fillColorsForRole(
-  cached: CachedWord,
-  role: Role,
-  out: Float32Array
-): void {
-  const { positions, minY, maxY } = cached;
-  const span = Math.max(maxY - minY, 1e-6);
-  const n = positions.length / 3;
-  for (let i = 0; i < n; i++) {
-    const y = positions[i * 3 + 1];
-    const t = Math.max(0, Math.min(1, (y - minY) / span));
-    const [r, g, b] = gradientForWord(role, t);
-    out[i * 3] = r;
-    out[i * 3 + 1] = g;
-    out[i * 3 + 2] = b;
-  }
+const scientistFrag = `
+varying vec3 vN;
+varying vec3 vP;
+uniform vec3 uMembrane;
+uniform vec3 uCore;
+uniform vec3 uSpark;
+uniform float uTime;
+
+void main() {
+  float f = 0.5 + 0.5 * dot(normalize(vN), normalize(vec3(0.35, 0.85, 0.4)));
+  float veins = sin(vP.x * 14.0 + vP.y * 11.0 + uTime * 2.0) * 0.5 + 0.5;
+  vec3 col = mix(uMembrane, uCore, f);
+  col += uSpark * veins * 0.35;
+  col += uCore * pow(1.0 - f, 2.5) * 0.45;
+  gl_FragColor = vec4(col, 0.94);
 }
+`;
 
-function randomSpherePoints(count: number, radius: number, out: Float32Array) {
-  const v = new THREE.Vector3();
-  for (let i = 0; i < count; i++) {
-    v.set(
-      Math.random() * 2 - 1,
-      Math.random() * 2 - 1,
-      Math.random() * 2 - 1
-    ).normalize();
-    const r = radius * Math.cbrt(Math.random());
-    v.multiplyScalar(r);
-    out[i * 3] = v.x;
-    out[i * 3 + 1] = v.y;
-    out[i * 3 + 2] = v.z;
-  }
+/* ─── Engineer: rack / terminal (instanced bricks + scan beam) ─── */
+const ENGINEER = {
+  chassis: new THREE.Color("#030806"),
+  slot: new THREE.Color("#14532d"),
+  neon: new THREE.Color("#4ade80"),
+  amber: new THREE.Color("#ca8a04"),
+};
+
+const rackScanVert = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
+`;
 
-function buildWordCache(
-  font: TypefaceFont,
-  particleCount: number
-): Record<Role, CachedWord> {
-  const roles: Role[] = ["analyst", "scientist", "engineer"];
-  const map = {} as Record<Role, CachedWord>;
-  for (const r of roles) {
-    const cw = sampleWordPositions(font, WORDS[r], particleCount);
-    fillColorsForRole(cw, r, cw.colors);
-    map[r] = cw;
-  }
-  return map;
+const rackScanFrag = `
+varying vec2 vUv;
+uniform float uTime;
+uniform float uPulse;
+uniform vec3 uNeon;
+uniform vec3 uAmber;
+
+void main() {
+  float scan = smoothstep(0.0, 0.04, abs(vUv.y - fract(uTime * 0.22)));
+  float grid = step(0.92, fract(vUv.x * 24.0)) + step(0.94, fract(vUv.y * 18.0));
+  vec3 col = uNeon * 0.08;
+  col += uNeon * scan * (0.55 + uPulse * 0.9);
+  col += uAmber * grid * 0.12 * (1.0 + uPulse);
+  float v = 1.0 - length(vUv - vec2(0.5)) * 1.1;
+  col *= 0.35 + 0.65 * smoothstep(0.0, 1.0, v);
+  gl_FragColor = vec4(col, 0.55);
 }
+`;
 
-/** Defers ~120k MeshSurfaceSampler ops so the main thread can paint the page first. */
-function WordParticles({
-  font,
+const RIG: Record<
+  Role,
+  { tx: number; ty: number; smooth: number; yaw: number; pulseDecay: number }
+> = {
+  analyst: { tx: 0.22, ty: 0.26, smooth: 6.5, yaw: 0.018, pulseDecay: 4.2 },
+  scientist: { tx: 0.42, ty: 0.38, smooth: 10, yaw: 0.055, pulseDecay: 5.5 },
+  engineer: { tx: 0.18, ty: 0.2, smooth: 5.5, yaw: 0.032, pulseDecay: 6 },
+};
+
+function InteractiveRig({
+  children,
+  interaction,
   role,
-  particleCount,
-  mouseEnabled,
 }: {
-  font: TypefaceFont;
+  children: ReactNode;
+  interaction: FieldInteraction;
   role: Role;
-  particleCount: number;
-  mouseEnabled: boolean;
 }) {
-  const [cached, setCached] = useState<Record<Role, CachedWord> | null>(null);
+  const rig = useRef<THREE.Group>(null);
+  const tiltX = useRef(0);
+  const tiltY = useRef(0);
+  const roleRef = useRef(role);
+  roleRef.current = role;
+  const { gl } = useThree();
 
   useEffect(() => {
-    let cancelled = false;
-    const id = window.setTimeout(() => {
-      const map = buildWordCache(font, particleCount);
-      if (!cancelled) setCached(map);
-    }, 0);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(id);
+    const el = gl.domElement;
+    const down = () => {
+      interaction.pulse = 1;
     };
-  }, [font, particleCount]);
+    el.addEventListener("pointerdown", down);
+    return () => el.removeEventListener("pointerdown", down);
+  }, [gl, interaction]);
 
-  if (!cached) return null;
-
-  return (
-    <WordParticlesInner
-      cached={cached}
-      role={role}
-      particleCount={particleCount}
-      mouseEnabled={mouseEnabled}
-    />
-  );
-}
-
-function WordParticlesInner({
-  cached,
-  role,
-  particleCount,
-  mouseEnabled,
-}: {
-  cached: Record<Role, CachedWord>;
-  role: Role;
-  particleCount: number;
-  mouseEnabled: boolean;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const { camera, gl } = useThree();
-
-  const easeOut = useMemo(() => gsap.parseEase("power4.out"), []);
-  const easeIn = useMemo(() => gsap.parseEase("expo.in"), []);
-
-  const posAttr = useMemo(() => {
-    const a = new THREE.BufferAttribute(
-      new Float32Array(particleCount * 3),
-      3
-    );
-    a.setUsage(THREE.DynamicDrawUsage);
-    return a;
-  }, [particleCount]);
-
-  const colAttr = useMemo(() => {
-    const a = new THREE.BufferAttribute(
-      new Float32Array(particleCount * 3),
-      3
-    );
-    a.setUsage(THREE.DynamicDrawUsage);
-    return a;
-  }, [particleCount]);
-
-  const sizeAttr = useMemo(() => {
-    const s = new Float32Array(particleCount);
-    for (let i = 0; i < particleCount; i++) {
-      s[i] = 0.024 + (i % 97) * 0.00014;
-    }
-    return new THREE.BufferAttribute(s, 1);
-  }, [particleCount]);
-
-  const geometry = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", posAttr);
-    g.setAttribute("aColor", colAttr);
-    g.setAttribute("aSize", sizeAttr);
-    return g;
-  }, [posAttr, colAttr, sizeAttr]);
-
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        uniforms: {
-          uPixelRatio: { value: Math.min(window.devicePixelRatio, 1.5) },
-        },
-        vertexShader: wordVertexShader,
-        fragmentShader: wordFragmentShader,
-        transparent: true,
-        depthWrite: false,
-        depthTest: true,
-        blending: THREE.NormalBlending,
-        premultipliedAlpha: false,
-      }),
-    []
-  );
-
-  const wRef = useRef({
-    startPos: new Float32Array(particleCount * 3),
-    endPos: new Float32Array(particleCount * 3),
-    delays: new Float32Array(particleCount),
-    rnd: new Float32Array(particleCount * 3),
-    breatheFreq: new Float32Array(particleCount),
-    breathePhase: new Float32Array(particleCount),
-    basePos: new Float32Array(particleCount * 3),
-    repel: new Float32Array(particleCount * 3),
-    repelVel: new Float32Array(particleCount * 3),
-    repelTarget: new Float32Array(particleCount * 3),
-    elasticMul: 1,
-    morphActive: false,
-    initialDone: false,
-    currentRole: "analyst" as Role,
-    mouse: new THREE.Vector2(999, 999),
-    plane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
-    raycaster: new THREE.Raycaster(),
-    mouse3d: new THREE.Vector3(),
-    tmp: new THREE.Vector3(),
-    tmp2: new THREE.Vector3(),
-    explodeEnd: new Float32Array(particleCount * 3),
+  useFrame((state, delta) => {
+    const cfg = RIG[roleRef.current];
+    const px = state.pointer.x;
+    const py = state.pointer.y;
+    const k = 1 - Math.exp(-cfg.smooth * delta);
+    tiltX.current = THREE.MathUtils.lerp(tiltX.current, -py * cfg.tx, k);
+    tiltY.current = THREE.MathUtils.lerp(tiltY.current, px * cfg.ty, k);
+    interaction.ndc.set(px, py);
+    interaction.pulse *= Math.exp(-delta * cfg.pulseDecay);
+    if (interaction.pulse < 0.02) interaction.pulse = 0;
+    if (!rig.current) return;
+    const t = state.clock.elapsedTime;
+    rig.current.rotation.x = tiltX.current;
+    rig.current.rotation.y = tiltY.current + t * cfg.yaw;
+    rig.current.rotation.z =
+      roleRef.current === "scientist"
+        ? Math.sin(t * 0.4 + px * 2) * 0.06
+        : roleRef.current === "engineer"
+          ? Math.sin(t * 0.9) * 0.025
+          : 0;
   });
 
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const elasticTween = useRef<gsap.core.Tween | null>(null);
-  const mouseSkipRef = useRef(0);
-  const roleProp = useRef(role);
-  roleProp.current = role;
-  const morphToRef = useRef<(next: Role) => void>(() => {});
+  return <group ref={rig}>{children}</group>;
+}
 
-  const morphTo = useCallback(
-    (next: Role) => {
-      const w = wRef.current;
-      if (!w.initialDone || w.currentRole === next) return;
-      const prev = w.currentRole;
-      w.morphActive = true;
-      timelineRef.current?.kill();
-
-      const startSnapshot = new Float32Array(particleCount * 3);
-      for (let i = 0; i < particleCount * 3; i++) {
-        startSnapshot[i] = w.basePos[i] + w.repel[i];
-      }
-      w.repel.fill(0);
-      w.repelVel.fill(0);
-      w.repelTarget.fill(0);
-
-      const explodeDirs = new Float32Array(particleCount * 3);
-      const explodeEnd = w.explodeEnd;
-      const nextPos = cached[next].positions;
-      const nextCol = new Float32Array(particleCount * 3);
-      fillColorsForRole(cached[next], next, nextCol);
-      const prevColArr = new Float32Array(particleCount * 3);
-      prevColArr.set(cached[prev].colors);
-      {
-        const carr = colAttr.array as Float32Array;
-        carr.set(prevColArr);
-        colAttr.needsUpdate = true;
-      }
-
-      let cx = 0;
-      let cy = 0;
-      let cz = 0;
-      for (let i = 0; i < particleCount; i++) {
-        const j = i * 3;
-        cx += startSnapshot[j];
-        cy += startSnapshot[j + 1];
-        cz += startSnapshot[j + 2];
-      }
-      const invN = 1 / particleCount;
-      cx *= invN;
-      cy *= invN;
-      cz *= invN;
-
-      for (let i = 0; i < particleCount; i++) {
-        const j = i * 3;
-        let vx = w.rnd[j] + (Math.random() - 0.5) * 0.35;
-        let vy = w.rnd[j + 1] + (Math.random() - 0.5) * 0.35;
-        let vz = w.rnd[j + 2] + (Math.random() - 0.5) * 0.35;
-        const ox = startSnapshot[j] - cx;
-        const oy = startSnapshot[j + 1] - cy;
-        const oz = startSnapshot[j + 2] - cz;
-        const rlen = Math.sqrt(ox * ox + oy * oy + oz * oz) || 0.02;
-        const br = 0.68;
-        vx = (ox / rlen) * br + vx * (1 - br);
-        vy = (oy / rlen) * br + vy * (1 - br);
-        vz = (oz / rlen) * br + vz * (1 - br);
-        const len = Math.sqrt(vx * vx + vy * vy + vz * vz) || 1;
-        const mag = 3.4;
-        explodeDirs[j] = (vx / len) * mag;
-        explodeDirs[j + 1] = (vy / len) * mag;
-        explodeDirs[j + 2] = (vz / len) * mag;
-      }
-
-      const clock = { t: 0 };
-      const explodeDur = 0.34;
-      const settleDur = 0.88;
-      const settleEaseWindow = 0.82;
-
-      const tl = gsap.timeline({
-        onComplete: () => {
-          w.morphActive = false;
-          w.currentRole = next;
-          w.basePos.set(nextPos);
-          const carr = colAttr.array as Float32Array;
-          carr.set(cached[next].colors);
-          colAttr.needsUpdate = true;
-          const pending = roleProp.current;
-          if (pending !== next) {
-            morphToRef.current(pending);
-          }
-        },
+/** Personal: calm KPI strip + ruled field — slate / cyan, no glow orbs. */
+function AnalystChartRoom({ interaction }: { interaction: FieldInteraction }) {
+  const root = useRef<THREE.Group>(null);
+  const bars = useMemo(() => {
+    const rows: { x: number; h: number; warm: boolean }[] = [];
+    for (let i = 0; i < 22; i++) {
+      const t = i * 0.41;
+      const h = 0.28 + (Math.sin(t) * 0.5 + 0.5) * 0.62;
+      rows.push({
+        x: (i - 11) * 0.168,
+        h,
+        warm: (i * 7) % 11 < 4,
       });
-      timelineRef.current = tl;
-
-      tl.to(clock, {
-        t: explodeDur,
-        duration: explodeDur,
-        ease: "none",
-        onUpdate: () => {
-          const wall = clock.t;
-          for (let i = 0; i < particleCount; i++) {
-            const d = w.delays[i] * 0.85;
-            const raw = Math.min(1, Math.max(0, (wall - d) / explodeDur));
-            const e = easeIn(raw);
-            const j = i * 3;
-            explodeEnd[j] = startSnapshot[j] + explodeDirs[j] * e;
-            explodeEnd[j + 1] = startSnapshot[j + 1] + explodeDirs[j + 1] * e;
-            explodeEnd[j + 2] = startSnapshot[j + 2] + explodeDirs[j + 2] * e;
-            w.basePos[j] = explodeEnd[j];
-            w.basePos[j + 1] = explodeEnd[j + 1];
-            w.basePos[j + 2] = explodeEnd[j + 2];
-          }
-          posAttr.needsUpdate = true;
-        },
-      }).to(
-        clock,
-        {
-          t: explodeDur + settleDur,
-          duration: settleDur,
-          ease: "none",
-          onUpdate: () => {
-            const wall = clock.t - explodeDur;
-            for (let i = 0; i < particleCount; i++) {
-              const d = w.delays[i] * 0.75;
-              const raw = Math.min(
-                1,
-                Math.max(0, (wall - d) / settleEaseWindow)
-              );
-              const e = easeOut(raw);
-              const j = i * 3;
-              w.basePos[j] =
-                explodeEnd[j] + (nextPos[j] - explodeEnd[j]) * e;
-              w.basePos[j + 1] =
-                explodeEnd[j + 1] + (nextPos[j + 1] - explodeEnd[j + 1]) * e;
-              w.basePos[j + 2] =
-                explodeEnd[j + 2] + (nextPos[j + 2] - explodeEnd[j + 2]) * e;
-              const carr = colAttr.array as Float32Array;
-              for (let c = 0; c < 3; c++) {
-                const k = j + c;
-                carr[k] =
-                  prevColArr[k] + (nextCol[k] - prevColArr[k]) * e;
-              }
-            }
-            posAttr.needsUpdate = true;
-            colAttr.needsUpdate = true;
-          },
-        },
-        ">0.055"
-      );
-    },
-    [cached, colAttr, easeIn, easeOut, particleCount, posAttr]
-  );
-
-  morphToRef.current = morphTo;
-
-  useEffect(() => {
-    const w = wRef.current;
-    for (let i = 0; i < particleCount; i++) {
-      w.delays[i] = Math.pow(Math.random(), 0.52) * 0.14;
-      w.breatheFreq[i] = 0.65 + Math.random() * 1.1;
-      w.breathePhase[i] = Math.random() * Math.PI * 2;
-      w.rnd[i * 3] = Math.random() * 2 - 1;
-      w.rnd[i * 3 + 1] = Math.random() * 2 - 1;
-      w.rnd[i * 3 + 2] = Math.random() * 2 - 1;
     }
-    randomSpherePoints(particleCount, 20, w.startPos);
-    w.endPos.set(cached.analyst.positions);
-    w.currentRole = "analyst";
-    w.basePos.set(cached.analyst.positions);
-  }, [cached, particleCount]);
+    return rows;
+  }, []);
 
-  const runInitial = useCallback(() => {
-    const w = wRef.current;
-    w.morphActive = true;
-    randomSpherePoints(particleCount, 20, w.startPos);
-    w.endPos.set(cached.analyst.positions);
-    timelineRef.current?.kill();
-
-    const clock = { t: 0 };
-    const tl = gsap.timeline({
-      onComplete: () => {
-        w.morphActive = false;
-        w.basePos.set(cached.analyst.positions);
-        w.currentRole = "analyst";
-        w.initialDone = true;
-        const r = roleProp.current;
-        if (r !== "analyst") {
-          morphToRef.current(r);
-        }
-      },
-    });
-    timelineRef.current = tl;
-
-    const introEase = 1.02;
-    const introDur = 1.18;
-    tl.to(clock, {
-      t: introDur,
-      duration: introDur,
-      ease: "none",
-      onUpdate: () => {
-        const wall = clock.t;
-        for (let i = 0; i < particleCount; i++) {
-          const d = w.delays[i];
-          const raw = Math.min(1, Math.max(0, (wall - d) / introEase));
-          const e = easeOut(raw);
-          const j = i * 3;
-          w.basePos[j] = w.startPos[j] + (w.endPos[j] - w.startPos[j]) * e;
-          w.basePos[j + 1] =
-            w.startPos[j + 1] + (w.endPos[j + 1] - w.startPos[j + 1]) * e;
-          w.basePos[j + 2] =
-            w.startPos[j + 2] + (w.endPos[j + 2] - w.startPos[j + 2]) * e;
-        }
-        posAttr.needsUpdate = true;
-        const carr = colAttr.array as Float32Array;
-        carr.set(cached.analyst.colors);
-        colAttr.needsUpdate = true;
-      },
-    });
-  }, [cached.analyst.colors, cached.analyst.positions, easeOut, particleCount, posAttr, colAttr]);
-
-  useEffect(() => {
-    runInitial();
-  }, [runInitial]);
-
-  useEffect(() => {
-    const w = wRef.current;
-    if (!w.initialDone || w.morphActive) return;
-    if (w.currentRole !== role) {
-      morphTo(role);
+  const ruleGeoms = useMemo(() => {
+    const geoms: THREE.BufferGeometry[] = [];
+    for (let i = 0; i < 14; i++) {
+      const y = -0.85 + i * 0.12;
+      const g = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-2.35, y, 0.02),
+        new THREE.Vector3(2.35, y, 0.02),
+      ]);
+      geoms.push(g);
     }
-  }, [role, morphTo]);
-
-  const applyBreathing = useCallback(
-    (elapsed: number) => {
-      const w = wRef.current;
-      if (w.morphActive) return;
-      const tgt = cached[w.currentRole];
-      for (let i = 0; i < particleCount; i++) {
-        const x0 = tgt.positions[i * 3];
-        const y0 = tgt.positions[i * 3 + 1];
-        const z0 = tgt.positions[i * 3 + 2];
-        const ph = w.breathePhase[i];
-        const fq = w.breatheFreq[i];
-        const wob = Math.sin(elapsed * fq + ph);
-        const wob2 = Math.sin(elapsed * fq * 1.31 + ph * 0.7);
-        w.basePos[i * 3] = x0 + wob2 * 0.012;
-        w.basePos[i * 3 + 1] = y0 + wob * 0.01;
-        w.basePos[i * 3 + 2] = z0 + wob * 0.042;
-      }
-    },
-    [cached, particleCount]
-  );
+    return geoms;
+  }, []);
 
   useFrame((state) => {
-    material.uniforms.uPixelRatio.value = Math.min(
-      window.devicePixelRatio,
-      1.5
-    );
-    if (groupRef.current) {
-      const t = state.clock.elapsedTime;
-      groupRef.current.rotation.y +=
-        0.00022 + Math.sin(t * 0.09) * 0.00007;
-    }
-    const w = wRef.current;
-    applyBreathing(state.clock.elapsedTime);
-
-    const mouseLive =
-      mouseEnabled && !w.morphActive && w.initialDone;
-
-    if (mouseLive) {
-      mouseSkipRef.current += 1;
-      if (mouseSkipRef.current % 2 === 0) {
-        w.raycaster.setFromCamera(w.mouse, camera);
-        const hit = new THREE.Vector3();
-        w.raycaster.ray.intersectPlane(w.plane, hit);
-        w.mouse3d.copy(hit);
-        const falloff = 1.5;
-        const push = 0.4;
-        for (let i = 0; i < particleCount; i++) {
-          w.tmp.set(
-            w.basePos[i * 3],
-            w.basePos[i * 3 + 1],
-            w.basePos[i * 3 + 2]
-          );
-          w.tmp2.copy(w.tmp).sub(w.mouse3d);
-          const d = w.tmp2.length();
-          if (d < falloff && d > 1e-6) {
-            w.tmp2.normalize().multiplyScalar(push * (1 - d / falloff));
-            w.repelTarget[i * 3] = w.tmp2.x;
-            w.repelTarget[i * 3 + 1] = w.tmp2.y;
-            w.repelTarget[i * 3 + 2] = w.tmp2.z;
-          } else {
-            w.repelTarget[i * 3] = 0;
-            w.repelTarget[i * 3 + 1] = 0;
-            w.repelTarget[i * 3 + 2] = 0;
-          }
-        }
-      }
-      const stiff = 0.32;
-      const damp = 0.84;
-      const em = w.elasticMul;
-      for (let i = 0; i < particleCount * 3; i++) {
-        const target = w.repelTarget[i] * em;
-        w.repelVel[i] += (target - w.repel[i]) * stiff;
-        w.repelVel[i] *= damp;
-        w.repel[i] += w.repelVel[i];
-      }
-    } else {
-      let max = 0;
-      for (let i = 0; i < particleCount * 3; i++) {
-        w.repelTarget[i] = 0;
-        w.repelVel[i] += (0 - w.repel[i]) * 0.35;
-        w.repelVel[i] *= 0.88;
-        w.repel[i] += w.repelVel[i];
-        max = Math.max(max, Math.abs(w.repel[i]));
-      }
-      if (!mouseEnabled && max < 1e-4) w.repel.fill(0);
-    }
-
-    const arr = posAttr.array as Float32Array;
-    for (let i = 0; i < particleCount * 3; i++) {
-      arr[i] = w.basePos[i] + w.repel[i];
-    }
-    posAttr.needsUpdate = true;
-
-    if (!w.morphActive) {
-      const carr = colAttr.array as Float32Array;
-      carr.set(cached[w.currentRole].colors);
-      colAttr.needsUpdate = true;
-    }
+    const t = state.clock.elapsedTime;
+    const g = root.current;
+    if (!g) return;
+    const lean = interaction.ndc.x * 0.14;
+    const breathe = interaction.pulse * 0.09;
+    let bi = 0;
+    g.children.forEach((ch) => {
+      if (!(ch instanceof THREE.Mesh)) return;
+      if (ch.userData.barIndex === undefined) return;
+      ch.rotation.z = lean * (0.55 + (bi % 4) * 0.04);
+      const base = ch.userData.baseH as number;
+      ch.scale.y = 1 + breathe * (0.6 + (bi % 3) * 0.15);
+      ch.position.y = (base * ch.scale.y) / 2 - 0.42;
+      bi++;
+    });
+    g.position.x = Math.sin(t * 0.11) * 0.04;
   });
 
-  useEffect(() => {
-    const w = wRef.current;
-    const onMove = (e: PointerEvent) => {
-      if (!mouseEnabled) return;
-      elasticTween.current?.kill();
-      w.elasticMul = 1;
-      const rect = gl.domElement.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      w.mouse.set(x, y);
-    };
-    const onLeave = () => {
-      if (!mouseEnabled) return;
-      elasticTween.current?.kill();
-      const o = { m: w.elasticMul };
-      elasticTween.current = gsap.to(o, {
-        m: 0,
-        duration: 0.85,
-        ease: "elastic.out(1, 0.3)",
-        onUpdate: () => {
-          w.elasticMul = o.m;
-        },
-        onComplete: () => {
-          w.elasticMul = 0;
-          w.repel.fill(0);
-          w.repelVel.fill(0);
-        },
-      });
-    };
-    const el = gl.domElement;
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerleave", onLeave);
-    return () => {
-      elasticTween.current?.kill();
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerleave", onLeave);
-    };
-  }, [gl.domElement, mouseEnabled]);
-
   return (
-    <group ref={groupRef}>
-      <points geometry={geometry} material={material} renderOrder={1} />
+    <group ref={root}>
+      <mesh position={[0, -0.05, -0.55]} receiveShadow>
+        <planeGeometry args={[4.8, 3.2]} />
+        <meshStandardMaterial
+          color={ANALYST.panel}
+          roughness={0.92}
+          metalness={0.05}
+        />
+      </mesh>
+      {ruleGeoms.map((geo, i) => (
+        <lineSegments key={`r-${i}`} geometry={geo}>
+          <lineBasicMaterial color={ANALYST.rule} transparent opacity={0.35} />
+        </lineSegments>
+      ))}
+      {bars.map((b, i) => (
+        <mesh
+          key={i}
+          userData={{ barIndex: i, baseH: b.h }}
+          position={[b.x, b.h / 2 - 0.42, 0.04]}
+        >
+          <boxGeometry args={[0.065, b.h, 0.065]} />
+          <meshStandardMaterial
+            color={b.warm ? ANALYST.barHi : ANALYST.barMuted}
+            emissive={b.warm ? ANALYST.barHi : ANALYST.ink}
+            emissiveIntensity={b.warm ? 0.22 : 0.04}
+            roughness={0.45}
+            metalness={0.12}
+          />
+        </mesh>
+      ))}
+      <mesh position={[1.55, 0.75, 0.06]}>
+        <planeGeometry args={[0.9, 0.34]} />
+        <meshBasicMaterial color={ANALYST.barMuted} transparent opacity={0.5} />
+      </mesh>
     </group>
   );
 }
 
-function DataStreamParticles({ count }: { count: number }) {
-  const geomRef = useRef<THREE.BufferGeometry | null>(null);
-
-  const { positions, sizes } = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const sz = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 3;
-      sz[i] = 0.015;
-    }
-    return { positions: pos, sizes: sz };
-  }, [count]);
-
-  const geometry = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute(
-      "position",
-      new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage)
-    );
-    g.setAttribute("aStreamSize", new THREE.BufferAttribute(sizes, 1));
-    geomRef.current = g;
-    return g;
-  }, [positions, sizes]);
-
-  const material = useMemo(
+/** Personal: living membrane — shader displacement, magenta / rose. */
+function ScientistBioSphere({ interaction }: { interaction: FieldInteraction }) {
+  const mat = useMemo(
     () =>
       new THREE.ShaderMaterial({
         uniforms: {
-          uPixelRatio: { value: Math.min(window.devicePixelRatio, 1.5) },
+          uTime: { value: 0 },
+          uPulse: { value: 0 },
+          uPointer: { value: new THREE.Vector2(0, 0) },
+          uMembrane: { value: SCIENTIST.membrane.clone() },
+          uCore: { value: SCIENTIST.core.clone() },
+          uSpark: { value: SCIENTIST.spark.clone() },
         },
-        vertexShader: streamVertexShader,
-        fragmentShader: streamFragmentShader,
+        vertexShader: scientistVert,
+        fragmentShader: scientistFrag,
         transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
+      }),
+    []
+  );
+
+  useFrame((state) => {
+    mat.uniforms.uTime.value = state.clock.elapsedTime;
+    mat.uniforms.uPulse.value = interaction.pulse;
+    mat.uniforms.uPointer.value.copy(interaction.ndc);
+  });
+
+  return (
+    <group position={[0, 0.05, 0]}>
+      <mesh material={mat}>
+        <sphereGeometry args={[0.92, 64, 64]} />
+      </mesh>
+      <mesh position={[0, 0, -0.35]}>
+        <planeGeometry args={[5, 4]} />
+        <meshBasicMaterial color={SCIENTIST.void} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Personal: server rack instancing + scan card — terminal greens + amber. */
+function EngineerRackField({ interaction }: { interaction: FieldInteraction }) {
+  const inst = useRef<THREE.InstancedMesh>(null);
+  const count = 56;
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const boxGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
+
+  useLayoutEffect(() => {
+    const mesh = inst.current;
+    if (!mesh) return;
+    let i = 0;
+    for (let row = 0; row < 7; row++) {
+      for (let col = 0; col < 8; col++) {
+        dummy.position.set(
+          col * 0.21 - 0.73,
+          row * 0.18 - 0.52,
+          (Math.sin(col * 1.2 + row) * 0.5 + 0.5) * 0.06
+        );
+        const s = 0.82 + (row % 3) * 0.06;
+        dummy.scale.set(0.16 * s, 0.12 * s, 0.09 * s);
+        dummy.rotation.set(0, 0, (col % 2 === 0 ? 1 : -1) * 0.04);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i++, dummy.matrix);
+      }
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [dummy]);
+
+  const mat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: ENGINEER.slot,
+        emissive: ENGINEER.neon,
+        emissiveIntensity: 0.35,
+        metalness: 0.55,
+        roughness: 0.35,
       }),
     []
   );
 
   useFrame(() => {
-    material.uniforms.uPixelRatio.value = Math.min(
-      window.devicePixelRatio,
-      1.5
-    );
-    const g = geomRef.current;
-    if (!g) return;
-    const attr = g.getAttribute("position") as THREE.BufferAttribute;
-    const arr = attr.array as Float32Array;
-    const top = 5;
-    const bot = -5;
-    for (let i = 0; i < count; i++) {
-      arr[i * 3 + 1] += 0.003;
-      if (arr[i * 3 + 1] > top) {
-        arr[i * 3 + 1] = bot + Math.random() * 0.5;
-        arr[i * 3] = (Math.random() - 0.5) * 8;
-        arr[i * 3 + 2] = (Math.random() - 0.5) * 3;
-      }
-    }
-    attr.needsUpdate = true;
+    if (!mat) return;
+    mat.emissiveIntensity = 0.28 + interaction.pulse * 2.4;
+  });
+
+  const scanMat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uPulse: { value: 0 },
+          uNeon: { value: ENGINEER.neon.clone() },
+          uAmber: { value: ENGINEER.amber.clone() },
+        },
+        vertexShader: rackScanVert,
+        fragmentShader: rackScanFrag,
+        transparent: true,
+        depthWrite: false,
+      }),
+    []
+  );
+
+  useFrame((state) => {
+    scanMat.uniforms.uTime.value = state.clock.elapsedTime;
+    scanMat.uniforms.uPulse.value = interaction.pulse;
   });
 
   return (
-    <points geometry={geometry} material={material} renderOrder={0} />
+    <group position={[0, 0.02, 0.12]}>
+      <mesh position={[0, 0, -0.45]}>
+        <planeGeometry args={[4.2, 3]} />
+        <meshBasicMaterial color={ENGINEER.chassis} />
+      </mesh>
+      <instancedMesh ref={inst} args={[boxGeo, mat, count]} />
+      <mesh position={[0, 0.05, 0.18]} material={scanMat}>
+        <planeGeometry args={[2.6, 1.85]} />
+      </mesh>
+    </group>
   );
 }
 
-function Scene({
+function RolePersonalScene({
   role,
-  particleCount,
-  mouseEnabled,
+  interaction,
 }: {
   role: Role;
-  particleCount: number;
-  mouseEnabled: boolean;
+  interaction: FieldInteraction;
 }) {
-  const font = useLoader(FontLoader, "/fonts/inter_bold.typeface.json");
+  if (role === "analyst") {
+    return (
+      <>
+        <ambientLight intensity={0.45} />
+        <directionalLight
+          position={[2, 3, 4]}
+          intensity={0.85}
+          color={ANALYST.barHi}
+        />
+        <AnalystChartRoom interaction={interaction} />
+      </>
+    );
+  }
+  if (role === "scientist") {
+    return (
+      <>
+        <ambientLight intensity={0.08} />
+        <pointLight
+          position={[1.2, 1.5, 2.2]}
+          intensity={1.6}
+          color={SCIENTIST.spark}
+        />
+        <pointLight
+          position={[-1.5, -0.8, 1.5]}
+          intensity={0.7}
+          color={SCIENTIST.membrane}
+        />
+        <ScientistBioSphere interaction={interaction} />
+      </>
+    );
+  }
   return (
     <>
-      <DataStreamParticles count={8000} />
-      <WordParticles
-        font={font}
-        role={role}
-        particleCount={particleCount}
-        mouseEnabled={mouseEnabled}
+      <ambientLight intensity={0.06} />
+      <pointLight position={[0, 2, 2]} intensity={0.9} color={ENGINEER.neon} />
+      <pointLight
+        position={[-2, -1, 1]}
+        intensity={0.35}
+        color={ENGINEER.amber}
       />
+      <EngineerRackField interaction={interaction} />
     </>
   );
 }
@@ -791,6 +443,14 @@ const canvasFallback = (
 );
 
 export function ParticleWordMorphCanvas({ role }: { role: Role }) {
+  const interaction = useMemo<FieldInteraction>(
+    () => ({
+      pulse: 0,
+      ndc: new THREE.Vector2(0, 0),
+    }),
+    []
+  );
+
   const [wide, setWide] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 768 : true
   );
@@ -802,18 +462,21 @@ export function ParticleWordMorphCanvas({ role }: { role: Role }) {
     return () => mq.removeEventListener("change", fn);
   }, []);
 
-  const particleCount = wide ? 40_000 : 15_000;
-  const mouseEnabled = wide;
+  const camZ = role === "scientist" ? 3.15 : role === "engineer" ? 3.55 : 3.85;
 
   if (!wide) {
     return <MobileRoleGradient role={role} />;
   }
 
   return (
-    <div className="pointer-events-auto absolute inset-y-0 right-0 z-[5] hidden min-h-[90vh] w-1/2 min-w-0 md:block">
+    <div
+      className="pointer-events-auto absolute inset-y-0 right-0 z-[5] hidden min-h-[90vh] w-1/2 min-w-0 cursor-grab touch-manipulation active:cursor-grabbing md:block"
+      title="Each role has its own scene — move and click to play"
+    >
       <Suspense fallback={canvasFallback}>
         <Canvas
-          className="h-full w-full touch-none"
+          key={role}
+          className="h-full w-full"
           dpr={[1, 1.5]}
           gl={{
             antialias: true,
@@ -822,17 +485,15 @@ export function ParticleWordMorphCanvas({ role }: { role: Role }) {
             stencil: false,
             depth: true,
           }}
-          camera={{ position: [0, 0, 5], fov: 50, near: 0.1, far: 100 }}
-          onCreated={({ gl }) => {
+          camera={{ position: [0, 0.05, camZ], fov: 44, near: 0.1, far: 100 }}
+          onCreated={({ gl, scene }) => {
             gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            scene.background = null;
           }}
         >
-          <Scene
-            role={role}
-            particleCount={particleCount}
-            mouseEnabled={mouseEnabled}
-          />
-          <Preload all />
+          <InteractiveRig interaction={interaction} role={role}>
+            <RolePersonalScene role={role} interaction={interaction} />
+          </InteractiveRig>
         </Canvas>
       </Suspense>
     </div>
@@ -843,15 +504,15 @@ function MobileRoleGradient({ role }: { role: Role }) {
   const word = WORDS[role];
   const gradientClass =
     role === "analyst"
-      ? "from-[#7C3AFF] to-[#22d3ee]"
+      ? "from-[#0f172a] via-[#1e293b] to-[#38bdf8]"
       : role === "scientist"
-        ? "from-[#7C3AFF] to-[#FF2D78]"
-        : "from-[#7C3AFF] to-[#39FF14]";
+        ? "from-[#3b0764] via-[#86198f] to-[#fb7185]"
+        : "from-[#022c22] via-[#14532d] to-[#4ade80]";
 
   return (
     <div className="mt-8 flex justify-center md:hidden">
       <span
-        className={`bg-gradient-to-r ${gradientClass} bg-clip-text font-display text-4xl font-bold tracking-tight text-transparent`}
+        className={`bg-gradient-to-br ${gradientClass} bg-clip-text font-display text-4xl font-bold tracking-tight text-transparent`}
         aria-hidden
       >
         {word}
