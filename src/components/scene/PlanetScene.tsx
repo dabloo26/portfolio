@@ -1,9 +1,8 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+import { Component, Suspense, useMemo, useRef, type ErrorInfo, type ReactNode } from "react";
 import * as THREE from "three";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
-import { usePlanetGlbAvailable } from "../../hooks/usePlanetGlbAvailable";
 
 /** Brand accent for lights / fallback. */
 const PLANET_ACCENT = "#34d399";
@@ -227,6 +226,27 @@ function PlanetFromGlb({ motionOn }: { motionOn: boolean }) {
   );
 }
 
+/** If GLB fails to load (404, corrupt file), show CSS globe instead of a blank canvas. */
+class PlanetWebglErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.warn("[PlanetScene] WebGL / GLB failed, using CSS fallback:", error.message, info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
 function PlanetWorld({
   accent,
   rotationSpeed,
@@ -290,48 +310,49 @@ function GlobalPlanetCss({ accent }: { accent: string }) {
 export function GlobalPlanet({ accent }: GlobalPlanetProps) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : PLANET_SPIN_SPEED;
-  const glbReachable = usePlanetGlbAvailable(PLANET_GLB_URL);
 
-  if (reduced || glbReachable !== "yes") {
+  if (reduced) {
     return <GlobalPlanetCss accent={accent} />;
   }
 
+  const shell =
+    "pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]";
+
   return (
-    <div
-      className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
-      aria-hidden
-    >
-      <Canvas
-        className="pointer-events-none !h-full !w-full min-h-0 overflow-visible"
-        style={{ display: "block" }}
-        shadows
-        camera={{
-          position: CAM_GLOBAL.position,
-          fov: CAM_GLOBAL.fov,
-          near: 0.08,
-          far: 120,
-        }}
-        dpr={[1, 1.5]}
-        gl={{
-          alpha: true,
-          antialias: true,
-          powerPreference: "low-power",
-          stencil: false,
-        }}
-        onCreated={({ gl }) => {
-          gl.setClearColor("#000000", 0);
-          gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1;
-          gl.shadowMap.enabled = true;
-          gl.shadowMap.type = THREE.PCFSoftShadowMap;
-        }}
-      >
-        <Suspense fallback={null}>
-          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
-        </Suspense>
-      </Canvas>
-    </div>
+    <PlanetWebglErrorBoundary fallback={<GlobalPlanetCss accent={accent} />}>
+      <div className={shell} aria-hidden>
+        <Canvas
+          className="pointer-events-none !h-full !w-full min-h-0 overflow-visible"
+          style={{ display: "block" }}
+          shadows
+          camera={{
+            position: CAM_GLOBAL.position,
+            fov: CAM_GLOBAL.fov,
+            near: 0.08,
+            far: 120,
+          }}
+          dpr={[1, 1.5]}
+          gl={{
+            alpha: true,
+            antialias: true,
+            powerPreference: "low-power",
+            stencil: false,
+          }}
+          onCreated={({ gl }) => {
+            gl.setClearColor("#000000", 0);
+            gl.outputColorSpace = THREE.SRGBColorSpace;
+            gl.toneMapping = THREE.ACESFilmicToneMapping;
+            gl.toneMappingExposure = 1;
+            gl.shadowMap.enabled = true;
+            gl.shadowMap.type = THREE.PCFSoftShadowMap;
+          }}
+        >
+          <Suspense fallback={null}>
+            <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
+          </Suspense>
+        </Canvas>
+      </div>
+    </PlanetWebglErrorBoundary>
   );
 }
 
@@ -352,47 +373,48 @@ function InlinePlanetCss({ accent }: { accent: string }) {
 export function InlinePlanetMobile({ accent }: { accent: string }) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : PLANET_SPIN_SPEED;
-  const glbReachable = usePlanetGlbAvailable(PLANET_GLB_URL);
 
-  if (reduced || glbReachable !== "yes") {
+  if (reduced) {
     return <InlinePlanetCss accent={accent} />;
   }
 
   return (
-    <div
-      className="relative mx-auto h-[min(56vw,300px)] w-[min(92vw,380px)] overflow-visible md:hidden"
-      aria-hidden
-    >
-      <Canvas
-        className="pointer-events-none !h-full !w-full overflow-visible"
-        style={{ display: "block" }}
-        shadows
-        camera={{
-          position: CAM_INLINE.position,
-          fov: CAM_INLINE.fov,
-          near: 0.08,
-          far: 120,
-        }}
-        dpr={[1, 1.25]}
-        gl={{
-          alpha: true,
-          antialias: true,
-          powerPreference: "low-power",
-          stencil: false,
-        }}
-        onCreated={({ gl }) => {
-          gl.setClearColor("#000000", 0);
-          gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1;
-          gl.shadowMap.enabled = true;
-          gl.shadowMap.type = THREE.PCFSoftShadowMap;
-        }}
+    <PlanetWebglErrorBoundary fallback={<InlinePlanetCss accent={accent} />}>
+      <div
+        className="relative mx-auto h-[min(56vw,300px)] w-[min(92vw,380px)] overflow-visible md:hidden"
+        aria-hidden
       >
-        <Suspense fallback={null}>
-          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
-        </Suspense>
-      </Canvas>
-    </div>
+        <Canvas
+          className="pointer-events-none !h-full !w-full overflow-visible"
+          style={{ display: "block" }}
+          shadows
+          camera={{
+            position: CAM_INLINE.position,
+            fov: CAM_INLINE.fov,
+            near: 0.08,
+            far: 120,
+          }}
+          dpr={[1, 1.25]}
+          gl={{
+            alpha: true,
+            antialias: true,
+            powerPreference: "low-power",
+            stencil: false,
+          }}
+          onCreated={({ gl }) => {
+            gl.setClearColor("#000000", 0);
+            gl.outputColorSpace = THREE.SRGBColorSpace;
+            gl.toneMapping = THREE.ACESFilmicToneMapping;
+            gl.toneMappingExposure = 1;
+            gl.shadowMap.enabled = true;
+            gl.shadowMap.type = THREE.PCFSoftShadowMap;
+          }}
+        >
+          <Suspense fallback={null}>
+            <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
+          </Suspense>
+        </Canvas>
+      </div>
+    </PlanetWebglErrorBoundary>
   );
 }
