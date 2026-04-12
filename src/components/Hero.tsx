@@ -36,7 +36,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-x-clip overflow-y-visible bg-transparent px-4 pb-24 pt-[max(7rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-36 md:px-8 md:pb-28"
+      className="relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-visible bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
       style={{
         paddingLeft: "max(1rem, env(safe-area-inset-left))",
         paddingRight: "max(1rem, env(safe-area-inset-right))",
@@ -48,8 +48,8 @@ export function Hero() {
         aria-hidden
       />
 
-      {/* Large wireframe orb — bleeds past the grid (not a small boxed tile) */}
-      <div className="pointer-events-none absolute inset-y-0 left-[28%] right-[-18%] z-[1] hidden min-h-[min(92vh,720px)] md:block lg:left-[34%] lg:right-[-8%]">
+      {/* Large wireframe orb — extends past section box so it isn’t clipped by the next band */}
+      <div className="pointer-events-none absolute left-[26%] right-[-22%] top-[-14vh] z-[1] hidden h-[min(118vh,1200px)] max-h-none md:block lg:left-[32%] lg:right-[-12%] lg:top-[-12vh]">
         <Suspense fallback={<CircleFallback large />}>
           <WireCircleAccent
             color={orbHue}

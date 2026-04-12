@@ -50,7 +50,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/58 px-4 py-24 sm:px-6 sm:py-28"
+      className="relative z-10 scroll-mt-40 bg-gradient-to-b from-base/20 via-base/48 to-base/58 px-4 py-20 sm:px-6 sm:py-24 md:scroll-mt-44"
     >
       <SectionBackdropLayer variant="about" />
       <div className="relative z-10 mx-auto max-w-6xl">

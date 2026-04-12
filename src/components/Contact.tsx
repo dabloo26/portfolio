@@ -51,7 +51,7 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/58 px-4 py-20 sm:px-6 sm:pb-28 sm:pt-16 md:py-24"
+      className="relative z-10 scroll-mt-40 bg-gradient-to-b from-base/25 via-base/50 to-base/60 px-4 py-20 sm:px-6 sm:pb-28 sm:pt-16 md:py-24 md:scroll-mt-44"
       style={{
         paddingLeft: "max(1rem, env(safe-area-inset-left))",
         paddingRight: "max(1rem, env(safe-area-inset-right))",
