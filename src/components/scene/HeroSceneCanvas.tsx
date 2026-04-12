@@ -147,10 +147,10 @@ function HeroSceneStatic({
         : "radial-gradient(ellipse 100% 70% at 55% 100%, rgba(74,222,128,0.2), transparent 55%), #030806";
   return (
     <div
-      className={`pointer-events-none z-[5] min-h-[100dvh] w-full opacity-95 ${
+      className={`pointer-events-none z-[5] min-h-[100dvh] min-h-[100svh] w-full opacity-95 ${
         fixed ? "fixed inset-0" : "absolute inset-0"
       }`}
-      style={{ background: grad }}
+      style={{ background: grad, minHeight: "max(100dvh, 100%)" }}
       aria-hidden
     />
   );
@@ -175,19 +175,28 @@ export function HeroSceneCanvas({
 
   const shell =
     fixed ?
-      "pointer-events-none fixed inset-0 z-[5] h-[100dvh] w-full overflow-hidden"
-    : "pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] w-full overflow-hidden";
+      "pointer-events-none fixed inset-0 z-[5] w-full overflow-hidden min-h-[100dvh] min-h-[100svh]"
+    : "pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] min-h-[100svh] w-full overflow-hidden";
+
+  const maxDpr = mobile ? 1.35 : fixed ? 1.5 : 1.75;
 
   return (
-    <div className={shell}>
+    <div className={shell} style={{ minHeight: "-webkit-fill-available" }}>
+      {/* Solid layer so starfield never reads as “empty” if WebGL throttles or fails on mobile */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-[#05060a]"
+        aria-hidden
+      />
       <Canvas
+        className="!absolute inset-0 z-[1] h-full min-h-[100dvh] w-full"
         camera={{ position: [0, 0, 2.65], fov: 48, near: 0.1, far: 100 }}
-        dpr={[1, fixed ? 1.5 : 1.75]}
+        dpr={[1, maxDpr]}
         gl={{
           alpha: true,
-          antialias: true,
-          powerPreference: "high-performance",
+          antialias: !mobile,
+          powerPreference: mobile ? "default" : "high-performance",
           stencil: false,
+          preserveDrawingBuffer: false,
         }}
         onCreated={({ gl }) => {
           gl.setClearColor("#000000", 0);
@@ -203,29 +212,29 @@ export function HeroSceneCanvas({
       {fixed ?
         <>
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[#030712]/28 via-transparent to-[#030712]/18"
+            className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-r from-[#030712]/28 via-transparent to-[#030712]/18"
             aria-hidden
           />
           <div
-            className="absolute inset-x-0 bottom-0 h-[min(28vh,220px)] bg-gradient-to-t from-base/25 via-transparent to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[min(28vh,220px)] bg-gradient-to-t from-base/25 via-transparent to-transparent"
             aria-hidden
           />
           <div
-            className="absolute inset-0 shadow-[inset_0_0_90px_rgba(0,0,0,0.22)]"
+            className="pointer-events-none absolute inset-0 z-[2] shadow-[inset_0_0_90px_rgba(0,0,0,0.22)]"
             aria-hidden
           />
         </>
       : <>
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[#030712]/88 via-[#030712]/35 to-transparent md:from-[#030712]/72 md:via-transparent md:to-transparent"
+            className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-r from-[#030712]/88 via-[#030712]/35 to-transparent md:from-[#030712]/72 md:via-transparent md:to-transparent"
             aria-hidden
           />
           <div
-            className="absolute inset-x-0 bottom-0 h-[min(28vh,240px)] bg-gradient-to-t from-base via-base/65 to-transparent md:from-base/90"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[min(28vh,240px)] bg-gradient-to-t from-base via-base/65 to-transparent md:from-base/90"
             aria-hidden
           />
           <div
-            className="absolute inset-0 shadow-[inset_0_0_120px_rgba(0,0,0,0.45)]"
+            className="pointer-events-none absolute inset-0 z-[2] shadow-[inset_0_0_120px_rgba(0,0,0,0.45)]"
             aria-hidden
           />
         </>

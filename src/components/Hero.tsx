@@ -14,7 +14,7 @@ export function Hero() {
     <>
       <section
         id="top"
-        className="pointer-events-none relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-visible bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
+        className="relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-visible bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
         style={{
           paddingLeft: "max(1rem, env(safe-area-inset-left))",
           paddingRight: "max(1rem, env(safe-area-inset-right))",
@@ -88,7 +88,7 @@ export function Hero() {
               </div>
             </motion.div>
 
-            <div className="pointer-events-auto relative z-[15] flex w-full justify-center md:hidden">
+            <div className="relative z-[15] flex w-full justify-center md:hidden">
               <InlinePlanetMobile accent={ACCENT_ORB} />
             </div>
           </div>

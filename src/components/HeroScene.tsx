@@ -18,10 +18,10 @@ function HeroSceneFallback({ role, fixed }: { role: Role; fixed?: boolean }) {
     <div
       className={`pointer-events-none z-[5] w-full bg-transparent ${
         fixed
-          ? "fixed inset-0 min-h-[100dvh]"
+          ? "fixed inset-0 min-h-[100dvh] min-h-[100svh]"
           : "absolute inset-0 min-h-[90vh]"
       }`}
-      style={{ background: grad }}
+      style={{ background: grad, minHeight: fixed ? "max(100dvh, -webkit-fill-available)" : undefined }}
       aria-hidden
     />
   );

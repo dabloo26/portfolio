@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
@@ -177,11 +177,12 @@ function stripFloatingVegetationDecor(root: THREE.Object3D) {
 
 /**
  * Loads `public/cute_little_planet.glb`, centers it, scales to ~unit radius (max dim → 2), enables shadows.
- * Idle motion: slow tumble on X/Y/Z; user orbit is full-sphere via OrbitControls.
+ * Idle motion: nested spins so the globe tumbles on several axes (background only, no user controls).
  */
 function PlanetFromGlb({ motionOn }: { motionOn: boolean }) {
   const { scene } = useGLTF(PLANET_GLB_URL);
-  const root = useRef<THREE.Group>(null);
+  const spinY = useRef<THREE.Group>(null);
+  const spinXZ = useRef<THREE.Group>(null);
 
   const prepared = useMemo(() => {
     const g = scene.clone(true);
@@ -209,36 +210,19 @@ function PlanetFromGlb({ motionOn }: { motionOn: boolean }) {
   }, [scene]);
 
   useFrame((_, d) => {
-    if (!motionOn || !root.current) return;
+    if (!motionOn || !spinY.current || !spinXZ.current) return;
     const s = 1 / 1.2;
-    root.current.rotation.x += d * 0.014 * s;
-    root.current.rotation.y += d * 0.026 * s;
-    root.current.rotation.z += d * 0.009 * s;
+    spinY.current.rotation.y += d * 0.024 * s;
+    spinXZ.current.rotation.x += d * 0.019 * s;
+    spinXZ.current.rotation.z += d * 0.017 * s;
   });
 
   return (
-    <group ref={root}>
-      <primitive object={prepared} />
+    <group ref={spinY}>
+      <group ref={spinXZ}>
+        <primitive object={prepared} />
+      </group>
     </group>
-  );
-}
-
-/** Drag to orbit any direction (full polar range); wheel zoom. Planet idle spin is on the mesh. */
-function PlanetControls() {
-  return (
-    <OrbitControls
-      makeDefault
-      enablePan={false}
-      enableDamping
-      dampingFactor={0.07}
-      minDistance={1.85}
-      maxDistance={5.5}
-      minPolarAngle={0.02}
-      maxPolarAngle={Math.PI - 0.02}
-      autoRotate={false}
-      rotateSpeed={0.55}
-      zoomSpeed={0.48}
-    />
   );
 }
 
@@ -275,7 +259,6 @@ function PlanetWorld({
       <pointLight position={[-1.5, 2.5, 3]} intensity={0.18} color={accent} />
 
       <PlanetFromGlb motionOn={motionOn} />
-      <PlanetControls />
 
       {motionOn ? (
         <>
@@ -311,12 +294,12 @@ export function GlobalPlanet({ accent }: GlobalPlanetProps) {
 
   return (
     <div
-      className="pointer-events-auto fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
+      className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
       aria-hidden
     >
       <Canvas
-        className="pointer-events-auto !h-full !w-full min-h-0 cursor-grab overflow-visible active:cursor-grabbing"
-        style={{ display: "block", touchAction: "none" }}
+        className="pointer-events-none !h-full !w-full min-h-0 overflow-visible"
+        style={{ display: "block" }}
         shadows
         camera={{
           position: CAM_GLOBAL.position,
@@ -372,8 +355,8 @@ export function InlinePlanetMobile({ accent }: { accent: string }) {
       aria-hidden
     >
       <Canvas
-        className="pointer-events-auto !h-full !w-full cursor-grab overflow-visible active:cursor-grabbing"
-        style={{ touchAction: "none" }}
+        className="pointer-events-none !h-full !w-full overflow-visible"
+        style={{ display: "block" }}
         shadows
         camera={{
           position: CAM_INLINE.position,

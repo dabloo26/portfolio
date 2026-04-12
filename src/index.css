@@ -11,12 +11,31 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--base);
+  /* Avoid horizontal scroll without breaking position:fixed backdrops on iOS (overflow-x-hidden on a parent can). */
+  overflow-x: clip;
 }
 
 body {
   @apply bg-base font-sans text-white antialiased;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   cursor: crosshair;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  overflow-x: clip;
+}
+
+@media (pointer: coarse) {
+  body {
+    cursor: auto;
+  }
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 a,

@@ -19,8 +19,7 @@ export function ProjectsPage() {
   const topRepos = useMemo(() => sortByPrimaryFocus(githubHighlights), []);
 
   return (
-    <main className="pointer-events-none relative pt-[9rem]">
-      <div className="pointer-events-auto">
+    <main className="relative pt-[9rem]">
       <SectionBackdropLayer variant="projects" />
       <div className="relative z-10 bg-gradient-to-b from-base/35 to-base/50 px-4 py-10 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -88,7 +87,6 @@ export function ProjectsPage() {
       </section>
 
       <Skills />
-      </div>
     </main>
   );
 }

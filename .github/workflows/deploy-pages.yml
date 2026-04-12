@@ -25,11 +25,17 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
+      # User site (OWNER.github.io) must use base "/" ; project sites use "/<repo>/".
       - name: Build
-        env:
-          # Project site: https://<user>.github.io/<repo>/
-          VITE_BASE: /${{ github.event.repository.name }}/
-        run: npm run build
+        run: |
+          NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          if [ "$NAME" = "${OWNER}.github.io" ]; then
+            export VITE_BASE=/
+          else
+            export VITE_BASE="/${NAME}/"
+          fi
+          npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

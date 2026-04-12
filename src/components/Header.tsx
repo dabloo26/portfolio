@@ -27,7 +27,7 @@ export function Header() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className={`pointer-events-auto fixed inset-x-0 top-0 z-[60] border-b transition-[background,border-color,backdrop-filter] duration-300 ${
+      className={`fixed inset-x-0 top-0 z-[60] border-b transition-[background,border-color,backdrop-filter] duration-300 ${
         scrolled
           ? "border-white/[0.06] bg-base/25 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-2xl supports-[backdrop-filter]:bg-base/20"
           : "border-white/[0.04] bg-base/20 backdrop-blur-xl supports-[backdrop-filter]:bg-base/15"
