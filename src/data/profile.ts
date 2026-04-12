@@ -147,12 +147,11 @@ export const education: EducationItem[] = [
   },
 ];
 
-/** Landing hero copy (About holds the longer story). */
+/** Landing hero — two lines under the name (About holds the longer story). */
 export const heroLandingCopy = {
-  quote:
+  /** Large display line (same role as the old “in Data we trust” line). */
+  headline:
     "It’s easy to lie with statistics. It’s hard to tell the truth without them.",
-  quip:
-    "“quick data question” accidentally builds pipelines, APIs, experiments, and half the cloud stack",
   focus: "I focus on making the truth visible, not convenient.",
 } as const;
 

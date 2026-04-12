@@ -356,14 +356,23 @@ type GlobalPlanetProps = {
   centerProgress: number;
 };
 
+/**
+ * Fixed square viewport for the globe so we can center it in the window.
+ * (Old layout used `left-0` + negative `right`, which kept the sphere off-center even at “rest”.)
+ */
 const PLANET_SHELL_CLS =
-  "pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[12] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]";
+  "pointer-events-none fixed top-[8vh] z-[12] hidden h-[min(72vh,520px)] w-[min(72vh,520px)] max-h-[600px] max-w-[min(100vw,600px)] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:w-[min(92vh,900px)] md:max-h-[940px] md:max-w-[min(100vw,940px)]";
+
+/** How far right of true viewport center the planet sits at scroll progress 0 (landing). Tuned down so it reads closer to “5” than “6”. */
+const LANDING_BIAS_VW = 5;
 
 function planetDriftStyle(centerProgress: number): CSSProperties {
   const p = Math.min(1, Math.max(0, centerProgress));
-  const tx = (1 - p) * 28;
+  const biasVw = (1 - p) * LANDING_BIAS_VW;
   return {
-    transform: `translate3d(${tx}vw, 0, 0)`,
+    left: "50%",
+    right: "auto",
+    transform: `translate3d(calc(-50% + ${biasVw}vw), 0, 0)`,
     willChange: "transform",
   };
 }

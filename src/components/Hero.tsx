@@ -6,7 +6,7 @@ import { InlinePlanetMobile } from "./scene/PlanetScene";
 const ACCENT_ORB = "#34d399";
 
 export function Hero() {
-  const { quote, quip, focus } = heroLandingCopy;
+  const { headline, focus } = heroLandingCopy;
 
   return (
     <>
@@ -45,25 +45,16 @@ export function Hero() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.08 }}
-                className="relative mt-6 font-display text-[clamp(1.15rem,calc(2.2vw+0.65rem),1.85rem)] italic leading-snug tracking-wide text-sky-100/95 sm:mt-7 md:text-2xl"
+                className="relative mt-6 font-display text-[clamp(1.35rem,calc(2.8vw+0.75rem),2.35rem)] italic leading-snug tracking-wide text-sky-200/95 sm:mt-7 md:text-4xl"
               >
-                {quote}
+                {headline}
               </motion.p>
 
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, delay: 0.14 }}
-                className="relative mt-6 text-base italic leading-relaxed text-white/88 sm:mt-7 sm:text-lg"
-              >
-                {quip}
-              </motion.p>
-
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.2 }}
-                className="relative mt-6 text-[15px] font-medium leading-relaxed text-white sm:mt-7 sm:text-base"
+                className="relative mt-5 text-[15px] font-medium leading-relaxed text-white sm:mt-6 sm:text-base"
               >
                 {focus}
               </motion.p>
