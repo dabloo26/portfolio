@@ -86,8 +86,15 @@ export function Header() {
             {person.name}
           </span>
         </Link>
+        <a
+          href={person.resumeUrl}
+          download="Abhyansh_Anand_Resume.pdf"
+          className="shrink-0 rounded-sm border border-accent-violet/55 bg-[#111118]/80 px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-wider text-accent-violet transition hover:border-accent-acid hover:text-accent-acid md:hidden"
+        >
+          Résumé
+        </a>
         <nav
-          className="flex shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:gap-x-3 sm:text-xs"
+          className="hidden shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] md:flex md:gap-x-3 md:text-xs"
           aria-label="Primary"
         >
           {links.map(([label, id]) => (
@@ -112,8 +119,8 @@ export function Header() {
       </div>
 
       <div
-        className={`grid min-h-0 transition-[grid-template-rows] duration-300 ease-out ${
-          showLandingTicker ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        className={`hidden min-h-0 transition-[grid-template-rows] duration-300 ease-out md:grid ${
+          showLandingTicker ? "md:grid-rows-[1fr]" : "md:grid-rows-[0fr]"
         }`}
         aria-hidden={!showLandingTicker}
       >

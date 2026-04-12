@@ -29,10 +29,10 @@ export function ProjectsPreview() {
   return (
     <section
       id="projects"
-      className="relative z-10 scroll-mt-40 bg-gradient-to-b from-base/22 via-base/48 to-base/58 px-4 py-20 sm:px-6 sm:py-24 md:scroll-mt-44"
+      className="relative z-10 overflow-x-clip scroll-mt-40 bg-gradient-to-b from-base/22 via-base/48 to-base/58 px-4 py-20 sm:px-6 sm:py-24 md:scroll-mt-44"
     >
       <SectionBackdropLayer variant="projects" />
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto w-full min-w-0 max-w-6xl">
         <motion.div {...fade} className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
@@ -65,7 +65,7 @@ export function ProjectsPreview() {
           </Link>
         </motion.div>
 
-        <div className="mt-12 flex gap-6 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:grid lg:grid-cols-3 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
           {top.map((p, i) => (
             <ProjectCard key={p.id} p={p} delayIndex={i} />
           ))}

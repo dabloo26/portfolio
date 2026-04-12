@@ -11,6 +11,7 @@ import {
 } from "react";
 import * as THREE from "three";
 import { useLandingPlanetProgress } from "../../context/LandingPlanetContext";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 
 /** Brand accent for lights / fallback. */
@@ -451,9 +452,9 @@ type GlobalPlanetProps = {
  * Fixed square viewport for the globe so we can center it in the window.
  * (Old layout used `left-0` + negative `right`, which kept the sphere off-center even at “rest”.)
  */
-/** Slightly oversized shell so CSS doesn’t crop WebGL; `overflow-visible` on Canvas chain. */
+/** Mobile: smaller, centered behind hero; desktop: large, drift with scroll. */
 const PLANET_SHELL_CLS =
-  "pointer-events-none fixed top-[8vh] z-[12] hidden h-[min(76vh,560px)] w-[min(76vh,560px)] max-h-[640px] max-w-[min(100vw,640px)] md:top-[5vh] md:block md:h-[min(96vh,980px)] md:w-[min(96vh,980px)] md:max-h-[min(96vh,980px)] md:max-w-[min(100vw,980px)]";
+  "pointer-events-none fixed z-[8] block h-[min(44vh,320px)] w-[min(86vw,320px)] max-w-[100vw] overflow-visible md:z-[12] md:h-[min(96vh,980px)] md:w-[min(96vh,980px)] md:max-h-[min(96vh,980px)] md:max-w-[min(100vw,980px)]";
 
 /**
  * Planet anchor: landing = right column (center ~72% from left); scrolled = viewport center (50%).
@@ -470,11 +471,28 @@ function planetDriftStyle(centerProgress: number): CSSProperties {
   };
 }
 
+function mobilePlanetStyle(): CSSProperties {
+  return {
+    left: "50%",
+    right: "auto",
+    top: "max(12vh, 5.75rem)",
+    transform: "translateX(-50%)",
+  };
+}
+
+function planetShellStyle(isDesktop: boolean, centerProgress: number): CSSProperties {
+  if (isDesktop) {
+    return { ...planetDriftStyle(centerProgress), overflow: "visible" };
+  }
+  return { ...mobilePlanetStyle(), overflow: "visible" };
+}
+
 function GlobalPlanetCss({ accent, centerProgress }: { accent: string; centerProgress: number }) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   return (
     <div
       className={PLANET_SHELL_CLS}
-      style={{ ...planetDriftStyle(centerProgress), overflow: "visible" }}
+      style={planetShellStyle(isDesktop, centerProgress)}
       aria-hidden
     >
       <div
@@ -488,6 +506,7 @@ function GlobalPlanetCss({ accent, centerProgress }: { accent: string; centerPro
 export function GlobalPlanet({ accent, centerProgress }: GlobalPlanetProps) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : PLANET_SPIN_SPEED;
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (reduced) {
     return <GlobalPlanetCss accent={accent} centerProgress={centerProgress} />;
@@ -499,7 +518,7 @@ export function GlobalPlanet({ accent, centerProgress }: GlobalPlanetProps) {
     <PlanetWebglErrorBoundary
       fallback={<GlobalPlanetCss accent={accent} centerProgress={centerProgress} />}
     >
-      <div className={shell} style={{ ...planetDriftStyle(centerProgress), overflow: "visible" }} aria-hidden>
+      <div className={shell} style={planetShellStyle(isDesktop, centerProgress)} aria-hidden>
         <Canvas
           className="pointer-events-none !h-full !w-full min-h-0 !overflow-visible"
           style={{ display: "block", overflow: "visible" }}
@@ -510,7 +529,7 @@ export function GlobalPlanet({ accent, centerProgress }: GlobalPlanetProps) {
             near: 0.08,
             far: 120,
           }}
-          dpr={[1, 1.5]}
+          dpr={isDesktop ? [1, 1.5] : [1, 1]}
           gl={{
             alpha: true,
             antialias: true,

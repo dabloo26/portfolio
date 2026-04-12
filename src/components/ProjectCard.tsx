@@ -28,23 +28,23 @@ export function ProjectCard({
       id={`project-${p.id}`}
       {...fade}
       transition={{ ...fade.transition, delay: delayIndex * 0.07 }}
-      className="scanline-hover group relative flex min-w-[min(100%,340px)] shrink-0 flex-col scroll-mt-36 overflow-hidden rounded-lg bg-[#111118] p-[1px] shadow-[0_0_0_1px_rgba(255,255,255,0.04)] snap-start lg:min-w-0"
+      className="scanline-hover group relative flex w-full min-w-0 shrink-0 flex-col scroll-mt-36 overflow-hidden rounded-lg bg-[#111118] p-[1px] shadow-[0_0_0_1px_rgba(255,255,255,0.04)] sm:min-w-[min(100%,340px)] lg:min-w-0"
     >
       <div
         className="absolute inset-y-0 left-0 w-1 animate-gradient-shift bg-gradient-to-b from-accent-violet via-accent-acid to-accent-violet bg-[length:100%_300%]"
         aria-hidden
       />
-      <div className="relative flex flex-1 flex-col rounded-lg bg-[#111118] px-5 pt-5 pb-6">
-        <h3 className="relative text-lg font-semibold text-white">{p.title}</h3>
-        <p className="relative mt-3 text-sm leading-relaxed text-meta">{p.summary}</p>
-        <p className="relative mt-4 font-mono text-sm leading-relaxed text-white/90">
+      <div className="relative flex min-w-0 max-w-full flex-1 flex-col rounded-lg bg-[#111118] px-4 pt-4 pb-5 sm:px-5 sm:pt-5 sm:pb-6">
+        <h3 className="relative break-words text-base font-semibold leading-snug text-white sm:text-lg">{p.title}</h3>
+        <p className="relative mt-3 hidden text-sm leading-relaxed text-meta sm:block">{p.summary}</p>
+        <p className="relative mt-4 hidden font-mono text-sm leading-relaxed text-white/90 sm:block">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-acid">
             IMPACT
           </span>{" "}
           <span className="text-meta"> </span>
           {p.impact}
         </p>
-        <div className="relative mt-5 flex flex-wrap gap-x-2 gap-y-1 font-mono text-[11px] text-accent-violet">
+        <div className="relative mt-3 flex flex-wrap gap-x-2 gap-y-1 font-mono text-[11px] text-accent-violet sm:mt-5">
           {p.tech.map((t) => (
             <span key={t}>
               [<span className="text-white/90">{t}</span>]

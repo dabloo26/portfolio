@@ -37,6 +37,8 @@ export type ExperienceItem = {
   bulletsByRole?: Partial<Record<Role, string[]>>;
   /** Shown under the date range when roles overlap (e.g. concurrent with UMD). */
   timelineNote?: string;
+  /** Shorter bullets for viewports &lt; `md` (phones). Full `bullets` used from `md` up. */
+  bulletsMobile?: string[];
   analyst: number;
   scientist: number;
   engineer: number;
@@ -47,6 +49,12 @@ export function experienceTitle(job: ExperienceItem): string {
 }
 
 export function experienceBullets(job: ExperienceItem): string[] {
+  return job.bullets;
+}
+
+/** Full bullets on `md+`; optional `bulletsMobile` on smaller viewports. */
+export function experienceBulletsForViewport(job: ExperienceItem, isNarrow: boolean): string[] {
+  if (isNarrow && job.bulletsMobile?.length) return job.bulletsMobile;
   return job.bullets;
 }
 
@@ -177,10 +185,15 @@ export type KeyImpactCardDisplay = {
   detail: string;
 };
 
+/** Full About copy (tablet / laptop / desktop). */
 export const aboutParagraphs = [
   "I am an M.S. Data Science student at UMD (expected May 2026) with a consulting background at PwC and earlier engineering work at Infosys. The through-line is the same: make data easier to trust, faster to query, and clearer to act on — whether the interface is a dashboard, a model score, or an API.",
   "At Maryland I have worked on student success analytics end-to-end: validated ingestion for 200+ student records, Tableau views for cohort and risk signals, and an early-warning classifier (logistic regression, cross-validated) that reached 82% precision with an A/B loop to study intervention impact. On the industry side I have migrated enterprise warehouses (Teradata → Snowflake), hardened ETL with CI/CD, and built ingestion layers that feed Power BI and downstream applications.",
 ];
+
+/** Single short blurb for small phone viewports only (`max-md` in About). */
+export const aboutParagraphMobile =
+  "M.S. Data Science at UMD (2026) · ex-PwC · Infosys. Analytics, ML, and platforms that ship — clean metrics, honest models, reliable pipelines and APIs.";
 
 /**
  * Weights are self-assessed for an M.S. Data Science student (UMD) with PwC + project experience —
@@ -380,6 +393,10 @@ export const experience: ExperienceItem[] = [
       "Designed labs and coursework for introductory data science and ML engineering tracks (100+ students), emphasizing reproducible workflows, EDA, and scikit-learn pipelines.",
       "Coached debugging using bias–variance framing and proper evaluation metrics, helping lift assessment scores by ~18%.",
     ],
+    bulletsMobile: [
+      "DS/ML labs & coursework (100+ students); reproducible workflows & scikit-learn.",
+      "Coaching on evaluation; assessment scores up ~18%.",
+    ],
     analyst: 85,
     scientist: 100,
     engineer: 72,
@@ -394,6 +411,10 @@ export const experience: ExperienceItem[] = [
       "Built an automated Python pipeline for 200+ student records with schema validation, deduplication, and anomaly checks, improving record accuracy ~10%, cutting prep overhead ~40%, and creating a structured foundation for dashboards and model training.",
       "Shipped Tableau dashboards for cohort trends and at-risk course signals, shortening identification cycles ~15% and supporting accessibility-focused reporting with faculty and department leadership.",
       "Trained a cross-validated logistic regression early-warning model on grade and attendance features (82% precision) with an advisor-facing scoring interface and an A/B framework that logs intervention outcomes for policy iteration.",
+    ],
+    bulletsMobile: [
+      "Python pipeline for 200+ records: validation, dedupe, anomalies (~10% accuracy, ~40% less prep).",
+      "Tableau cohort & at-risk views; early-warning model (82% precision) + A/B on interventions.",
     ],
     analyst: 100,
     scientist: 98,
@@ -410,6 +431,10 @@ export const experience: ExperienceItem[] = [
       "Built a modular Python ingestion service on Azure with pluggable connectors, schema validation, and fault-tolerant handling; landed curated Synapse tables powering Power BI and a Java chatbot.",
       "Engineered NLP parsers for unstructured fields where needed, unlocking ~20% more feature-eligible data and instrumented observability in Power BI that cut manual monitoring effort ~35%.",
     ],
+    bulletsMobile: [
+      "SQL profiling & ingestion for PepsiCo NA — ~30% fewer downstream failures.",
+      "Python on Azure → Synapse, Power BI, chatbot; NLP + observability (~35% less manual monitoring).",
+    ],
     analyst: 88,
     scientist: 82,
     engineer: 100,
@@ -425,6 +450,10 @@ export const experience: ExperienceItem[] = [
       "Tuned warehouse sizing and clustering to raise ETL throughput ~35% and cut query latency ~50–60%; introduced CI/CD for IICS releases, shrinking release cycles from days to hours.",
       "Enabled self-serve analytics on Snowflake, reducing ad-hoc data request turnaround from days to under an hour.",
     ],
+    bulletsMobile: [
+      "Teradata → Snowflake (ConocoPhillips Canada): IICS, reconciliation, under 2h downtime.",
+      "ETL/query tuning + IICS CI/CD; self-serve Snowflake (requests: days to under an hour).",
+    ],
     analyst: 80,
     scientist: 70,
     engineer: 100,
@@ -439,6 +468,10 @@ export const experience: ExperienceItem[] = [
       "Developed Angular modules with reactive forms and RxJS (lazy loading, OnPush), improving perceived performance ~30% on a large enterprise portal.",
       "Shipped ASP.NET Core REST APIs with Entity Framework and SQL Server using repository + DI patterns, reducing average API latency ~25%.",
       "Profiled multi-source datasets with Python and SQL; isolated drivers of reporting inaccuracy and cut error rates ~15% with targeted fixes and stakeholder-facing scorecards.",
+    ],
+    bulletsMobile: [
+      "Angular + RxJS (lazy load, OnPush) — ~30% faster perceived load.",
+      "ASP.NET Core APIs + EF/SQL — ~25% lower latency. Python/SQL profiling — ~15% fewer errors.",
     ],
     analyst: 70,
     scientist: 65,

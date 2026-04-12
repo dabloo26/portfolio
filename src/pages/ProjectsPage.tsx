@@ -79,7 +79,7 @@ export function ProjectsPage() {
           <motion.h2 {...fade} className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
             Portfolio builds
           </motion.h2>
-          <div className="mt-10 flex gap-6 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden">
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
             {ordered.map((p, i) => (
               <ProjectCard key={p.id} p={p} delayIndex={i} />
             ))}

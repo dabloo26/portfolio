@@ -1,9 +1,6 @@
 import { motion } from "framer-motion";
 import { heroLandingCopy, person } from "../data/profile";
 import { HeroInteractiveHeading } from "./HeroInteractiveText";
-import { InlinePlanetMobile } from "./scene/PlanetScene";
-
-const ACCENT_ORB = "#34d399";
 
 export function Hero() {
   const { headline, focus } = heroLandingCopy;
@@ -66,10 +63,6 @@ export function Hero() {
             className="pointer-events-none hidden min-h-[min(52vh,520px)] lg:block"
             aria-hidden
           />
-
-          <div className="relative z-[15] flex w-full justify-center lg:col-span-2 lg:hidden">
-            <InlinePlanetMobile accent={ACCENT_ORB} />
-          </div>
         </div>
       </section>
     </>

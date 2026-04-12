@@ -94,7 +94,7 @@ export function KeyImpact() {
   return (
     <section
       id="impact"
-      className="key-impact relative z-10 scroll-mt-40 overflow-x-clip bg-gradient-to-b from-[#050a14]/35 via-[#050a14]/55 to-[#050a14]/65 px-4 py-20 sm:px-6 sm:py-24 md:scroll-mt-44"
+      className="key-impact relative z-10 scroll-mt-40 overflow-x-clip bg-gradient-to-b from-[#050a14]/35 via-[#050a14]/55 to-[#050a14]/65 px-3 py-16 sm:px-6 sm:py-24 md:scroll-mt-44"
     >
       <SectionBackdropLayer variant="impact" />
       <div className="key-impact__glow pointer-events-none absolute inset-0 opacity-40" aria-hidden />
@@ -112,7 +112,7 @@ export function KeyImpact() {
         </svg>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto w-full min-w-0 max-w-6xl">
         <motion.div {...fade} className="text-center sm:text-left">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-400 sm:text-xs">
             {keyImpactEyebrow}
@@ -122,14 +122,15 @@ export function KeyImpact() {
           </h2>
         </motion.div>
 
-        <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-          {cards.map((c, i) => {
+        <ul className="mt-12 grid min-w-0 grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+          {cards.map((c) => {
             const Icon = icons[c.icon];
             return (
               <motion.li
                 key={c.shortLabel}
+                className="min-w-0"
                 {...fade}
-                transition={{ ...fade.transition, delay: 0.08 + i * 0.06 }}
+                transition={{ ...fade.transition, delay: 0 }}
               >
                 <Link
                   to={routerToFromHref(c.href)}
@@ -140,20 +141,20 @@ export function KeyImpact() {
                     e.preventDefault();
                     scrollToSection(id);
                   }}
-                  className="key-impact-card group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0a1020]/55 px-5 pb-9 pt-8 text-center shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-md transition duration-300 hover:border-sky-400/25 hover:bg-[#0c1228]/70 hover:shadow-[0_12px_48px_rgba(56,189,248,0.08)]"
+                  className="key-impact-card group relative flex h-full min-w-0 flex-col items-center overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0a1020]/55 px-3 pb-6 pt-6 text-center shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-md transition duration-300 hover:border-sky-400/25 hover:bg-[#0c1228]/70 hover:shadow-[0_12px_48px_rgba(56,189,248,0.08)] sm:px-5 sm:pb-9 sm:pt-8"
                 >
                   <span
                     className="pointer-events-none absolute inset-x-4 bottom-0 h-px bg-gradient-to-r from-sky-400/90 via-violet-400/80 to-fuchsia-500/90 opacity-90"
                     aria-hidden
                   />
-                  <Icon className="relative mb-5 h-12 w-12 text-sky-300 transition group-hover:scale-105" />
-                  <p className="relative font-display text-4xl leading-none tracking-tight text-sky-200 sm:text-[2.75rem]">
+                  <Icon className="relative mb-3 h-9 w-9 text-sky-300 transition group-hover:scale-105 sm:mb-5 sm:h-12 sm:w-12" />
+                  <p className="relative font-display text-[clamp(1.5rem,5vw,2.25rem)] leading-none tracking-tight text-sky-200 sm:text-[2.75rem]">
                     {c.value}
                     {c.suffix ? (
                       <span className="text-sky-300">{c.suffix}</span>
                     ) : null}
                   </p>
-                  <p className="relative mt-4 max-w-[14rem] font-sans text-[13px] leading-snug text-white/55">
+                  <p className="relative mt-3 max-w-[14rem] break-words font-sans text-[11px] leading-snug text-white/55 sm:mt-4 sm:text-[13px]">
                     {c.shortLabel}
                   </p>
                 </Link>
