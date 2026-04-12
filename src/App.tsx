@@ -14,12 +14,13 @@ function Shell({ children }: { children: ReactNode }) {
     <>
       <ScrollProgress />
       <GlobalHeroBackdrop />
-      <GlobalPlanetLayer />
       <div className="relative z-[30] isolate">
+        {/* Planet above starfield (z-5), below page copy (z-20) — was z-8 outside shell and effectively hidden */}
+        <GlobalPlanetLayer />
         <Header />
         <ScrollToTop />
-        {children}
-        <footer className="bg-gradient-to-t from-base/70 via-base/45 to-transparent px-4 py-10 pb-[max(2rem,env(safe-area-inset-bottom))] pt-12 text-center text-xs text-meta sm:px-6">
+        <div className="relative z-20">{children}</div>
+        <footer className="relative z-20 bg-gradient-to-t from-base/70 via-base/45 to-transparent px-4 py-10 pb-[max(2rem,env(safe-area-inset-bottom))] pt-12 text-center text-xs text-meta sm:px-6">
           © 2026 Abhyansh Anand
         </footer>
       </div>

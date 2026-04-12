@@ -175,6 +175,54 @@ function stripFloatingVegetationDecor(root: THREE.Object3D) {
   }
 }
 
+/** Visible placeholder when GLB is loading or failed — avoids an empty transparent canvas. */
+function ProceduralPlanet({ motionOn }: { motionOn: boolean }) {
+  const spinY = useRef<THREE.Group>(null);
+  const spinXZ = useRef<THREE.Group>(null);
+
+  useFrame((_, d) => {
+    if (!motionOn || !spinY.current || !spinXZ.current) return;
+    const s = 1 / 1.2;
+    spinY.current.rotation.y += d * 0.024 * s;
+    spinXZ.current.rotation.x += d * 0.019 * s;
+    spinXZ.current.rotation.z += d * 0.017 * s;
+  });
+
+  return (
+    <group ref={spinY}>
+      <group ref={spinXZ}>
+        <mesh castShadow receiveShadow>
+          <sphereGeometry args={[1, 48, 48]} />
+          <meshStandardMaterial
+            color="#0c4a6e"
+            roughness={0.62}
+            metalness={0.12}
+            emissive="#34d399"
+            emissiveIntensity={0.14}
+          />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+/** Catches GLB / loader errors inside the Canvas (React error boundary does not always catch async loader failures without this). */
+class PlanetGltfErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
 /**
  * Loads `public/cute_little_planet.glb`, centers it, scales to ~unit radius (max dim → 2), enables shadows.
  * Idle motion: nested spins so the globe tumbles on several axes (background only, no user controls).
@@ -277,7 +325,11 @@ function PlanetWorld({
       <directionalLight position={[-3, -4, -2]} intensity={0.22} color="#1e40af" />
       <pointLight position={[-1.5, 2.5, 3]} intensity={0.18} color={accent} />
 
-      <PlanetFromGlb motionOn={motionOn} />
+      <PlanetGltfErrorBoundary fallback={<ProceduralPlanet motionOn={motionOn} />}>
+        <Suspense fallback={<ProceduralPlanet motionOn={motionOn} />}>
+          <PlanetFromGlb motionOn={motionOn} />
+        </Suspense>
+      </PlanetGltfErrorBoundary>
 
       {motionOn ? (
         <>
@@ -296,7 +348,7 @@ type GlobalPlanetProps = {
 function GlobalPlanetCss({ accent }: { accent: string }) {
   return (
     <div
-      className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
+      className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[12] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
       aria-hidden
     >
       <div
@@ -316,7 +368,7 @@ export function GlobalPlanet({ accent }: GlobalPlanetProps) {
   }
 
   const shell =
-    "pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]";
+    "pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[12] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]";
 
   return (
     <PlanetWebglErrorBoundary fallback={<GlobalPlanetCss accent={accent} />}>
@@ -347,9 +399,7 @@ export function GlobalPlanet({ accent }: GlobalPlanetProps) {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
           }}
         >
-          <Suspense fallback={null}>
-            <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
-          </Suspense>
+          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
         </Canvas>
       </div>
     </PlanetWebglErrorBoundary>
@@ -410,9 +460,7 @@ export function InlinePlanetMobile({ accent }: { accent: string }) {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
           }}
         >
-          <Suspense fallback={null}>
-            <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
-          </Suspense>
+          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
         </Canvas>
       </div>
     </PlanetWebglErrorBoundary>
