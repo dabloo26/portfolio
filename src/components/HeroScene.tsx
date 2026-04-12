@@ -8,7 +8,7 @@ const HeroSceneCanvas = lazy(() =>
   }))
 );
 
-function HeroSceneFallback({ role }: { role: Role }) {
+function HeroSceneFallback({ role, fixed }: { role: Role; fixed?: boolean }) {
   const grad =
     role === "analyst"
       ? "radial-gradient(ellipse 90% 80% at 70% 30%, rgba(56,189,248,0.18), transparent), #05060a"
@@ -17,14 +17,19 @@ function HeroSceneFallback({ role }: { role: Role }) {
         : "radial-gradient(ellipse 100% 70% at 55% 100%, rgba(74,222,128,0.16), transparent 55%), #030806";
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-[5] min-h-[90vh] bg-transparent"
+      className={`pointer-events-none z-[5] w-full bg-transparent ${
+        fixed
+          ? "fixed inset-0 min-h-[100dvh]"
+          : "absolute inset-0 min-h-[90vh]"
+      }`}
       style={{ background: grad }}
       aria-hidden
     />
   );
 }
 
-export function HeroScene() {
+/** Fixed starfield + wireframe from the hero, visible behind the whole scroll (home + projects). */
+export function GlobalHeroBackdrop() {
   const { role } = useRole();
   const [mobile, setMobile] = useState(false);
 
@@ -37,8 +42,8 @@ export function HeroScene() {
   }, []);
 
   return (
-    <Suspense fallback={<HeroSceneFallback role={role} />}>
-      <HeroSceneCanvas role={role} mobile={mobile} />
+    <Suspense fallback={<HeroSceneFallback role={role} fixed />}>
+      <HeroSceneCanvas role={role} mobile={mobile} fixed />
     </Suspense>
   );
 }

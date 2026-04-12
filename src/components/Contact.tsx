@@ -36,7 +36,7 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:pb-32 sm:pt-20"
+      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/72 px-4 py-24 backdrop-blur-md sm:px-6 sm:pb-32 sm:pt-20"
     >
       <SectionBackdropLayer variant="contact" />
       <div className="relative z-10 mx-auto max-w-6xl">

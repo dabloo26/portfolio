@@ -38,7 +38,7 @@ export function Skills() {
   return (
     <section
       id="skills"
-      className="relative z-10 scroll-mt-32 bg-base px-4 py-24 sm:px-6 sm:py-28"
+      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/72 px-4 py-24 backdrop-blur-md sm:px-6 sm:py-28"
     >
       <div className="mx-auto max-w-6xl">
         <motion.div {...headerFade}>
@@ -69,7 +69,7 @@ export function Skills() {
                   opacity: { delay: i * 0.03 },
                 }}
                 className={`grid grid-cols-1 items-start gap-1 border-b border-white/[0.05] px-3 py-2.5 sm:grid-cols-[1fr_auto_9rem] sm:items-center sm:gap-2 sm:px-4 ${
-                  i % 2 === 0 ? "bg-base" : "bg-[#111118]"
+                  i % 2 === 0 ? "bg-white/[0.04]" : "bg-[#111118]/90"
                 }`}
               >
                 <div>

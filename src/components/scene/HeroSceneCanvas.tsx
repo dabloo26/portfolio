@@ -178,7 +178,13 @@ function SceneContent({
   );
 }
 
-function HeroSceneStatic({ role }: { role: Role }) {
+function HeroSceneStatic({
+  role,
+  fixed,
+}: {
+  role: Role;
+  fixed?: boolean;
+}) {
   const grad =
     role === "analyst"
       ? "radial-gradient(ellipse 90% 80% at 70% 30%, rgba(56,189,248,0.22), transparent), #05060a"
@@ -187,7 +193,9 @@ function HeroSceneStatic({ role }: { role: Role }) {
         : "radial-gradient(ellipse 100% 70% at 55% 100%, rgba(74,222,128,0.2), transparent 55%), #030806";
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] opacity-95"
+      className={`pointer-events-none z-[5] min-h-[100dvh] w-full opacity-95 ${
+        fixed ? "fixed inset-0" : "absolute inset-0"
+      }`}
       style={{ background: grad }}
       aria-hidden
     />
@@ -197,22 +205,30 @@ function HeroSceneStatic({ role }: { role: Role }) {
 export function HeroSceneCanvas({
   role,
   mobile,
+  /** Full-viewport layer behind scrolling content (one continuous landing look). */
+  fixed = false,
 }: {
   role: Role;
   mobile: boolean;
+  fixed?: boolean;
 }) {
   const reduced = usePrefersReducedMotion();
   const particleCount = mobile ? 1400 : 3000;
 
   if (reduced) {
-    return <HeroSceneStatic role={role} />;
+    return <HeroSceneStatic role={role} fixed={fixed} />;
   }
 
+  const shell =
+    fixed ?
+      "pointer-events-none fixed inset-0 z-[5] h-[100dvh] w-full overflow-hidden"
+    : "pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] w-full overflow-hidden";
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-[5] min-h-[100dvh] w-full overflow-hidden">
+    <div className={shell}>
       <Canvas
         camera={{ position: [0, 0, 2.65], fov: 48, near: 0.1, far: 100 }}
-        dpr={[1, 1.75]}
+        dpr={[1, fixed ? 1.5 : 1.75]}
         gl={{
           alpha: true,
           antialias: true,
@@ -230,18 +246,36 @@ export function HeroSceneCanvas({
           <SceneContent role={role} particleCount={particleCount} />
         </Suspense>
       </Canvas>
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-[#030712]/88 via-[#030712]/35 to-transparent md:from-[#030712]/72 md:via-transparent md:to-transparent"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-x-0 bottom-0 h-[min(28vh,240px)] bg-gradient-to-t from-base via-base/65 to-transparent md:from-base/90"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 shadow-[inset_0_0_120px_rgba(0,0,0,0.45)]"
-        aria-hidden
-      />
+      {fixed ?
+        <>
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-[#030712]/50 via-[#030712]/18 to-[#030712]/28"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-[min(30vh,260px)] bg-gradient-to-t from-base/55 via-base/15 to-transparent"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.38)]"
+            aria-hidden
+          />
+        </>
+      : <>
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-[#030712]/88 via-[#030712]/35 to-transparent md:from-[#030712]/72 md:via-transparent md:to-transparent"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-[min(28vh,240px)] bg-gradient-to-t from-base via-base/65 to-transparent md:from-base/90"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-0 shadow-[inset_0_0_120px_rgba(0,0,0,0.45)]"
+            aria-hidden
+          />
+        </>
+      }
     </div>
   );
 }

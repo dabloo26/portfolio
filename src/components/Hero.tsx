@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useRole } from "../hooks/useRole";
 import { heroCopy, person } from "../data/profile";
 import { HeroInteractiveHeading, HeroInteractiveParagraph } from "./HeroInteractiveText";
-import { HeroScene } from "./HeroScene";
 import { HeroTicker } from "./HeroTicker";
 
 export function Hero() {
@@ -64,7 +63,6 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
-      <HeroScene />
     </section>
   );
 }
