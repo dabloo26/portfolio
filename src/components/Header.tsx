@@ -73,10 +73,10 @@ export function Header() {
       }`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-2.5 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-3">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-3">
         <Link
           to="/"
-          className="group flex items-center gap-1.5 font-mono text-sm font-medium tracking-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]"
+          className="group flex shrink-0 items-center gap-1.5 self-start font-mono text-sm font-medium tracking-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)] sm:self-center"
         >
           <span className="inline-block w-2 animate-cursor-blink text-accent-acid" aria-hidden>
             █
@@ -86,7 +86,7 @@ export function Header() {
           </span>
         </Link>
         <nav
-          className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:gap-x-4 sm:text-xs"
+          className="flex w-full flex-wrap items-center justify-start gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:ml-auto sm:w-auto sm:justify-end sm:gap-x-4 sm:text-xs"
           aria-label="Primary"
         >
           {links.map(([label, id]) => (

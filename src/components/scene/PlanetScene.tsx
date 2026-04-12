@@ -25,9 +25,10 @@ const PLANET_VIEW_ZOOM = 1.3;
 /** Base idle factor (used with motion); slowed 1.2× vs earlier tuning. */
 const PLANET_SPIN_SPEED = (0.042 * 1.4) / 1.2;
 
+/** Slightly farther + wider FOV so orbit paths (satellites / planes) stay inside the canvas without clipping. */
 const CAM_GLOBAL = {
-  position: [0, 0.1, 3.15 / PLANET_VIEW_ZOOM] as const,
-  fov: 52,
+  position: [0, 0.1, 3.45 / PLANET_VIEW_ZOOM] as const,
+  fov: 56,
 };
 const CAM_INLINE = {
   position: [0, 0.08, 3.25 / PLANET_VIEW_ZOOM] as const,
@@ -73,7 +74,10 @@ function SatelliteMesh() {
   );
 }
 
-/** One satellite: orbit in XZ plane (spin on Y), radius off planet surface. */
+/** Orbit radius in scene units (~planet radius 1). Kept tighter so craft hug the globe. */
+const ORBIT_SAT = 1.08;
+
+/** Two satellites, opposite sides of the same ring (XZ plane via Y spin). */
 function OrbitingSatellites({ enabled }: { enabled: boolean }) {
   const ring = useRef<THREE.Group>(null);
 
@@ -85,7 +89,10 @@ function OrbitingSatellites({ enabled }: { enabled: boolean }) {
   return (
     <group rotation={[0.18, 0.35, 0.1]}>
       <group ref={ring}>
-        <group position={[1.24, 0, 0]}>
+        <group position={[ORBIT_SAT, 0, 0]}>
+          <SatelliteMesh />
+        </group>
+        <group position={[-ORBIT_SAT, 0, 0]}>
           <SatelliteMesh />
         </group>
       </group>
@@ -119,9 +126,10 @@ function AirplaneMesh() {
   );
 }
 
+const ORBIT_PLANE = 1.14;
+
 /**
- * One plane: orbit in YZ plane (spin on X) — different axis than satellite so paths don’t overlap.
- * Slightly larger radius than satellite where rings cross.
+ * Two planes on one ring (YZ plane via X spin) — opposite phases so paths stay separated from sats.
  */
 function OrbitingFlights({ enabled }: { enabled: boolean }) {
   const ring = useRef<THREE.Group>(null);
@@ -134,8 +142,89 @@ function OrbitingFlights({ enabled }: { enabled: boolean }) {
   return (
     <group rotation={[0, -0.25, 0.15]}>
       <group ref={ring}>
-        <group position={[0, 1.34, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <group position={[0, ORBIT_PLANE, 0]} rotation={[0, 0, -Math.PI / 2]}>
           <AirplaneMesh />
+        </group>
+        <group position={[0, -ORBIT_PLANE, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <AirplaneMesh />
+        </group>
+      </group>
+    </group>
+  );
+}
+
+function ProbeMesh() {
+  const mat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: "#fcd34d",
+        emissive: "#f59e0b",
+        emissiveIntensity: 0.35,
+        roughness: 0.45,
+        metalness: 0.25,
+        flatShading: true,
+      }),
+    []
+  );
+  return (
+    <mesh material={mat}>
+      <icosahedronGeometry args={[0.052, 0]} />
+    </mesh>
+  );
+}
+
+const ORBIT_PROBE = 1.05;
+
+/** Small probe on a tilted ring (rolls on Z) — reads as a third lane of traffic. */
+function OrbitingProbe({ enabled }: { enabled: boolean }) {
+  const ring = useRef<THREE.Group>(null);
+
+  useFrame((_, d) => {
+    if (!enabled || !ring.current) return;
+    ring.current.rotation.z += (d * 0.41) / 1.2;
+  });
+
+  return (
+    <group rotation={[0.35, -0.28, 0.22]}>
+      <group ref={ring}>
+        <group position={[ORBIT_PROBE, 0, 0]}>
+          <ProbeMesh />
+        </group>
+      </group>
+    </group>
+  );
+}
+
+/** Compact comms buoy — slow retrograde loop for variety. */
+function OrbitingBuoy({ enabled }: { enabled: boolean }) {
+  const ring = useRef<THREE.Group>(null);
+
+  useFrame((_, d) => {
+    if (!enabled || !ring.current) return;
+    ring.current.rotation.y += (d * -0.28) / 1.2;
+  });
+
+  const mat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: "#a78bfa",
+        emissive: "#7c3aed",
+        emissiveIntensity: 0.25,
+        roughness: 0.5,
+        metalness: 0.2,
+        flatShading: true,
+      }),
+    []
+  );
+
+  const r = 1.02;
+  return (
+    <group rotation={[-0.25, 0.55, -0.15]}>
+      <group ref={ring}>
+        <group position={[r, 0, 0]}>
+          <mesh material={mat} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.028, 0.038, 0.09, 6]} />
+          </mesh>
         </group>
       </group>
     </group>
@@ -344,6 +433,8 @@ function PlanetWorld({
         <>
           <OrbitingSatellites enabled />
           <OrbitingFlights enabled />
+          <OrbitingProbe enabled />
+          <OrbitingBuoy enabled />
         </>
       ) : null}
     </>
@@ -360,20 +451,22 @@ type GlobalPlanetProps = {
  * Fixed square viewport for the globe so we can center it in the window.
  * (Old layout used `left-0` + negative `right`, which kept the sphere off-center even at “rest”.)
  */
+/** Slightly oversized shell so CSS doesn’t crop WebGL; `overflow-visible` on Canvas chain. */
 const PLANET_SHELL_CLS =
-  "pointer-events-none fixed top-[8vh] z-[12] hidden h-[min(72vh,520px)] w-[min(72vh,520px)] max-h-[600px] max-w-[min(100vw,600px)] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:w-[min(92vh,900px)] md:max-h-[940px] md:max-w-[min(100vw,940px)]";
+  "pointer-events-none fixed top-[8vh] z-[12] hidden h-[min(76vh,560px)] w-[min(76vh,560px)] max-h-[640px] max-w-[min(100vw,640px)] md:top-[5vh] md:block md:h-[min(96vh,980px)] md:w-[min(96vh,980px)] md:max-h-[min(96vh,980px)] md:max-w-[min(100vw,980px)]";
 
-/** How far right of true viewport center the planet sits at scroll progress 0 (landing). Tuned down so it reads closer to “5” than “6”. */
-const LANDING_BIAS_VW = 5;
-
+/**
+ * Planet anchor: landing = right column (center ~72% from left); scrolled = viewport center (50%).
+ * `left` is the horizontal center of the planet box; `translateX(-50%)` centers the box on that point.
+ */
 function planetDriftStyle(centerProgress: number): CSSProperties {
   const p = Math.min(1, Math.max(0, centerProgress));
-  const biasVw = (1 - p) * LANDING_BIAS_VW;
+  const centerXPct = 50 + (1 - p) * 22;
   return {
-    left: "50%",
+    left: `${centerXPct}%`,
     right: "auto",
-    transform: `translate3d(calc(-50% + ${biasVw}vw), 0, 0)`,
-    willChange: "transform",
+    transform: "translateX(-50%)",
+    willChange: "left, transform",
   };
 }
 
@@ -381,7 +474,7 @@ function GlobalPlanetCss({ accent, centerProgress }: { accent: string; centerPro
   return (
     <div
       className={PLANET_SHELL_CLS}
-      style={planetDriftStyle(centerProgress)}
+      style={{ ...planetDriftStyle(centerProgress), overflow: "visible" }}
       aria-hidden
     >
       <div
@@ -406,10 +499,10 @@ export function GlobalPlanet({ accent, centerProgress }: GlobalPlanetProps) {
     <PlanetWebglErrorBoundary
       fallback={<GlobalPlanetCss accent={accent} centerProgress={centerProgress} />}
     >
-      <div className={shell} style={planetDriftStyle(centerProgress)} aria-hidden>
+      <div className={shell} style={{ ...planetDriftStyle(centerProgress), overflow: "visible" }} aria-hidden>
         <Canvas
-          className="pointer-events-none !h-full !w-full min-h-0 overflow-visible"
-          style={{ display: "block" }}
+          className="pointer-events-none !h-full !w-full min-h-0 !overflow-visible"
+          style={{ display: "block", overflow: "visible" }}
           shadows
           camera={{
             position: CAM_GLOBAL.position,

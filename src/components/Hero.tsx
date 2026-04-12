@@ -12,11 +12,12 @@ export function Hero() {
     <>
       <section
         id="top"
-        className="relative z-10 min-h-[100dvh] bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
+        className="relative z-10 flex min-h-[100dvh] flex-col justify-center bg-transparent px-4 py-12 sm:px-6 md:px-8"
         style={{
           paddingLeft: "max(1rem, env(safe-area-inset-left))",
           paddingRight: "max(1rem, env(safe-area-inset-right))",
-          paddingBottom: "max(6rem, env(safe-area-inset-bottom))",
+          paddingTop: "max(6.25rem, calc(env(safe-area-inset-top, 0px) + 5.5rem))",
+          paddingBottom: "max(2.5rem, env(safe-area-inset-bottom))",
         }}
       >
         <div
@@ -24,14 +25,14 @@ export function Hero() {
           aria-hidden
         />
 
-        <div className="relative z-20 mx-auto grid min-h-[min(100dvh,1200px)] w-full max-w-6xl grid-cols-1 content-center gap-10 lg:grid-cols-2 lg:items-center lg:gap-12 xl:gap-16">
+        <div className="relative z-20 mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-10 xl:gap-14">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="pointer-events-auto w-full max-w-[min(100%,560px)] lg:justify-self-start xl:max-w-[600px]"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.14] bg-[#060a12]/55 p-6 shadow-[0_0_0_1px_rgba(124,58,255,0.18),0_28px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl sm:rounded-3xl sm:p-8 md:p-10">
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.14] bg-[#060a12]/65 p-6 shadow-[0_0_0_1px_rgba(124,58,255,0.18),0_28px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl sm:rounded-3xl sm:p-8 md:p-10">
               <div
                 className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent-violet/15 blur-3xl"
                 aria-hidden
@@ -53,17 +54,16 @@ export function Hero() {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.14 }}
-                className="relative mt-5 text-[15px] font-medium leading-relaxed text-white sm:mt-6 sm:text-base"
+                transition={{ duration: 0.45, delay: 0.16 }}
+                className="relative mt-5 max-w-[42ch] text-base font-medium leading-relaxed text-white sm:mt-6 sm:text-[17px]"
               >
                 {focus}
               </motion.p>
             </div>
           </motion.div>
 
-          {/* Reserve horizontal space on large screens so the fixed WebGL planet reads as the “right column”. */}
           <div
-            className="pointer-events-none hidden min-h-[min(68vh,720px)] lg:block"
+            className="pointer-events-none hidden min-h-[min(52vh,520px)] lg:block"
             aria-hidden
           />
 
