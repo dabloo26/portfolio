@@ -54,7 +54,7 @@ label {
 
 .ticker-track {
   display: inline-block;
-  animation: ticker-scroll 50s linear infinite;
+  animation: ticker-scroll 80s linear infinite;
 }
 
 @keyframes glitch {

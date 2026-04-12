@@ -64,7 +64,7 @@ export function Contact() {
           {...fade}
           className="order-1 flex flex-col justify-center lg:order-1"
         >
-          <div className="rounded-2xl border border-white/[0.12] bg-gradient-to-br from-[#0a0d18]/95 via-[#06080f]/96 to-[#04050a]/98 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_24px_80px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-7 md:p-8">
+          <div className="rounded-2xl border border-white/[0.14] bg-[#060a12]/55 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.15),0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:rounded-3xl sm:p-7 md:p-8">
             <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-400/90 sm:text-[11px]">
               Get in touch
             </p>
@@ -138,11 +138,12 @@ export function Contact() {
           </div>
         </motion.div>
 
-        <div className="order-2 flex min-h-[220px] w-full items-center justify-center lg:order-2 lg:min-h-[320px] lg:justify-end">
+        <div className="order-2 flex min-h-[min(52vw,320px)] w-full items-center justify-center lg:order-2 lg:min-h-[min(48vh,440px)] lg:justify-end">
           <Suspense fallback={<ContactCircleFallback />}>
             <WireCircleAccent
               color={CONTACT_ORB}
-              className="h-[min(48vw,300px)] w-[min(88vw,340px)] md:h-[min(36vw,340px)] md:w-full md:max-w-[400px] lg:h-[min(42vh,400px)] lg:max-w-none"
+              immersive
+              className="h-[min(72vw,360px)] w-[min(92vw,420px)] md:h-[min(48vw,400px)] md:w-full md:max-w-[480px] lg:h-[min(50vh,480px)] lg:max-w-none"
             />
           </Suspense>
         </div>

@@ -594,3 +594,16 @@ export function sortByRole<T extends { analyst: number; scientist: number; engin
 ): T[] {
   return [...items].sort((a, b) => scoreForRole(b, role) - scoreForRole(a, role));
 }
+
+/** Short label for hero marquee — first clause of skill name, role-ranked. */
+function shortenSkillLabel(name: string): string {
+  const first = name.split(";")[0]?.trim() ?? name;
+  const chunk = first.split(",")[0]?.trim() ?? first;
+  return chunk.length > 48 ? `${chunk.slice(0, 46)}…` : chunk;
+}
+
+/** Role-aware skill strip for the landing ticker (no out-of-context KPIs). */
+export function getHeroTickerText(role: Role): string {
+  const top = sortByRole(skills, role).slice(0, 11);
+  return top.map((s) => shortenSkillLabel(s.name)).join(" · ");
+}
