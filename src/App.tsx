@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LandingPlanetProvider } from "./context/LandingPlanetContext";
 import { RoleProvider } from "./context/RoleProvider";
@@ -37,30 +38,45 @@ function routerBasename(): string | undefined {
 }
 
 function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading delay for demo; replace with real asset/model loading if needed
+    const timer = setTimeout(() => setLoading(false), 1800); // 1.8s
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <RoleProvider>
       <BrowserRouter basename={routerBasename()}>
         <LandingPlanetProvider>
-        <div className="relative min-h-[100dvh] min-h-[100svh] bg-base text-white">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Shell>
-                  <HomePage />
-                </Shell>
-              }
-            />
-            <Route
-              path="/projects"
-              element={
-                <Shell>
-                  <ProjectsPage />
-                </Shell>
-              }
-            />
-          </Routes>
-        </div>
+          <div className="relative min-h-[100dvh] min-h-[100svh] bg-base text-white">
+            {loading && (
+              <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-base text-white transition-opacity duration-500" style={{background: 'linear-gradient(180deg, #181c24 60%, #2e3350 100%)'}}>
+                <div className="text-2xl font-bold animate-pulse">Loading…</div>
+              </div>
+            )}
+            <div style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.5s' }}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <Shell>
+                      <HomePage />
+                    </Shell>
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <Shell>
+                      <ProjectsPage />
+                    </Shell>
+                  }
+                />
+              </Routes>
+            </div>
+          </div>
         </LandingPlanetProvider>
       </BrowserRouter>
     </RoleProvider>
