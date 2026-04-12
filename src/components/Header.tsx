@@ -66,27 +66,27 @@ export function Header() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed inset-x-0 top-0 z-[60] border-b transition-[background,border-color,backdrop-filter] duration-300 ${
+      className={`fixed inset-x-0 top-0 z-[60] w-full border-b transition-[background,border-color,backdrop-filter] duration-300 ${
         scrolled
           ? "border-white/[0.06] bg-base/25 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-2xl supports-[backdrop-filter]:bg-base/20"
           : "border-white/[0.04] bg-base/20 backdrop-blur-xl supports-[backdrop-filter]:bg-base/15"
       }`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-3">
+      <div className="mx-auto flex w-full max-w-6xl flex-row items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 sm:py-3">
         <Link
           to="/"
-          className="group flex shrink-0 items-center gap-1.5 self-start font-mono text-sm font-medium tracking-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)] sm:self-center"
+          className="group flex min-w-0 shrink-0 items-center gap-1.5 font-mono text-sm font-medium tracking-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]"
         >
-          <span className="inline-block w-2 animate-cursor-blink text-accent-acid" aria-hidden>
+          <span className="inline-block w-2 shrink-0 animate-cursor-blink text-accent-acid" aria-hidden>
             █
           </span>
-          <span className="font-display text-lg italic text-white transition group-hover:text-accent-violet">
+          <span className="truncate font-display text-lg italic text-white transition group-hover:text-accent-violet">
             {person.name}
           </span>
         </Link>
         <nav
-          className="flex w-full flex-wrap items-center justify-start gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:ml-auto sm:w-auto sm:justify-end sm:gap-x-4 sm:text-xs"
+          className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:gap-x-3 sm:text-xs"
           aria-label="Primary"
         >
           {links.map(([label, id]) => (
