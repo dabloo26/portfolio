@@ -72,7 +72,7 @@ export const person = {
   rolesLabel: "Data Science · Analytics · ML · Data Platforms & Engineering",
   email: "abhyanshsri@gmail.com",
   phone: "+1 (240) 467-1567",
-  linkedin: "https://www.linkedin.com/in/abhyansh-anand",
+  linkedin: "https://www.linkedin.com/in/abhyansh/",
   github: "https://github.com/dabloo26",
   location: "College Park, MD",
   /** Served from `public/resume.pdf`; path respects Vite `base` (e.g. GitHub Pages project sites). */
@@ -99,6 +99,16 @@ export const githubHighlights: GithubRepoHighlight[] = [
     analyst: 35,
     scientist: 100,
     engineer: 50,
+  },
+  {
+    id: "ecom-portfolio",
+    name: "portfolio (e-commerce case study)",
+    description:
+      "Snowflake star schema, Python ETL over 1M+ transactions, Power BI with DAX — written up alongside this site; ping me if you want the SQL/Python samples.",
+    url: "https://github.com/dabloo26/portfolio",
+    analyst: 100,
+    scientist: 55,
+    engineer: 85,
   },
   {
     id: "google-forms-automation",
@@ -137,15 +147,9 @@ export const education: EducationItem[] = [
   },
 ];
 
-/** Single landing narrative — analytics & data science first, with engineering depth. */
-export const heroCopy = {
-  headline:
-    "Analytics and data science in production — trusted metrics, honest models, and platforms that stay reliable under load.",
-  sub: "I work across SQL, BI, and experimentation, ML evaluation and triage UIs, plus the engineering glue many analytics projects need: warehouses, ETL/CI/CD, APIs, and cloud services. Consulting at PwC and research at UMD sharpened both stakeholder storytelling and technical rigor.",
-  ctaPrimary: "See projects & impact",
-  ctaSecondary: "Download resume",
-  ctaSecondaryHref: person.resumeUrl,
-};
+/** Landing hero — one-liner; details live in About. */
+export const heroLandingQuote =
+  "“quick data question” accidentally builds pipelines, APIs, experiments, and half the cloud stack";
 
 export type KeyImpactMetric = {
   value: string;
@@ -168,10 +172,6 @@ export type KeyImpactCardDisplay = {
   /** Long copy for tooltips / accessibility */
   detail: string;
 };
-
-/** Header tagline (single page — no role toggles). */
-export const siteTagline =
-  "Analytics · ML · evaluation · warehouses · APIs · CI/CD";
 
 export const aboutParagraphs = [
   "I am an M.S. Data Science student at UMD (expected May 2026) with a consulting background at PwC and earlier engineering work at Infosys. The through-line is the same: make data easier to trust, faster to query, and clearer to act on — whether the interface is a dashboard, a model score, or an API.",

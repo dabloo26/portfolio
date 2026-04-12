@@ -25,10 +25,11 @@ export function HeroInteractiveHeading({
   rolesLabel,
 }: {
   name: string;
-  rolesLabel: string;
+  /** When omitted, only the name line is shown (landing hero). */
+  rolesLabel?: string;
 }) {
   const nameWords = name.split(" ");
-  const roleParts = rolesLabel.split(" · ");
+  const roleParts = rolesLabel?.split(" · ").filter(Boolean) ?? [];
 
   return (
     <motion.h1
@@ -44,18 +45,20 @@ export function HeroInteractiveHeading({
           </span>
         ))}
       </span>
-      <span className="mt-3 block text-2xl font-sans font-medium tracking-tight text-meta sm:text-3xl md:text-4xl">
-        {roleParts.map((part, i) => (
-          <span key={i} className="inline-block">
-            <Word className="mr-[0.35em] last:mr-0 hover:text-white/90">{part.trim()}</Word>
-            {i < roleParts.length - 1 ? (
-              <span className="mr-1 text-meta/80" aria-hidden>
-                ·
-              </span>
-            ) : null}
-          </span>
-        ))}
-      </span>
+      {roleParts.length > 0 ? (
+        <span className="mt-3 block text-2xl font-sans font-medium tracking-tight text-meta sm:text-3xl md:text-4xl">
+          {roleParts.map((part, i) => (
+            <span key={i} className="inline-block">
+              <Word className="mr-[0.35em] last:mr-0 hover:text-white/90">{part.trim()}</Word>
+              {i < roleParts.length - 1 ? (
+                <span className="mr-1 text-meta/80" aria-hidden>
+                  ·
+                </span>
+              ) : null}
+            </span>
+          ))}
+        </span>
+      ) : null}
     </motion.h1>
   );
 }

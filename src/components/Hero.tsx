@@ -1,15 +1,13 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { heroCopy, person } from "../data/profile";
-import { HeroInteractiveHeading, HeroInteractiveParagraph } from "./HeroInteractiveText";
+import { heroLandingQuote, person } from "../data/profile";
+import { HeroInteractiveHeading } from "./HeroInteractiveText";
 import { HeroTicker } from "./HeroTicker";
 import { InlinePlanetMobile } from "./scene/PlanetScene";
-
 const ACCENT_ORB = "#34d399";
 
-export function Hero() {
-  const copy = heroCopy;
+const memeSrc = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}meme-ai.png`;
 
+export function Hero() {
   return (
     <>
       <section
@@ -39,52 +37,39 @@ export function Hero() {
                   className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent-violet/15 blur-3xl"
                   aria-hidden
                 />
-                <p className="relative font-mono text-[10px] font-semibold uppercase tracking-[0.35em] text-accent-violet/95 sm:text-[11px]">
-                  Portfolio · Data
-                </p>
 
-                <div className="relative mt-4">
-                  <HeroInteractiveHeading name={person.name} rolesLabel={person.rolesLabel} />
+                <div className="relative mt-1">
+                  <HeroInteractiveHeading name={person.name} />
                 </div>
 
                 <HeroTicker />
 
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: 0.12 }}
-                  className="mt-6 text-lg leading-relaxed text-white sm:text-xl"
+                  className="relative mt-6 max-w-lg text-base italic leading-relaxed text-white/90 sm:text-lg"
                 >
-                  <HeroInteractiveParagraph>{copy.headline}</HeroInteractiveParagraph>
-                </motion.div>
+                  {heroLandingQuote}
+                </motion.p>
+
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: 0.18 }}
-                  className="mt-4 max-w-xl text-sm leading-relaxed text-meta sm:text-[15px]"
+                  className="relative mt-6 overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
                 >
-                  <HeroInteractiveParagraph>{copy.sub}</HeroInteractiveParagraph>
+                  <img
+                    src={memeSrc}
+                    alt=""
+                    width={500}
+                    height={375}
+                    className="mx-auto h-auto w-full max-w-[280px] object-contain sm:max-w-[320px]"
+                    loading="eager"
+                    decoding="async"
+                  />
                 </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.24 }}
-                  className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
-                >
-                  <Link
-                    to={{ pathname: "/", hash: "projects" }}
-                    className="glitch-cta inline-flex min-h-[48px] min-w-[min(100%,200px)] touch-manipulation items-center justify-center rounded-sm bg-accent-violet px-6 py-3 text-center text-sm font-semibold text-white sm:min-h-[44px] sm:min-w-0 sm:py-2.5"
-                  >
-                    {copy.ctaPrimary}
-                  </Link>
-                  <a
-                    href={copy.ctaSecondaryHref}
-                    download="Abhyansh_Anand_Resume.pdf"
-                    className="inline-flex min-h-[48px] min-w-[min(100%,200px)] touch-manipulation items-center justify-center rounded-sm border border-white/15 bg-[#111118]/90 px-6 py-3 text-center text-sm font-medium text-white transition hover:border-accent-violet/50 sm:min-h-[44px] sm:min-w-0 sm:py-2.5"
-                  >
-                    {copy.ctaSecondary}
-                  </a>
-                </motion.div>
+
               </div>
             </motion.div>
 

@@ -120,6 +120,15 @@ export function Contact() {
               </div>
             </div>
           </motion.div>
+
+          <motion.div
+            {...fade}
+            className="mt-14 text-center sm:mt-16"
+            aria-label="Closing"
+          >
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-meta">Thank you</p>
+            <p className="font-signature mt-3 text-4xl text-white/95 sm:text-5xl">{person.name}</p>
+          </motion.div>
         </div>
       </section>
     </>

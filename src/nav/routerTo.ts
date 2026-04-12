@@ -1,5 +1,13 @@
 import type { To } from "react-router-dom";
 
+/** Fragment id from `/#section` hrefs used in `profile` metrics. */
+export function hashIdFromProfileHref(href: string): string | null {
+  const i = href.indexOf("#");
+  if (i === -1) return null;
+  const id = href.slice(i + 1);
+  return id || null;
+}
+
 /** Turns `/#section` strings from data into a React Router `To` so hash scrolling works with `basename`. */
 export function routerToFromHref(href: string): To {
   const i = href.indexOf("#");

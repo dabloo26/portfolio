@@ -34,8 +34,9 @@ export function ProjectsPage() {
               All projects
             </h1>
             <p className="mt-2 max-w-xl font-mono text-sm text-meta">
-              Ordered for analytics / data science and platform work. Scroll horizontally on small
-              screens or use the grid on large ones.
+              I usually lead with analytics and ML, then the platform pieces that make them stick. If
+              something here looks familiar, we have probably complained about the same bad join or
+              the same flaky pipeline.
             </p>
           </div>
         </div>

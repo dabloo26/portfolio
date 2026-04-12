@@ -5,7 +5,8 @@ import {
   keyImpactEyebrow,
   keyImpactTitle,
 } from "../data/profile";
-import { routerToFromHref } from "../nav/routerTo";
+import { hashIdFromProfileHref, routerToFromHref } from "../nav/routerTo";
+import { useScrollToSection } from "../hooks/useScrollToSection";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 
@@ -88,6 +89,7 @@ const icons = {
 
 export function KeyImpact() {
   const cards = getKeyImpactDisplayCards();
+  const scrollToSection = useScrollToSection();
 
   return (
     <section
@@ -132,6 +134,12 @@ export function KeyImpact() {
                 <Link
                   to={routerToFromHref(c.href)}
                   title={c.detail}
+                  onClick={(e) => {
+                    const id = hashIdFromProfileHref(c.href);
+                    if (!id) return;
+                    e.preventDefault();
+                    scrollToSection(id);
+                  }}
                   className="key-impact-card group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-white/[0.12] bg-[#0a1020]/55 px-5 pb-9 pt-8 text-center shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-md transition duration-300 hover:border-sky-400/25 hover:bg-[#0c1228]/70 hover:shadow-[0_12px_48px_rgba(56,189,248,0.08)]"
                 >
                   <span

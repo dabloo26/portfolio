@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { person, siteTagline } from "../data/profile";
+import { person } from "../data/profile";
+import { useScrollToSection } from "../hooks/useScrollToSection";
 
 const links = [
   ["ABOUT", "about"],
@@ -14,6 +15,7 @@ const links = [
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const scrollToSection = useScrollToSection();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -50,14 +52,15 @@ export function Header() {
           className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:gap-x-4 sm:text-xs"
           aria-label="Primary"
         >
-          {links.map(([label, hash]) => (
-            <Link
-              key={hash}
-              to={{ pathname: "/", hash }}
-              className="transition-colors duration-150 hover:text-accent-acid hover:underline"
+          {links.map(([label, id]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => scrollToSection(id)}
+              className="cursor-pointer bg-transparent font-[inherit] uppercase transition-colors duration-150 hover:text-accent-acid hover:underline"
             >
               {label}
-            </Link>
+            </button>
           ))}
           <a
             href={person.github}
@@ -68,13 +71,6 @@ export function Header() {
             GITHUB
           </a>
         </nav>
-      </div>
-      <div className="border-t border-white/[0.04] bg-base/15 px-4 py-2 backdrop-blur-xl supports-[backdrop-filter]:bg-base/10 sm:px-6">
-        <div className="mx-auto flex max-w-6xl justify-end">
-          <p className="max-w-full text-right font-mono text-[10px] text-white/75 drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] sm:text-[11px]">
-            {siteTagline}
-          </p>
-        </div>
       </div>
     </motion.header>
   );

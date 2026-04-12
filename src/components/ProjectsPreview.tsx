@@ -14,18 +14,17 @@ const fade = {
 };
 
 const TOP = 3;
-const FEATURED_GITHUB_ID = "resume-chat";
+const SHOWCASE_ORDER = ["resume-chat", "nmt", "ecom"] as const;
 
 export function ProjectsPreview() {
   const top = useMemo(() => {
-    const sorted = sortByPrimaryFocus(projects);
-    const featured = projects.find((p) => p.id === FEATURED_GITHUB_ID);
-    const rest = sorted.filter((p) => p.id !== FEATURED_GITHUB_ID);
-    if (!featured) return sorted.slice(0, TOP);
-    return [featured, ...rest.slice(0, TOP - 1)];
+    const list = SHOWCASE_ORDER.map((id) => projects.find((p) => p.id === id)).filter(
+      (p): p is (typeof projects)[number] => Boolean(p)
+    );
+    return list.length >= TOP ? list : sortByPrimaryFocus(projects).slice(0, TOP);
   }, []);
 
-  const featuredRepo = projects.find((p) => p.id === FEATURED_GITHUB_ID);
+  const featuredRepo = projects.find((p) => p.id === "resume-chat");
 
   return (
     <section
@@ -40,22 +39,22 @@ export function ProjectsPreview() {
               Projects
             </h2>
             <p className="mt-2 max-w-2xl font-mono text-sm leading-relaxed text-meta">
-              I care about work that ships: reliable pipelines, clear analytics, and UIs that make models usable. Below
-              are three builds I stand behind;{" "}
+              Three builds I reach for first: session recovery on AWS, English–Hindi NMT, and a
+              warehouse-backed analytics stack.
               {featuredRepo?.link ? (
-                <a
-                  href={featuredRepo.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-accent-violet underline decoration-accent-violet/35 underline-offset-[3px] transition hover:text-accent-acid hover:decoration-accent-acid"
-                >
-                  {featuredRepo.title}
-                </a>
-              ) : (
-                featuredRepo?.title
-              )}{" "}
-              (serverless FastAPI, React on CloudFront, DynamoDB + S3 session recovery) is public on GitHub if you want
-              to read the implementation.
+                <>
+                  {" "}
+                  <a
+                    href={featuredRepo.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-accent-violet underline decoration-accent-violet/35 underline-offset-[3px] transition hover:text-accent-acid hover:decoration-accent-acid"
+                  >
+                    The resume app repo
+                  </a>{" "}
+                  is open if you want to poke at the Lambda/React wiring.
+                </>
+              ) : null}
             </p>
           </div>
           <Link
