@@ -146,3 +146,52 @@ label {
     100% 100%,
     100% 100%;
 }
+
+/* App boot loader (App.tsx) */
+.app-loader-spin {
+  animation: app-loader-spin 1.05s linear infinite;
+}
+.app-loader-ring {
+  animation: app-loader-ring 2.8s ease-in-out infinite;
+}
+.app-loader-bar {
+  animation: app-loader-bar 1.35s ease-in-out infinite;
+}
+@keyframes app-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes app-loader-ring {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+@keyframes app-loader-bar {
+  0% {
+    left: -38%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-loader-spin {
+    animation: none;
+    opacity: 0.75;
+  }
+  .app-loader-ring {
+    animation: none;
+    opacity: 0.75;
+  }
+  .app-loader-bar {
+    animation: none;
+    left: 31% !important;
+  }
+}

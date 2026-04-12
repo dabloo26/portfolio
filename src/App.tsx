@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AppLoadingScreen } from "./components/AppLoadingScreen";
 import { LandingPlanetProvider } from "./context/LandingPlanetContext";
 import { RoleProvider } from "./context/RoleProvider";
 import { GlobalHeroBackdrop } from "./components/HeroScene";
@@ -51,11 +53,9 @@ function App() {
       <BrowserRouter basename={routerBasename()}>
         <LandingPlanetProvider>
           <div className="relative min-h-[100dvh] min-h-[100svh] bg-base text-white">
-            {loading && (
-              <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-base text-white transition-opacity duration-500" style={{background: 'linear-gradient(180deg, #181c24 60%, #2e3350 100%)'}}>
-                <div className="text-2xl font-bold animate-pulse">Loading…</div>
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {loading && <AppLoadingScreen key="app-loader" />}
+            </AnimatePresence>
             <div style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.5s' }}>
               <Routes>
                 <Route
