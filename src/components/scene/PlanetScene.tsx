@@ -7,8 +7,8 @@ import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 /** Brand accent for lights / fallback. */
 const PLANET_ACCENT = "#34d399";
 
-/** Place `cute_little_planet.glb` in `public/` (served as `/cute_little_planet.glb`). */
-const PLANET_GLB_URL = "/cute_little_planet.glb";
+/** Place `cute_little_planet.glb` in `public/`. Must use Vite `BASE_URL` so GitHub Pages project sites resolve correctly. */
+const PLANET_GLB_URL = `${import.meta.env.BASE_URL}cute_little_planet.glb`;
 
 /** ~1.2–1.4× larger on screen: dolly camera closer (whole scene scales together). */
 const PLANET_VIEW_ZOOM = 1.3;

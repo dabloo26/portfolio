@@ -7,8 +7,12 @@ if ("scrollRestoration" in history) {
   history.scrollRestoration = "manual";
 }
 
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+const app = import.meta.env.DEV ? (
   <StrictMode>
     <App />
   </StrictMode>
+) : (
+  <App />
 );
+root.render(app);
