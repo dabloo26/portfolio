@@ -1,5 +1,6 @@
+import { useInView } from "framer-motion";
 import { motion } from "framer-motion";
-import { lazy, Suspense, useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useRef, useState } from "react";
 import { person } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
@@ -35,10 +36,27 @@ const fade = {
   transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
 };
 
+/** Same idea as hero: fixed viewport orb so it isn’t clipped by section edges. */
+function FixedContactOrb({ visible }: { visible: boolean }) {
+  if (!visible) return null;
+  return (
+    <div
+      className="pointer-events-none fixed bottom-[4vh] right-[-16%] z-[8] hidden h-[min(88vh,880px)] max-h-[900px] w-[min(95vw,880px)] max-w-[920px] md:block lg:right-[-10%] lg:bottom-[6vh]"
+      aria-hidden
+    >
+      <Suspense fallback={<ContactCircleFallback />}>
+        <WireCircleAccent color={CONTACT_ORB} immersive className="h-full w-full" />
+      </Suspense>
+    </div>
+  );
+}
+
 export function Contact() {
   const [copied, setCopied] = useState<string | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const orbVisible = useInView(sectionRef, { amount: 0.08, margin: "0px 0px -10% 0px" });
 
-  const copy = useCallback(async (label: string, text: string) => {
+  const copyTo = useCallback(async (label: string, text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(label);
@@ -49,105 +67,107 @@ export function Contact() {
   }, []);
 
   return (
-    <section
-      id="contact"
-      className="relative z-10 scroll-mt-40 bg-gradient-to-b from-base/25 via-base/50 to-base/60 px-4 py-20 sm:px-6 sm:pb-28 sm:pt-16 md:py-24 md:scroll-mt-44"
-      style={{
-        paddingLeft: "max(1rem, env(safe-area-inset-left))",
-        paddingRight: "max(1rem, env(safe-area-inset-right))",
-        paddingBottom: "max(5rem, env(safe-area-inset-bottom))",
-      }}
-    >
-      <SectionBackdropLayer variant="contact" />
-      <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(240px,38%)] lg:items-stretch lg:gap-12 xl:gap-16">
-        <motion.div
-          {...fade}
-          className="order-1 flex flex-col justify-center lg:order-1"
-        >
-          <div className="rounded-2xl border border-white/[0.14] bg-[#060a12]/55 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.15),0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:rounded-3xl sm:p-7 md:p-8">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-400/90 sm:text-[11px]">
-              Get in touch
-            </p>
-            <h2 className="mt-3 font-condensed text-3xl font-bold uppercase tracking-[0.12em] text-white sm:text-4xl md:text-5xl">
-              Contact
-            </h2>
-            <p className="mt-3 max-w-lg font-mono text-sm leading-relaxed text-meta">
-              Copy-friendly — same details as my resume header.
-            </p>
-            <div className="mt-8 space-y-1 font-mono text-sm md:mt-10">
-              <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
-                <span className="shrink-0 text-meta">$ email</span>
-                <button
-                  type="button"
-                  onClick={() => copy("email", person.email)}
-                  className="min-h-[44px] touch-manipulation text-left text-white transition hover:text-accent-acid sm:min-h-0"
-                >
-                  {person.email}
-                </button>
-                {copied === "email" ? (
-                  <span className="text-xs text-accent-acid">✓ copied</span>
-                ) : (
-                  <span className="text-xs text-meta">tap to copy</span>
-                )}
-              </div>
-              <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
-                <span className="shrink-0 text-meta">$ phone</span>
-                <button
-                  type="button"
-                  onClick={() => copy("phone", person.phone.replace(/\s/g, ""))}
-                  className="min-h-[44px] touch-manipulation text-left text-white transition hover:text-accent-acid sm:min-h-0"
-                >
-                  {person.phone}
-                </button>
-                {copied === "phone" ? (
-                  <span className="text-xs text-accent-acid">✓ copied</span>
-                ) : (
-                  <span className="text-xs text-meta">tap to copy</span>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-white/[0.06] py-3">
-                <span className="text-meta">$ open</span>
-                <a
-                  href={person.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="min-h-[44px] touch-manipulation text-accent-violet transition hover:text-accent-acid sm:min-h-0"
-                >
-                  LinkedIn ↗
-                </a>
-                <a
-                  href={person.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="min-h-[44px] touch-manipulation text-accent-violet transition hover:text-accent-acid sm:min-h-0"
-                >
-                  GitHub (@{githubHandle}) ↗
-                </a>
-              </div>
-              <div className="py-3">
-                <span className="text-meta">$ cat </span>
-                <a
-                  href={person.resumeUrl}
-                  className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
-                  download="Abhyansh_Anand_Resume.pdf"
-                >
-                  resume.pdf
-                </a>
+    <>
+      <FixedContactOrb visible={orbVisible} />
+
+      <section
+        ref={sectionRef}
+        id="contact"
+        className="relative z-10 scroll-mt-40 bg-gradient-to-b from-transparent via-base/40 to-base/58 px-4 py-20 sm:px-6 sm:pb-28 sm:pt-16 md:py-24 md:scroll-mt-44"
+        style={{
+          paddingLeft: "max(1rem, env(safe-area-inset-left))",
+          paddingRight: "max(1rem, env(safe-area-inset-right))",
+          paddingBottom: "max(5rem, env(safe-area-inset-bottom))",
+        }}
+      >
+        <SectionBackdropLayer variant="contact" />
+        <div className="relative z-10 mx-auto max-w-3xl lg:max-w-4xl">
+          <motion.div {...fade}>
+            <div className="rounded-2xl border border-white/[0.14] bg-[#060a12]/65 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_24px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl sm:rounded-3xl sm:p-7 md:p-8">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-400/90 sm:text-[11px]">
+                Get in touch
+              </p>
+              <h2 className="mt-3 font-condensed text-3xl font-bold uppercase tracking-[0.12em] text-white sm:text-4xl md:text-5xl">
+                Contact
+              </h2>
+              <p className="mt-3 max-w-lg font-mono text-sm leading-relaxed text-meta">
+                Copy-friendly — same details as my resume header.
+              </p>
+              <div className="mt-8 space-y-1 font-mono text-sm md:mt-10">
+                <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
+                  <span className="shrink-0 text-meta">$ email</span>
+                  <button
+                    type="button"
+                    onClick={() => copyTo("email", person.email)}
+                    className="min-h-[44px] touch-manipulation text-left text-white transition hover:text-accent-acid sm:min-h-0"
+                  >
+                    {person.email}
+                  </button>
+                  {copied === "email" ? (
+                    <span className="text-xs text-accent-acid">✓ copied</span>
+                  ) : (
+                    <span className="text-xs text-meta">tap to copy</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
+                  <span className="shrink-0 text-meta">$ phone</span>
+                  <button
+                    type="button"
+                    onClick={() => copyTo("phone", person.phone.replace(/\s/g, ""))}
+                    className="min-h-[44px] touch-manipulation text-left text-white transition hover:text-accent-acid sm:min-h-0"
+                  >
+                    {person.phone}
+                  </button>
+                  {copied === "phone" ? (
+                    <span className="text-xs text-accent-acid">✓ copied</span>
+                  ) : (
+                    <span className="text-xs text-meta">tap to copy</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-white/[0.06] py-3">
+                  <span className="text-meta">$ open</span>
+                  <a
+                    href={person.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="min-h-[44px] touch-manipulation text-accent-violet transition hover:text-accent-acid sm:min-h-0"
+                  >
+                    LinkedIn ↗
+                  </a>
+                  <a
+                    href={person.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="min-h-[44px] touch-manipulation text-accent-violet transition hover:text-accent-acid sm:min-h-0"
+                  >
+                    GitHub (@{githubHandle}) ↗
+                  </a>
+                </div>
+                <div className="py-3">
+                  <span className="text-meta">$ cat </span>
+                  <a
+                    href={person.resumeUrl}
+                    className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
+                    download="Abhyansh_Anand_Resume.pdf"
+                  >
+                    resume.pdf
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        <div className="order-2 flex min-h-[min(52vw,320px)] w-full items-center justify-center lg:order-2 lg:min-h-[min(48vh,440px)] lg:justify-end">
-          <Suspense fallback={<ContactCircleFallback />}>
-            <WireCircleAccent
-              color={CONTACT_ORB}
-              immersive
-              className="h-[min(72vw,360px)] w-[min(92vw,420px)] md:h-[min(48vw,400px)] md:w-full md:max-w-[480px] lg:h-[min(50vh,480px)] lg:max-w-none"
-            />
-          </Suspense>
+          <div className="relative z-[15] mt-10 flex min-h-[min(56vw,300px)] w-full justify-center md:hidden">
+            <Suspense fallback={<ContactCircleFallback />}>
+              <WireCircleAccent
+                color={CONTACT_ORB}
+                immersive
+                className="h-[min(56vw,300px)] w-[min(90vw,380px)]"
+              />
+            </Suspense>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

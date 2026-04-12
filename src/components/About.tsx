@@ -11,6 +11,10 @@ const fade = {
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
 };
 
+/** ~6.5/10 solidity — mostly translucent with readable tint + blur */
+const cardShell =
+  "rounded-2xl border border-white/[0.12] bg-[#070a12]/65 shadow-[0_12px_48px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:rounded-3xl";
+
 function AnimatedGpa() {
   const [v, setV] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -50,7 +54,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative z-10 scroll-mt-40 bg-gradient-to-b from-base/20 via-base/48 to-base/58 px-4 py-20 sm:px-6 sm:py-24 md:scroll-mt-44"
+      className="relative z-10 scroll-mt-40 bg-gradient-to-b from-transparent via-base/35 to-base/55 px-4 py-20 sm:px-6 sm:py-24 md:scroll-mt-44"
     >
       <SectionBackdropLayer variant="about" />
       <div className="relative z-10 mx-auto max-w-6xl">
@@ -63,27 +67,33 @@ export function About() {
             {person.location}
           </p>
         </motion.div>
-        <div className="mt-12 grid gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-start">
-          <div className="space-y-6 text-[15px] leading-relaxed text-meta">
-            {aboutParagraphs.map((p, i) => (
-              <motion.p key={i} {...fade} transition={{ ...fade.transition, delay: i * 0.06 }}>
-                {p}
-              </motion.p>
-            ))}
-          </div>
+        <div className="mt-12 grid gap-8 md:grid-cols-[1.1fr_0.9fr] md:items-start md:gap-10">
+          <motion.div
+            {...fade}
+            transition={{ ...fade.transition, delay: 0.04 }}
+            className={`${cardShell} p-6 sm:p-8`}
+          >
+            <div className="space-y-6 text-[17px] leading-relaxed text-white/90 sm:text-lg">
+              {aboutParagraphs.map((p, i) => (
+                <motion.p key={i} {...fade} transition={{ ...fade.transition, delay: i * 0.06 }}>
+                  {p}
+                </motion.p>
+              ))}
+            </div>
+          </motion.div>
           <div className="flex flex-col gap-6">
             <motion.div
               {...fade}
               transition={{ ...fade.transition, delay: 0.1 }}
-              className="overflow-hidden rounded-lg border border-white/[0.1] bg-[#111118] font-mono text-xs text-white/90 shadow-lg"
+              className={`${cardShell} overflow-hidden font-mono text-xs text-white/90`}
             >
-              <div className="flex items-center gap-2 border-b border-white/[0.08] bg-[#1a1a22] px-3 py-2">
+              <div className="flex items-center gap-2 border-b border-white/[0.08] bg-[#0d1018]/50 px-3 py-2 backdrop-blur-sm">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
                 <span className="ml-2 text-[11px] text-meta">education.json</span>
               </div>
-              <pre className="overflow-x-auto p-4 text-[11px] leading-relaxed sm:text-xs">
+              <pre className="overflow-x-auto p-4 text-[12px] leading-relaxed sm:text-[13px]">
                 <code className="block text-white">
                   {`{
   "degree": "M.S. Data Science",
@@ -102,29 +112,29 @@ export function About() {
             <motion.div
               {...fade}
               transition={{ ...fade.transition, delay: 0.16 }}
-              className="rounded-lg border border-white/[0.08] bg-[#111118] p-6"
+              className={`${cardShell} p-6 sm:p-7`}
             >
-              <h3 className="font-condensed text-lg font-bold uppercase tracking-[0.12em] text-white">
+              <h3 className="font-condensed text-lg font-bold uppercase tracking-[0.12em] text-white sm:text-xl">
                 How I work
               </h3>
-              <ul className="mt-4 space-y-3 text-sm text-meta">
+              <ul className="mt-4 space-y-3 text-[17px] leading-relaxed text-meta sm:text-lg">
                 <li className="flex gap-2">
                   <span className="shrink-0 font-mono text-accent-acid">&gt;</span>
-                  <span className="text-white/85">
+                  <span className="text-white/90">
                     Start from the decision the business needs to make, then trace
                     backward to data and systems.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="shrink-0 font-mono text-accent-acid">&gt;</span>
-                  <span className="text-white/85">
+                  <span className="text-white/90">
                     Prefer simple, observable designs over clever complexity —
                     especially in production paths.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="shrink-0 font-mono text-accent-acid">&gt;</span>
-                  <span className="text-white/85">
+                  <span className="text-white/90">
                     Communicate uncertainty and trade-offs clearly; metrics are only
                     as good as their definitions.
                   </span>
