@@ -1,24 +1,8 @@
-import { useInView } from "framer-motion";
 import { motion } from "framer-motion";
-import { lazy, Suspense, useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { person } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
-
-const WireCircleAccent = lazy(() =>
-  import("./scene/WireCircleAccent").then((m) => ({ default: m.WireCircleAccent }))
-);
-
-const CONTACT_ORB = "#22d3ee";
-
-function ContactCircleFallback() {
-  return (
-    <div
-      className="h-full min-h-[200px] w-full bg-[radial-gradient(circle_at_50%_45%,rgba(34,211,238,0.1),transparent_68%)] md:min-h-[260px]"
-      aria-hidden
-    />
-  );
-}
 
 const githubHandle = (() => {
   try {
@@ -36,25 +20,8 @@ const fade = {
   transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
 };
 
-/** Same idea as hero: fixed viewport orb so it isn’t clipped by section edges. */
-function FixedContactOrb({ visible }: { visible: boolean }) {
-  if (!visible) return null;
-  return (
-    <div
-      className="pointer-events-none fixed bottom-[4vh] right-[-16%] z-[8] hidden h-[min(88vh,880px)] max-h-[900px] w-[min(95vw,880px)] max-w-[920px] md:block lg:right-[-10%] lg:bottom-[6vh]"
-      aria-hidden
-    >
-      <Suspense fallback={<ContactCircleFallback />}>
-        <WireCircleAccent color={CONTACT_ORB} immersive className="h-full w-full" />
-      </Suspense>
-    </div>
-  );
-}
-
 export function Contact() {
   const [copied, setCopied] = useState<string | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const orbVisible = useInView(sectionRef, { amount: 0.08, margin: "0px 0px -10% 0px" });
 
   const copyTo = useCallback(async (label: string, text: string) => {
     try {
@@ -68,10 +35,7 @@ export function Contact() {
 
   return (
     <>
-      <FixedContactOrb visible={orbVisible} />
-
       <section
-        ref={sectionRef}
         id="contact"
         className="relative z-10 scroll-mt-40 bg-gradient-to-b from-transparent via-base/40 to-base/58 px-4 py-20 sm:px-6 sm:pb-28 sm:pt-16 md:py-24 md:scroll-mt-44"
         style={{
@@ -156,16 +120,6 @@ export function Contact() {
               </div>
             </div>
           </motion.div>
-
-          <div className="relative z-[15] mt-10 flex min-h-[min(56vw,300px)] w-full justify-center md:hidden">
-            <Suspense fallback={<ContactCircleFallback />}>
-              <WireCircleAccent
-                color={CONTACT_ORB}
-                immersive
-                className="h-[min(56vw,300px)] w-[min(90vw,380px)]"
-              />
-            </Suspense>
-          </div>
         </div>
       </section>
     </>

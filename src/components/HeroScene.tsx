@@ -28,7 +28,7 @@ function HeroSceneFallback({ role, fixed }: { role: Role; fixed?: boolean }) {
   );
 }
 
-/** Fixed starfield + wireframe from the hero, visible behind the whole scroll (home + projects). */
+/** Fixed starfield behind the whole scroll (home + projects). Planet is `GlobalPlanetLayer` in App. */
 export function GlobalHeroBackdrop() {
   const { role } = useRole();
   const [mobile, setMobile] = useState(false);

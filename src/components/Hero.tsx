@@ -1,60 +1,18 @@
 import { motion } from "framer-motion";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import type { Role } from "../data/profile";
 import { heroCopy, person } from "../data/profile";
 import { useRole } from "../hooks/useRole";
 import { HeroInteractiveHeading, HeroInteractiveParagraph } from "./HeroInteractiveText";
 import { HeroTicker } from "./HeroTicker";
-
-const WireCircleAccent = lazy(() =>
-  import("./scene/WireCircleAccent").then((m) => ({ default: m.WireCircleAccent }))
-);
+import { InlinePlanetMobile } from "./scene/PlanetScene";
 
 const ROLE_ORB: Record<Role, string> = {
   analyst: "#38bdf8",
   scientist: "#e879f9",
   engineer: "#4ade80",
 };
-
-function CircleFallback({ large }: { large?: boolean }) {
-  return (
-    <div
-      className={`w-full bg-[radial-gradient(circle_at_50%_45%,rgba(56,189,248,0.1),transparent_68%)] ${
-        large ? "min-h-[min(72vw,420px)]" : "min-h-[240px] md:min-h-[300px]"
-      }`}
-      aria-hidden
-    />
-  );
-}
-
-/** Viewport-fixed orb — not tied to section height, so no “cut” at About. Hidden after first screen to limit overlap with Contact orb. */
-function FixedHeroOrb({ color }: { color: string }) {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const vh = window.innerHeight || 1;
-      setVisible(window.scrollY < vh * 1.35);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  if (!visible) return null;
-
-  return (
-    <div
-      className="pointer-events-none fixed left-[28%] right-[-18%] top-[8vh] z-[8] hidden h-[min(92vh,900px)] max-h-[920px] md:block lg:left-[34%] lg:right-[-10%] lg:top-[6vh]"
-      aria-hidden
-    >
-      <Suspense fallback={<CircleFallback large />}>
-        <WireCircleAccent color={color} immersive className="h-full w-full" />
-      </Suspense>
-    </div>
-  );
-}
 
 export function Hero() {
   const { role } = useRole();
@@ -63,8 +21,6 @@ export function Hero() {
 
   return (
     <>
-      <FixedHeroOrb color={orbHue} />
-
       <section
         id="top"
         className="relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-visible bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
@@ -147,14 +103,8 @@ export function Hero() {
               </div>
             </motion.div>
 
-            <div className="relative z-[15] flex min-h-[min(64vw,340px)] w-full justify-center md:hidden">
-              <Suspense fallback={<CircleFallback />}>
-                <WireCircleAccent
-                  color={orbHue}
-                  immersive
-                  className="h-[min(64vw,340px)] w-[min(92vw,400px)] max-w-[440px]"
-                />
-              </Suspense>
+            <div className="relative z-[15] flex w-full justify-center md:hidden">
+              <InlinePlanetMobile accent={orbHue} />
             </div>
           </div>
         </div>

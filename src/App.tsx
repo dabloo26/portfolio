@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { RoleProvider } from "./context/RoleProvider";
 import { GlobalHeroBackdrop } from "./components/HeroScene";
+import { GlobalPlanetLayer } from "./components/scene/PlanetScene";
 import { ScrollProgress } from "./components/ScrollProgress";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { Header } from "./components/Header";
@@ -13,6 +14,7 @@ function Shell({ children }: { children: ReactNode }) {
     <>
       <ScrollProgress />
       <GlobalHeroBackdrop />
+      <GlobalPlanetLayer />
       <div className="relative z-[30] isolate">
         <Header />
         <ScrollToTop />
