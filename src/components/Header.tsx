@@ -73,7 +73,8 @@ export function Header() {
       }`}
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-row items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 sm:py-3">
+      {/* Full viewport width — no max-w-* so logo and links sit at true left/right (with padding). */}
+      <div className="box-border flex w-full max-w-none flex-row items-center justify-between gap-x-3 gap-y-2 px-4 py-2.5 sm:px-6 md:px-8 lg:px-10 xl:px-12 sm:py-3">
         <Link
           to="/"
           className="group flex min-w-0 shrink-0 items-center gap-1.5 font-mono text-sm font-medium tracking-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]"
@@ -86,7 +87,7 @@ export function Header() {
           </span>
         </Link>
         <nav
-          className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:gap-x-3 sm:text-xs"
+          className="flex shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.55)] sm:gap-x-3 sm:text-xs"
           aria-label="Primary"
         >
           {links.map(([label, id]) => (
@@ -122,7 +123,7 @@ export function Header() {
               showLandingTicker ? "opacity-100" : "opacity-0"
             }`}
           >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="box-border w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
               <HeroTicker />
             </div>
           </div>
