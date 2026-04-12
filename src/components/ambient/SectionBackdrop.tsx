@@ -3,6 +3,13 @@ import { Suspense, useRef, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+export type SectionBackdropVariant =
+  | "about"
+  | "experience"
+  | "impact"
+  | "projects"
+  | "contact";
+
 const cssBlob: Record<string, string> = {
   about:
     "bg-[radial-gradient(ellipse_80%_60%_at_90%_40%,rgba(124,58,255,0.12),transparent),radial-gradient(ellipse_60%_50%_at_10%_80%,rgba(56,189,248,0.06),transparent)]",
@@ -24,12 +31,28 @@ const meshColor: Record<string, string> = {
   contact: "#22d3ee",
 };
 
-export type SectionBackdropVariant =
-  | "about"
-  | "experience"
-  | "impact"
-  | "projects"
-  | "contact";
+/** Section background tint for full-bleed vignette (matches Tailwind `bg-base` / Key Impact). */
+const fullBleedTint: Record<SectionBackdropVariant, string> = {
+  about: "#0a0a0f",
+  experience: "#0a0a0f",
+  impact: "#050a14",
+  projects: "#0a0a0f",
+  contact: "#0a0a0f",
+};
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const h = hex.replace("#", "");
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
+
+function rgba(hex: string, a: number) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${a})`;
+}
 
 function FloatMesh({
   hue,
@@ -81,8 +104,8 @@ function MiniScene({ hue }: { hue: string }) {
   );
 }
 
-/** Wider, two-shape layout so wireframe fills the section behind content (Key Impact). */
-function ImpactWideScene({ hue }: { hue: string }) {
+/** Two-shape layout so wireframe fills the section behind content. */
+function WideBackdropScene({ hue }: { hue: string }) {
   return (
     <>
       <ambientLight intensity={0.55} />
@@ -99,13 +122,13 @@ function ImpactWideScene({ hue }: { hue: string }) {
   );
 }
 
-/** Fills unused margin space: CSS wash on all breakpoints; lightweight wireframe on md+. */
+/** Fills unused space: CSS wash on all breakpoints; lightweight wireframe on md+ (full width by default). */
 export function SectionBackdropLayer({
   variant,
-  coverage = "margin",
+  coverage = "full",
 }: {
   variant: SectionBackdropVariant;
-  /** `full` = wireframe across the whole section (e.g. Key Impact behind cards). */
+  /** `full` = wireframe across the whole section; `margin` = narrow strip on the right only. */
   coverage?: "margin" | "full";
 }) {
   const root = useRef<HTMLDivElement>(null);
@@ -113,6 +136,7 @@ export function SectionBackdropLayer({
   const hue = meshColor[variant];
   const css = cssBlob[variant];
   const full = coverage === "full";
+  const tint = fullBleedTint[variant];
 
   return (
     <div
@@ -140,18 +164,29 @@ export function SectionBackdropLayer({
             onCreated={({ gl }) => gl.setClearColor("#000000", 0)}
           >
             <Suspense fallback={null}>
-              {full && variant === "impact" ? (
-                <ImpactWideScene hue={hue} />
-              ) : (
-                <MiniScene hue={hue} />
-              )}
+              {full ? <WideBackdropScene hue={hue} /> : <MiniScene hue={hue} />}
             </Suspense>
           </Canvas>
           {full ? (
             <>
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_95%_80%_at_50%_45%,transparent_0%,#050a14_82%)] opacity-[0.72]" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#050a14]/55 via-[#050a14]/22 to-[#050a14]/12" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#050a14]/40 via-transparent to-[#050a14]/55" />
+              <div
+                className="absolute inset-0 opacity-[0.72]"
+                style={{
+                  background: `radial-gradient(ellipse 95% 80% at 50% 45%, transparent 0%, ${rgba(tint, 0.82)} 78%)`,
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(to right, ${rgba(tint, 0.55)}, ${rgba(tint, 0.22)}, ${rgba(tint, 0.12)})`,
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(to bottom, ${rgba(tint, 0.4)}, transparent, ${rgba(tint, 0.55)})`,
+                }}
+              />
             </>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-l from-base via-base/25 to-transparent" />

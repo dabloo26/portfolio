@@ -93,7 +93,7 @@ export function KeyImpact() {
       id="impact"
       className="key-impact relative z-10 scroll-mt-32 overflow-hidden border-t border-white/[0.06] bg-[#050a14] px-4 py-20 sm:px-6 sm:py-24"
     >
-      <SectionBackdropLayer variant="impact" coverage="full" />
+      <SectionBackdropLayer variant="impact" />
       <div className="key-impact__glow pointer-events-none absolute inset-0 opacity-40" aria-hidden />
       <div
         className="pointer-events-none absolute right-0 top-0 h-64 w-[min(100%,480px)] opacity-[0.12]"
