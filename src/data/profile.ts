@@ -151,6 +151,9 @@ export const education: EducationItem[] = [
 export const heroLandingQuote =
   "“quick data question” accidentally builds pipelines, APIs, experiments, and half the cloud stack";
 
+/** Short display line under the name on the landing hero. */
+export const heroTagline = "in Data we trust";
+
 export type KeyImpactMetric = {
   value: string;
   suffix: string;

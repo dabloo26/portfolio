@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
-import { heroLandingQuote, person } from "../data/profile";
+import { heroLandingQuote, heroTagline, person } from "../data/profile";
 import { HeroInteractiveHeading } from "./HeroInteractiveText";
-import { HeroTicker } from "./HeroTicker";
 import { InlinePlanetMobile } from "./scene/PlanetScene";
-const ACCENT_ORB = "#34d399";
 
-const memeSrc = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}meme-ai.png`;
+const ACCENT_ORB = "#34d399";
 
 export function Hero() {
   return (
@@ -32,44 +30,33 @@ export function Hero() {
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="pointer-events-auto relative w-full max-w-2xl sm:max-w-none"
             >
-              <div className="relative overflow-hidden rounded-2xl border border-white/[0.14] bg-[#060a12]/55 p-5 shadow-[0_0_0_1px_rgba(124,58,255,0.18),0_28px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl sm:rounded-3xl sm:p-7 md:p-8 lg:max-w-xl xl:max-w-2xl">
+              <div className="relative overflow-hidden rounded-2xl border border-white/[0.14] bg-[#060a12]/55 p-6 shadow-[0_0_0_1px_rgba(124,58,255,0.18),0_28px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl sm:rounded-3xl sm:p-8 md:p-10 lg:max-w-2xl xl:max-w-3xl">
                 <div
                   className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent-violet/15 blur-3xl"
                   aria-hidden
                 />
 
                 <div className="relative mt-1">
-                  <HeroInteractiveHeading name={person.name} />
+                  <HeroInteractiveHeading name={person.name} variant="landing" />
                 </div>
 
-                <HeroTicker />
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.08 }}
+                  className="relative mt-5 font-display text-[clamp(1.35rem,calc(2.8vw+0.75rem),2.35rem)] italic leading-tight tracking-wide text-sky-200/95 sm:mt-6 md:text-4xl"
+                >
+                  {heroTagline}
+                </motion.p>
 
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.45, delay: 0.12 }}
-                  className="relative mt-6 max-w-lg text-base italic leading-relaxed text-white/90 sm:text-lg"
+                  transition={{ duration: 0.45, delay: 0.14 }}
+                  className="relative mt-8 max-w-xl text-lg italic leading-relaxed text-white/88 sm:mt-10 sm:text-xl"
                 >
                   {heroLandingQuote}
                 </motion.p>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.45, delay: 0.18 }}
-                  className="relative mt-6 overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
-                >
-                  <img
-                    src={memeSrc}
-                    alt=""
-                    width={500}
-                    height={375}
-                    className="mx-auto h-auto w-full max-w-[280px] object-contain sm:max-w-[320px]"
-                    loading="eager"
-                    decoding="async"
-                  />
-                </motion.div>
-
               </div>
             </motion.div>
 

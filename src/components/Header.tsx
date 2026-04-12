@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { person } from "../data/profile";
 import { useScrollToSection } from "../hooks/useScrollToSection";
+import { HeroTicker } from "./HeroTicker";
 
 const links = [
   ["ABOUT", "about"],
@@ -13,9 +14,45 @@ const links = [
   ["CONTACT", "contact"],
 ] as const;
 
+function useLandingTickerVisible() {
+  const { pathname } = useLocation();
+  const isHome = pathname === "/" || pathname === "";
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (!isHome) {
+      setVisible(false);
+      return;
+    }
+
+    const update = () => {
+      const hero = document.getElementById("top");
+      if (!hero) {
+        setVisible(false);
+        return;
+      }
+      const { bottom } = hero.getBoundingClientRect();
+      setVisible(bottom > 72);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    const t = window.setTimeout(update, 50);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      window.clearTimeout(t);
+    };
+  }, [isHome, pathname]);
+
+  return { showLandingTicker: isHome && visible };
+}
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const scrollToSection = useScrollToSection();
+  const { showLandingTicker } = useLandingTickerVisible();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -71,6 +108,25 @@ export function Header() {
             GITHUB
           </a>
         </nav>
+      </div>
+
+      <div
+        className={`grid min-h-0 transition-[grid-template-rows] duration-300 ease-out ${
+          showLandingTicker ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+        aria-hidden={!showLandingTicker}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div
+            className={`transition-opacity duration-300 ease-out ${
+              showLandingTicker ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+              <HeroTicker />
+            </div>
+          </div>
+        </div>
       </div>
     </motion.header>
   );

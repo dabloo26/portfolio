@@ -23,20 +23,28 @@ function Word({
 export function HeroInteractiveHeading({
   name,
   rolesLabel,
+  variant = "default",
 }: {
   name: string;
   /** When omitted, only the name line is shown (landing hero). */
   rolesLabel?: string;
+  /** Larger type for the landing hero. */
+  variant?: "default" | "landing";
 }) {
   const nameWords = name.split(" ");
   const roleParts = rolesLabel?.split(" · ").filter(Boolean) ?? [];
+
+  const nameSize =
+    variant === "landing"
+      ? "text-[clamp(2.85rem,calc(8vw+1.35rem),6.25rem)] leading-[0.92] sm:text-8xl md:text-9xl lg:text-[6.25rem]"
+      : "text-[clamp(2rem,calc(5vw+1.25rem),4.5rem)] leading-[0.95] sm:text-6xl md:text-7xl";
 
   return (
     <motion.h1
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="font-display text-[clamp(2rem,calc(5vw+1.25rem),4.5rem)] leading-[0.95] text-white sm:text-6xl md:text-7xl"
+      className={`font-display ${nameSize} text-white`}
     >
       <span className="block">
         {nameWords.map((w, i) => (
