@@ -3,6 +3,7 @@ import { useGLTF } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
+import { usePlanetGlbAvailable } from "../../hooks/usePlanetGlbAvailable";
 
 /** Brand accent for lights / fallback. */
 const PLANET_ACCENT = "#34d399";
@@ -226,8 +227,6 @@ function PlanetFromGlb({ motionOn }: { motionOn: boolean }) {
   );
 }
 
-useGLTF.preload(PLANET_GLB_URL);
-
 function PlanetWorld({
   accent,
   rotationSpeed,
@@ -274,22 +273,27 @@ type GlobalPlanetProps = {
   accent: string;
 };
 
+function GlobalPlanetCss({ accent }: { accent: string }) {
+  return (
+    <div
+      className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
+      aria-hidden
+    >
+      <div
+        className="h-full w-full rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(147,197,253,0.5),transparent_50%),radial-gradient(circle_at_70%_60%,rgba(22,101,52,0.38),transparent_48%),#0c4a6e]"
+        style={{ boxShadow: `0 0 80px ${accent}40` }}
+      />
+    </div>
+  );
+}
+
 export function GlobalPlanet({ accent }: GlobalPlanetProps) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : PLANET_SPIN_SPEED;
+  const glbReachable = usePlanetGlbAvailable(PLANET_GLB_URL);
 
-  if (reduced) {
-    return (
-      <div
-        className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[8] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
-        aria-hidden
-      >
-        <div
-          className="h-full w-full rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(147,197,253,0.5),transparent_50%),radial-gradient(circle_at_70%_60%,rgba(22,101,52,0.38),transparent_48%),#0c4a6e]"
-          style={{ boxShadow: `0 0 80px ${accent}40` }}
-        />
-      </div>
-    );
+  if (reduced || glbReachable !== "yes") {
+    return <GlobalPlanetCss accent={accent} />;
   }
 
   return (
@@ -335,18 +339,23 @@ export function GlobalPlanetLayer() {
   return <GlobalPlanet accent={PLANET_ACCENT} />;
 }
 
+function InlinePlanetCss({ accent }: { accent: string }) {
+  return (
+    <div
+      className="mx-auto h-[min(56vw,300px)] w-[min(92vw,380px)] rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(52,211,153,0.4),transparent_50%),#052e16] md:hidden"
+      style={{ boxShadow: `0 0 48px ${accent}28` }}
+      aria-hidden
+    />
+  );
+}
+
 export function InlinePlanetMobile({ accent }: { accent: string }) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : PLANET_SPIN_SPEED;
+  const glbReachable = usePlanetGlbAvailable(PLANET_GLB_URL);
 
-  if (reduced) {
-    return (
-      <div
-        className="mx-auto h-[min(56vw,280px)] w-[min(92vw,380px)] rounded-full bg-[radial-gradient(circle_at_30%_25%,rgba(52,211,153,0.4),transparent_50%),#052e16] md:hidden"
-        style={{ boxShadow: `0 0 48px ${accent}28` }}
-        aria-hidden
-      />
-    );
+  if (reduced || glbReachable !== "yes") {
+    return <InlinePlanetCss accent={accent} />;
   }
 
   return (
