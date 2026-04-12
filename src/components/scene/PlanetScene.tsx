@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { DRACOLoader, GLTFLoader, MeshoptDecoder } from "three-stdlib";
 import type { Role } from "../../data/profile";
 import { useRole } from "../../hooks/useRole";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
@@ -11,7 +12,72 @@ const ROLE_ACCENT: Record<Role, string> = {
   engineer: "#4ade80",
 };
 
-/** Single shared texture so role changes never swap the globe — only lighting can shift slightly. */
+/** Sketchfab: Cartoon Lowpoly Earth Planet 2 — place GLB at public/models/sketchfab-earth.glb */
+const EARTH_GLB = "sketchfab-earth.glb";
+
+function earthModelUrl(): string {
+  const base = import.meta.env.BASE_URL;
+  const prefix = base.endsWith("/") ? base : `${base}/`;
+  return `${prefix}models/${EARTH_GLB}`;
+}
+
+function extendGltfLoader(loader: GLTFLoader) {
+  const draco = new DRACOLoader();
+  draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.5/");
+  loader.setDRACOLoader(draco);
+  loader.setMeshoptDecoder(
+    typeof MeshoptDecoder === "function" ? MeshoptDecoder() : MeshoptDecoder
+  );
+}
+
+function normalizeSceneToFit(root: THREE.Object3D, targetMaxSize: number) {
+  const box = new THREE.Box3().setFromObject(root);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z, 1e-6);
+  const scale = targetMaxSize / maxDim;
+  root.scale.multiplyScalar(scale);
+  box.setFromObject(root);
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  root.position.sub(center);
+}
+
+type LoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; scene: THREE.Group }
+  | { kind: "error" };
+
+function useSketchfabEarthScene(url: string): LoadState {
+  const [state, setState] = useState<LoadState>({ kind: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    const loader = new GLTFLoader();
+    extendGltfLoader(loader);
+
+    loader.load(
+      url,
+      (gltf) => {
+        if (cancelled) return;
+        setState({ kind: "ready", scene: gltf.scene });
+      },
+      undefined,
+      () => {
+        if (cancelled) return;
+        setState({ kind: "error" });
+      }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  return state;
+}
+
+/** Single shared texture when GLB is absent. */
 function makePlanetTexture(): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = 1024;
@@ -64,7 +130,7 @@ function makePlanetTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function PlanetBody({
+function ProceduralPlanetBody({
   map,
   accent,
   rotationSpeed,
@@ -109,37 +175,79 @@ function PlanetBody({
   );
 }
 
+function GltfEarthBody({
+  sourceScene,
+  rotationSpeed,
+}: {
+  sourceScene: THREE.Group;
+  rotationSpeed: number;
+}) {
+  const root = useRef<THREE.Group>(null);
+
+  const model = useMemo(() => {
+    const g = sourceScene.clone(true);
+    normalizeSceneToFit(g, 1.85);
+    g.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        obj.frustumCulled = false;
+      }
+    });
+    return g;
+  }, [sourceScene]);
+
+  useFrame((_, delta) => {
+    const r = root.current;
+    if (!r) return;
+    r.rotation.y += delta * rotationSpeed;
+  });
+
+  return (
+    <group ref={root}>
+      <primitive object={model} />
+    </group>
+  );
+}
+
 function PlanetWorld({
   accent,
   rotationSpeed,
+  modelUrl,
 }: {
   accent: string;
   rotationSpeed: number;
+  modelUrl: string;
 }) {
+  const load = useSketchfabEarthScene(modelUrl);
   const map = useMemo(() => makePlanetTexture(), []);
+
   return (
     <>
-      <ambientLight intensity={0.38} />
-      <directionalLight position={[4, 2.5, 5]} intensity={0.9} color="#e0f2fe" />
-      <pointLight position={[-3, -1, 3]} intensity={0.55} color={accent} />
-      <pointLight position={[2.5, -2, 4]} intensity={0.35} color="#a78bfa" />
-      <PlanetBody map={map} accent={accent} rotationSpeed={rotationSpeed} />
+      <ambientLight intensity={0.45} />
+      <directionalLight position={[4, 2.5, 5]} intensity={1} color="#f0f9ff" />
+      <directionalLight position={[-3, -1, -2]} intensity={0.35} color="#1e293b" />
+      <pointLight position={[-3, -1, 3]} intensity={0.5} color={accent} />
+      <pointLight position={[2.5, -2, 4]} intensity={0.32} color="#a78bfa" />
+      {load.kind === "ready" ? (
+        <GltfEarthBody sourceScene={load.scene} rotationSpeed={rotationSpeed} />
+      ) : load.kind === "error" ? (
+        <ProceduralPlanetBody map={map} accent={accent} rotationSpeed={rotationSpeed} />
+      ) : null}
     </>
   );
 }
 
 type GlobalPlanetProps = {
-  /** Accent for rim lights / atmosphere tint (e.g. role-based). */
   accent: string;
 };
 
 /**
- * One WebGL planet for the whole site: fixed in the viewport, same steady spin everywhere
- * (no section mount/unmount, no scroll-based hide, no contact in-view toggle).
+ * Background Earth: loads Sketchfab GLB from /models/sketchfab-earth.glb when present;
+ * otherwise procedural sphere. Fixed viewport, steady spin.
  */
 export function GlobalPlanet({ accent }: GlobalPlanetProps) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : 0.055;
+  const modelUrl = useMemo(() => earthModelUrl(), []);
 
   if (reduced) {
     return (
@@ -176,7 +284,7 @@ export function GlobalPlanet({ accent }: GlobalPlanetProps) {
         }}
       >
         <Suspense fallback={null}>
-          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
+          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} modelUrl={modelUrl} />
         </Suspense>
       </Canvas>
       <div className="pointer-events-none absolute inset-[-8%] rounded-full bg-[radial-gradient(circle_at_50%_45%,transparent_32%,rgba(3,7,18,0.35)_100%)]" />
@@ -184,17 +292,16 @@ export function GlobalPlanet({ accent }: GlobalPlanetProps) {
   );
 }
 
-/** Desktop + tablet: one globe, whole scroll — no mount/unmount by section. */
 export function GlobalPlanetLayer() {
   const { role } = useRole();
   const accent = ROLE_ACCENT[role];
   return <GlobalPlanet accent={accent} />;
 }
 
-/** In-flow planet for small screens (same scene params; separate canvas is acceptable on mobile for layout). */
 export function InlinePlanetMobile({ accent }: { accent: string }) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : 0.055;
+  const modelUrl = useMemo(() => earthModelUrl(), []);
 
   if (reduced) {
     return (
@@ -224,7 +331,7 @@ export function InlinePlanetMobile({ accent }: { accent: string }) {
         }}
       >
         <Suspense fallback={null}>
-          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} />
+          <PlanetWorld accent={accent} rotationSpeed={rotationSpeed} modelUrl={modelUrl} />
         </Suspense>
       </Canvas>
     </div>
