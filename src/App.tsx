@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { LandingPlanetProvider } from "./context/LandingPlanetContext";
 import { RoleProvider } from "./context/RoleProvider";
 import { GlobalHeroBackdrop } from "./components/HeroScene";
 import { GlobalPlanetLayer } from "./components/scene/PlanetScene";
@@ -39,6 +40,7 @@ function App() {
   return (
     <RoleProvider>
       <BrowserRouter basename={routerBasename()}>
+        <LandingPlanetProvider>
         <div className="relative min-h-[100dvh] min-h-[100svh] bg-base text-white">
           <Routes>
             <Route
@@ -59,6 +61,7 @@ function App() {
             />
           </Routes>
         </div>
+        </LandingPlanetProvider>
       </BrowserRouter>
     </RoleProvider>
   );

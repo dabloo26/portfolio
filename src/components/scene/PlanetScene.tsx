@@ -1,7 +1,16 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Component, Suspense, useMemo, useRef, type ErrorInfo, type ReactNode } from "react";
+import {
+  Component,
+  Suspense,
+  useMemo,
+  useRef,
+  type CSSProperties,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import * as THREE from "three";
+import { useLandingPlanetProgress } from "../../context/LandingPlanetContext";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 
 /** Brand accent for lights / fallback. */
@@ -343,12 +352,27 @@ function PlanetWorld({
 
 type GlobalPlanetProps = {
   accent: string;
+  /** 0 = biased right (landing); 1 = drifted toward center while scrolling. */
+  centerProgress: number;
 };
 
-function GlobalPlanetCss({ accent }: { accent: string }) {
+const PLANET_SHELL_CLS =
+  "pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[12] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]";
+
+function planetDriftStyle(centerProgress: number): CSSProperties {
+  const p = Math.min(1, Math.max(0, centerProgress));
+  const tx = (1 - p) * 28;
+  return {
+    transform: `translate3d(${tx}vw, 0, 0)`,
+    willChange: "transform",
+  };
+}
+
+function GlobalPlanetCss({ accent, centerProgress }: { accent: string; centerProgress: number }) {
   return (
     <div
-      className="pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[12] hidden h-[min(72vh,520px)] max-h-[600px] md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]"
+      className={PLANET_SHELL_CLS}
+      style={planetDriftStyle(centerProgress)}
       aria-hidden
     >
       <div
@@ -359,20 +383,21 @@ function GlobalPlanetCss({ accent }: { accent: string }) {
   );
 }
 
-export function GlobalPlanet({ accent }: GlobalPlanetProps) {
+export function GlobalPlanet({ accent, centerProgress }: GlobalPlanetProps) {
   const reduced = usePrefersReducedMotion();
   const rotationSpeed = reduced ? 0 : PLANET_SPIN_SPEED;
 
   if (reduced) {
-    return <GlobalPlanetCss accent={accent} />;
+    return <GlobalPlanetCss accent={accent} centerProgress={centerProgress} />;
   }
 
-  const shell =
-    "pointer-events-none fixed left-0 right-[-30%] top-[8vh] z-[12] hidden h-[min(72vh,520px)] max-h-[600px] overflow-visible md:right-[-22%] md:top-[6vh] md:block md:h-[min(92vh,900px)] md:max-h-[940px] lg:right-[-14%]";
+  const shell = `${PLANET_SHELL_CLS} overflow-visible`;
 
   return (
-    <PlanetWebglErrorBoundary fallback={<GlobalPlanetCss accent={accent} />}>
-      <div className={shell} aria-hidden>
+    <PlanetWebglErrorBoundary
+      fallback={<GlobalPlanetCss accent={accent} centerProgress={centerProgress} />}
+    >
+      <div className={shell} style={planetDriftStyle(centerProgress)} aria-hidden>
         <Canvas
           className="pointer-events-none !h-full !w-full min-h-0 overflow-visible"
           style={{ display: "block" }}
@@ -407,7 +432,8 @@ export function GlobalPlanet({ accent }: GlobalPlanetProps) {
 }
 
 export function GlobalPlanetLayer() {
-  return <GlobalPlanet accent={PLANET_ACCENT} />;
+  const centerProgress = useLandingPlanetProgress();
+  return <GlobalPlanet accent={PLANET_ACCENT} centerProgress={centerProgress} />;
 }
 
 function InlinePlanetCss({ accent }: { accent: string }) {

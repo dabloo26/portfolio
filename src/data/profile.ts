@@ -147,12 +147,14 @@ export const education: EducationItem[] = [
   },
 ];
 
-/** Landing hero — one-liner; details live in About. */
-export const heroLandingQuote =
-  "“quick data question” accidentally builds pipelines, APIs, experiments, and half the cloud stack";
-
-/** Short display line under the name on the landing hero. */
-export const heroTagline = "in Data we trust";
+/** Landing hero copy (About holds the longer story). */
+export const heroLandingCopy = {
+  quote:
+    "It’s easy to lie with statistics. It’s hard to tell the truth without them.",
+  quip:
+    "“quick data question” accidentally builds pipelines, APIs, experiments, and half the cloud stack",
+  focus: "I focus on making the truth visible, not convenient.",
+} as const;
 
 export type KeyImpactMetric = {
   value: string;
