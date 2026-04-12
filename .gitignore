@@ -4,4 +4,15 @@ dist
 *.local
 .env
 .env.*
+!.env.example
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage
+*.pem
+.idea
 .extracted_resumes.txt

@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 import { getHeroTickerText } from "../data/profile";
-import { useRole } from "../hooks/useRole";
 
 export function HeroTicker() {
-  const { role } = useRole();
-  const line = useMemo(() => getHeroTickerText(role), [role]);
+  const line = useMemo(() => getHeroTickerText(), []);
   const doubled = `${line} · ${line}`;
 
   return (

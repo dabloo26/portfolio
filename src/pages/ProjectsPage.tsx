@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
-import { useRole } from "../hooks/useRole";
-import { githubHighlights, projects, sortByRole } from "../data/profile";
+import { githubHighlights, projects, sortByPrimaryFocus } from "../data/profile";
 import { SectionBackdropLayer } from "../components/ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 import { ProjectCard } from "../components/ProjectCard";
@@ -16,15 +15,12 @@ const fade = {
 };
 
 export function ProjectsPage() {
-  const { role } = useRole();
-  const ordered = useMemo(() => sortByRole(projects, role), [role]);
-  const topRepos = useMemo(
-    () => sortByRole(githubHighlights, role),
-    [role]
-  );
+  const ordered = useMemo(() => sortByPrimaryFocus(projects), []);
+  const topRepos = useMemo(() => sortByPrimaryFocus(githubHighlights), []);
 
   return (
-    <main className="relative pt-[9rem]">
+    <main className="pointer-events-none relative pt-[9rem]">
+      <div className="pointer-events-auto">
       <SectionBackdropLayer variant="projects" />
       <div className="relative z-10 bg-gradient-to-b from-base/35 to-base/50 px-4 py-10 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -39,7 +35,7 @@ export function ProjectsPage() {
               All projects
             </h1>
             <p className="mt-2 max-w-xl font-mono text-sm text-meta">
-              Every build below is ordered by Role Lens relevance. Scroll horizontally on small
+              Ordered for analytics / data science and platform work. Scroll horizontally on small
               screens or use the grid on large ones.
             </p>
           </div>
@@ -92,6 +88,7 @@ export function ProjectsPage() {
       </section>
 
       <Skills />
+      </div>
     </main>
   );
 }

@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { Role } from "../data/profile";
-import { useRole } from "../hooks/useRole";
 
 const HeroSceneCanvas = lazy(() =>
   import("./scene/HeroSceneCanvas").then((m) => ({
@@ -29,8 +28,9 @@ function HeroSceneFallback({ role, fixed }: { role: Role; fixed?: boolean }) {
 }
 
 /** Fixed starfield behind the whole scroll (home + projects). Planet is `GlobalPlanetLayer` in App. */
+const STARFIELD_ROLE: Role = "analyst";
+
 export function GlobalHeroBackdrop() {
-  const { role } = useRole();
   const [mobile, setMobile] = useState(false);
 
   useEffect(() => {
@@ -42,8 +42,8 @@ export function GlobalHeroBackdrop() {
   }, []);
 
   return (
-    <Suspense fallback={<HeroSceneFallback role={role} fixed />}>
-      <HeroSceneCanvas role={role} mobile={mobile} fixed />
+    <Suspense fallback={<HeroSceneFallback role={STARFIELD_ROLE} fixed />}>
+      <HeroSceneCanvas role={STARFIELD_ROLE} mobile={mobile} fixed />
     </Suspense>
   );
 }

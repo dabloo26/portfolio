@@ -15,11 +15,11 @@ function Shell({ children }: { children: ReactNode }) {
       <ScrollProgress />
       <GlobalHeroBackdrop />
       <GlobalPlanetLayer />
-      <div className="relative z-[30] isolate">
+      <div className="pointer-events-none relative z-[30] isolate">
         <Header />
         <ScrollToTop />
         {children}
-        <footer className="bg-gradient-to-t from-base/70 via-base/45 to-transparent px-4 py-10 pb-[max(2rem,env(safe-area-inset-bottom))] pt-12 text-center text-xs text-meta sm:px-6">
+        <footer className="pointer-events-auto bg-gradient-to-t from-base/70 via-base/45 to-transparent px-4 py-10 pb-[max(2rem,env(safe-area-inset-bottom))] pt-12 text-center text-xs text-meta sm:px-6">
           © 2026 Abhyansh Anand
         </footer>
       </div>

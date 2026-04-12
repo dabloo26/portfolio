@@ -42,12 +42,12 @@ export type ExperienceItem = {
   engineer: number;
 };
 
-export function experienceTitle(job: ExperienceItem, role: Role): string {
-  return job.titles?.[role] ?? job.title;
+export function experienceTitle(job: ExperienceItem): string {
+  return job.title;
 }
 
-export function experienceBullets(job: ExperienceItem, role: Role): string[] {
-  return job.bulletsByRole?.[role] ?? job.bullets;
+export function experienceBullets(job: ExperienceItem): string[] {
+  return job.bullets;
 }
 
 export type EducationItem = {
@@ -69,13 +69,13 @@ export type GithubRepoHighlight = {
 
 export const person = {
   name: "Abhyansh Anand",
-  rolesLabel: "Data Science · Analytics · ML Engineering · Data Platforms",
+  rolesLabel: "Data Science · Analytics · ML · Data Platforms & Engineering",
   email: "abhyanshsri@gmail.com",
   phone: "+1 (240) 467-1567",
   linkedin: "https://www.linkedin.com/in/abhyansh-anand",
   github: "https://github.com/dabloo26",
   location: "College Park, MD",
-  /** Served from `public/resume.pdf` (synced from your résumé PDF). Uses Vite base for subpath deploys. */
+  /** Served from `public/resume.pdf`; path respects Vite `base` (e.g. GitHub Pages project sites). */
   resumeUrl: `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}resume.pdf`,
 };
 
@@ -137,40 +137,14 @@ export const education: EducationItem[] = [
   },
 ];
 
-export const heroCopy: Record<
-  Role,
-  {
-    headline: string;
-    sub: string;
-    ctaPrimary: string;
-    ctaSecondary: string;
-    ctaSecondaryHref: string;
-  }
-> = {
-  analyst: {
-    headline:
-      "From messy operational data to clear KPIs, dashboards, and decisions people actually use.",
-    sub: "I like owning the full analytics loop: validation, SQL modeling, Tableau / Power BI storytelling, and the stakeholder conversations that make metrics trustworthy.",
-    ctaPrimary: "See analytics & BI work",
-    ctaSecondary: "Download resume",
-    ctaSecondaryHref: person.resumeUrl,
-  },
-  scientist: {
-    headline:
-      "Models that are measurable in the real world — not just accurate in a notebook.",
-    sub: "My sweet spot is careful feature work, honest evaluation (precision/recall, PR-AUC, error analysis), and lightweight experimentation so teams know what changed when they ship.",
-    ctaPrimary: "See ML & DS projects",
-    ctaSecondary: "Email me",
-    ctaSecondaryHref: `mailto:${person.email}`,
-  },
-  engineer: {
-    headline:
-      "Pipelines and platforms that stay boring under pressure — because reliability is a feature.",
-    sub: "I have shipped migrations and ingestion on Snowflake / Synapse / AWS, tightened CI/CD for data releases, and built services that stay fast when traffic spikes.",
-    ctaPrimary: "See systems & backend work",
-    ctaSecondary: "LinkedIn",
-    ctaSecondaryHref: person.linkedin,
-  },
+/** Single landing narrative — analytics & data science first, with engineering depth. */
+export const heroCopy = {
+  headline:
+    "Analytics and data science in production — trusted metrics, honest models, and platforms that stay reliable under load.",
+  sub: "I work across SQL, BI, and experimentation, ML evaluation and triage UIs, plus the engineering glue many analytics projects need: warehouses, ETL/CI/CD, APIs, and cloud services. Consulting at PwC and research at UMD sharpened both stakeholder storytelling and technical rigor.",
+  ctaPrimary: "See projects & impact",
+  ctaSecondary: "Download resume",
+  ctaSecondaryHref: person.resumeUrl,
 };
 
 export type KeyImpactMetric = {
@@ -195,12 +169,9 @@ export type KeyImpactCardDisplay = {
   detail: string;
 };
 
-/** Shown under the Role Lens control in the header. */
-export const roleLensKeywords: Record<Role, string> = {
-  analyst: "Metrics · storytelling · SQL",
-  scientist: "Experimentation · modeling · evaluation",
-  engineer: "Pipelines · reliability · platforms",
-};
+/** Header tagline (single page — no role toggles). */
+export const siteTagline =
+  "Analytics · ML · evaluation · warehouses · APIs · CI/CD";
 
 export const aboutParagraphs = [
   "I am an M.S. Data Science student at UMD (expected May 2026) with a consulting background at PwC and earlier engineering work at Infosys. The through-line is the same: make data easier to trust, faster to query, and clearer to act on — whether the interface is a dashboard, a model score, or an API.",
@@ -255,7 +226,7 @@ export const skills: Skill[] = [
     engineer: 58,
   },
   {
-    name: "XGBoost, imbalance handling, PR-AUC / ranking",
+    name: "XGBoost, imbalance handling, ranking & calibration",
     category: "ml",
     analyst: 55,
     scientist: 72,
@@ -381,7 +352,7 @@ export const projects: Project[] = [
     summary:
       "XGBoost + Isolation Forest on CMS-style Medicare claims with provider-level behavioral features; cost-sensitive learning under ~6% fraud prevalence.",
     impact:
-      "0.93 PR-AUC with SHAP-backed narratives and a Streamlit triage UI ranked by estimated fraud-dollar exposure for investigators.",
+      "SHAP-backed claim rankings and a Streamlit triage UI ordered by estimated fraud-dollar exposure; cost-sensitive training under ~6% prevalence with held-out validation.",
     tech: ["Python", "XGBoost", "SHAP", "Streamlit", "scikit-learn"],
     analyst: 60,
     scientist: 100,
@@ -412,16 +383,11 @@ export const experience: ExperienceItem[] = [
   {
     id: "umd",
     company: "University of Maryland, College Park",
-    title: "Graduate researcher — student success analytics & ML",
+    title: "Graduate researcher — analytics, ML & student success",
     chronology: 4,
-    titles: {
-      analyst: "Student data analyst",
-      scientist: "Data science analyst",
-      engineer: "ML software engineer",
-    },
     period: "Dec 2024 — Present",
     bullets: [
-      "Built an automated Python pipeline for 200+ student records with schema validation, deduplication, and anomaly checks — improving record accuracy ~10%, cutting prep overhead ~40%, and creating a structured foundation for dashboards and model training.",
+      "Built an automated Python pipeline for 200+ student records with schema validation, deduplication, and anomaly checks, improving record accuracy ~10%, cutting prep overhead ~40%, and creating a structured foundation for dashboards and model training.",
       "Shipped Tableau dashboards for cohort trends and at-risk course signals, shortening identification cycles ~15% and supporting accessibility-focused reporting with faculty and department leadership.",
       "Trained a cross-validated logistic regression early-warning model on grade and attendance features (82% precision) with an advisor-facing scoring interface and an A/B framework that logs intervention outcomes for policy iteration.",
     ],
@@ -451,7 +417,7 @@ export const experience: ExperienceItem[] = [
     chronology: 2,
     period: "Sep 2021 — Aug 2022",
     bullets: [
-      "Led Teradata → Snowflake migration for ConocoPhillips Canada with parameterized Informatica IICS mappings and full schema reconciliation — zero critical errors and under 2 hours downtime.",
+      "Led Teradata → Snowflake migration for ConocoPhillips Canada with parameterized Informatica IICS mappings and full schema reconciliation, with zero critical errors and under 2 hours downtime.",
       "Tuned warehouse sizing and clustering to raise ETL throughput ~35% and cut query latency ~50–60%; introduced CI/CD for IICS releases, shrinking release cycles from days to hours.",
       "Enabled self-serve analytics on Snowflake, reducing ad-hoc data request turnaround from days to under an hour.",
     ],
@@ -462,31 +428,14 @@ export const experience: ExperienceItem[] = [
   {
     id: "infosys",
     company: "Infosys",
-    title: "Software engineering intern",
+    title: "Software engineering intern — full-stack & data quality",
     chronology: 1,
-    titles: {
-      analyst: "Data analyst intern",
-      scientist: "Data science intern",
-      engineer: "Software engineering intern",
-    },
     period: "Jan 2021 — May 2021",
     bullets: [
       "Developed Angular modules with reactive forms and RxJS (lazy loading, OnPush), improving perceived performance ~30% on a large enterprise portal.",
       "Shipped ASP.NET Core REST APIs with Entity Framework and SQL Server using repository + DI patterns, reducing average API latency ~25%.",
-      "Profiled multi-source datasets with Python and SQL, isolating top drivers of reporting inaccuracy and cutting error rates ~15% via targeted fixes and scorecards.",
+      "Profiled multi-source datasets with Python and SQL; isolated drivers of reporting inaccuracy and cut error rates ~15% with targeted fixes and stakeholder-facing scorecards.",
     ],
-    bulletsByRole: {
-      analyst: [
-        "Profiled multi-source datasets with Python and SQL; used statistical validation and root-cause analysis to isolate the top drivers of reporting inaccuracy, reducing error rates ~15%.",
-        "Built data quality scorecards on the reporting pipeline to establish a reliability baseline that informed quarterly operational improvement decisions.",
-        "Partnered with engineering and reporting owners on SQL extracts, validation rules, and metric definitions used in leadership reviews.",
-      ],
-      scientist: [
-        "Implemented statistical anomaly detection (z-score, IQR) on multi-source datasets; isolated key drivers of reporting inaccuracy and reduced error rates ~15%.",
-        "Automated data quality scorecards with Python and SQL to baseline reliability for operational and analytics consumers.",
-        "Worked with stakeholders to clarify metric definitions and hand off validated datasets for downstream modeling and reporting.",
-      ],
-    },
     analyst: 70,
     scientist: 65,
     engineer: 95,
@@ -496,7 +445,7 @@ export const experience: ExperienceItem[] = [
 export function getKeyImpactMetrics(): KeyImpactMetric[] {
   const titles = projects.map((p) => p.title);
   const ecom = projects.find((p) => p.id === "ecom");
-  const fraud = projects.find((p) => p.id === "fraud");
+  const rateLimit = projects.find((p) => p.id === "rate-limit");
   const kpi = projects.find((p) => p.id === "kpi-anomaly");
   const umd = experience.find((e) => e.id === "umd");
   const pwc2 = experience.find((e) => e.id === "pwc2");
@@ -532,12 +481,10 @@ export function getKeyImpactMetrics(): KeyImpactMetric[] {
       href: "/#experience",
     },
     {
-      value: "0.93",
-      suffix: "",
-      label: fraud
-        ? `${fraud.impact} ${umd?.bullets[2] ?? ""}`.trim()
-        : "",
-      href: "/#project-fraud",
+      value: "10",
+      suffix: "K+",
+      label: rateLimit ? rateLimit.impact : "",
+      href: "/#project-rate-limit",
     },
   ];
 }
@@ -550,49 +497,66 @@ export function getKeyImpactDisplayCards(): KeyImpactCardDisplay[] {
       icon: "bars",
       value: m[0].value,
       suffix: "+",
-      shortLabel: "End-to-end portfolio builds",
+      shortLabel: "End-to-end shipped builds",
       href: m[0].href ?? "/#projects",
-      detail: "AWS, Snowflake, ML, fraud triage, NMT — see Projects",
+      detail: "Full-stack and analytics projects across AWS, Snowflake, ML, and more",
     },
     {
       icon: "ring",
       value: m[1].value,
       suffix: m[1].suffix,
-      shortLabel: "Rows modeled (retail)",
+      shortLabel: "Rows modeled (warehouse)",
       href: m[1].href ?? "/#project-ecom",
-      detail: "Snowflake star schema + Power BI KPIs",
+      detail: "Snowflake star schema, Python ETL, Power BI executive KPIs",
     },
     {
       icon: "nodes",
       value: m[2].value,
       suffix: "+",
-      shortLabel: "Ingestion & ETL programs",
+      shortLabel: "Data programs owned",
       href: m[2].href ?? "/#experience",
-      detail: "UMD, PwC FMCG & migration tracks + KPI automation",
+      detail: "Ingestion, validation, and ETL across UMD, PwC, and KPI automation",
     },
     {
       icon: "flask",
       value: m[3].value,
       suffix: m[3].suffix,
-      shortLabel: "Peak PR-AUC (fraud triage)",
-      href: m[3].href ?? "/#project-fraud",
-      detail: "Imbalanced claims + UMD early-warning precision",
+      shortLabel: "Peak sustained load (tested)",
+      href: m[3].href ?? "/#project-rate-limit",
+      detail: "Distributed limiter on ECS — Locust, Redis, HPA",
     },
   ];
 }
 
-export function scoreForRole<T extends { analyst: number; scientist: number; engineer: number }>(
-  item: T,
-  role: Role
+/** Emphasizes analytics & data science while keeping some engineering weight. */
+export function primaryFocusScore<T extends { analyst: number; scientist: number; engineer: number }>(
+  item: T
 ): number {
-  return item[role];
+  return Math.round(0.5 * item.analyst + 0.35 * item.scientist + 0.15 * item.engineer);
 }
 
+export function sortByPrimaryFocus<T extends { analyst: number; scientist: number; engineer: number }>(
+  items: T[]
+): T[] {
+  return [...items].sort((a, b) => primaryFocusScore(b) - primaryFocusScore(a));
+}
+
+/** @deprecated use primaryFocusScore */
+export function scoreForRole<T extends { analyst: number; scientist: number; engineer: number }>(
+  item: T,
+  _role: Role
+): number {
+  void _role;
+  return primaryFocusScore(item);
+}
+
+/** @deprecated use sortByPrimaryFocus */
 export function sortByRole<T extends { analyst: number; scientist: number; engineer: number }>(
   items: T[],
-  role: Role
+  _role?: Role
 ): T[] {
-  return [...items].sort((a, b) => scoreForRole(b, role) - scoreForRole(a, role));
+  void _role;
+  return sortByPrimaryFocus(items);
 }
 
 /** Short label for hero marquee — first clause of skill name, role-ranked. */
@@ -602,8 +566,8 @@ function shortenSkillLabel(name: string): string {
   return chunk.length > 48 ? `${chunk.slice(0, 46)}…` : chunk;
 }
 
-/** Role-aware skill strip for the landing ticker (no out-of-context KPIs). */
-export function getHeroTickerText(role: Role): string {
-  const top = sortByRole(skills, role).slice(0, 11);
+/** Skill strip for the landing ticker — ranked for analytics / DS + platforms. */
+export function getHeroTickerText(): string {
+  const top = sortByPrimaryFocus(skills).slice(0, 11);
   return top.map((s) => shortenSkillLabel(s.name)).join(" · ");
 }

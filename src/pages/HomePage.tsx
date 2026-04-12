@@ -8,14 +8,16 @@ import { Contact } from "../components/Contact";
 
 export function HomePage() {
   return (
-    <main>
+    <main className="pointer-events-none">
       <Hero />
-      <About />
-      <Experience />
-      <Skills />
-      <KeyImpact />
-      <ProjectsPreview />
-      <Contact />
+      <div className="pointer-events-auto">
+        <About />
+        <Experience />
+        <Skills />
+        <KeyImpact />
+        <ProjectsPreview />
+        <Contact />
+      </div>
     </main>
   );
 }

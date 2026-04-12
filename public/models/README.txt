@@ -1,12 +1,3 @@
-Earth GLB for the background planet
-====================================
+The hero globe uses cute_little_planet.glb from the site root: place your file at public/cute_little_planet.glb (URL /cute_little_planet.glb).
 
-1. Open this Sketchfab model (free download; log in if required):
-   https://sketchfab.com/3d-models/cartoon-lowpoly-earth-planet-2-uvw-textured-73dd3283bf6d45a3a62d4806f3044633
-
-2. Download as glTF Binary (.glb).
-
-3. Save the file here as exactly:
-   sketchfab-earth.glb
-
-If this file is missing, the site falls back to a simple procedural sphere until you add it.
+It is loaded with @react-three/drei useGLTF, centered, and scaled so the model fits ~unit radius for the camera. Orbiting satellites/planes are separate meshes in PlanetScene.tsx.

@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
-import { useRole } from "../hooks/useRole";
 import {
+  primaryFocusScore,
   skills,
-  sortByRole,
+  sortByPrimaryFocus,
   type SkillCategory,
 } from "../data/profile";
 import { sectionViewport } from "../motion/section";
@@ -45,20 +45,18 @@ function MiniBar({ score }: { score: number }) {
 }
 
 export function Skills() {
-  const { role } = useRole();
-
   const buckets = useMemo(() => {
     const order: SkillCategory[] = ["analytics", "ml", "engineering"];
     return order.map((key) => {
       const pool = skills.filter((s) => s.category === key);
-      const sorted = sortByRole(pool, role);
+      const sorted = sortByPrimaryFocus(pool);
       return {
         key,
         ...CATEGORY_META[key],
-        items: sorted.map((s) => ({ skill: s, score: s[role] })),
+        items: sorted.map((s) => ({ skill: s, score: primaryFocusScore(s) })),
       };
     });
-  }, [role]);
+  }, []);
 
   return (
     <section
@@ -71,7 +69,7 @@ export function Skills() {
             Skills
           </h2>
           <p className="mt-3 max-w-xl font-mono text-sm text-meta">
-            Grouped by practice area — strengths shift with Role Lens.
+            Grouped by practice area — scores blend analytics, ML, and engineering emphasis.
           </p>
         </motion.div>
 

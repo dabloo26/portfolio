@@ -7,7 +7,15 @@ const base = process.env.VITE_BASE ?? "/";
 export default defineConfig({
   plugins: [react()],
   base,
+  /** Reduce “stuck on old bundle” during local dev (browser + prebundle cache). */
+  server: {
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  },
   build: {
+    /** Avoid shipping readable TS source in production browser devtools. */
+    sourcemap: false,
     chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {

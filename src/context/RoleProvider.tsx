@@ -1,46 +1,20 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import type { Role } from "../data/profile";
 import { RoleContext } from "./role-context-core";
 
-function readStoredRole(): Role | null {
-  try {
-    const v = localStorage.getItem("portfolio-role");
-    if (v === "analyst" || v === "scientist" || v === "engineer") return v;
-  } catch {
-    /* ignore */
-  }
-  return null;
-}
+/** Single-page portfolio: lens toggles removed; role stays fixed for any legacy hooks. */
+const DEFAULT_ROLE: Role = "analyst";
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRoleState] = useState<Role>("analyst");
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const lens = params.get("lens");
-    if (lens === "analyst" || lens === "scientist" || lens === "engineer") {
-      setRoleState(lens);
-      try {
-        localStorage.setItem("portfolio-role", lens);
-      } catch {
-        /* ignore */
-      }
-      return;
-    }
-    const stored = readStoredRole();
-    if (stored) setRoleState(stored);
-  }, []);
-
   const setRole = useCallback((r: Role) => {
-    setRoleState(r);
-    try {
-      localStorage.setItem("portfolio-role", r);
-    } catch {
-      /* ignore */
-    }
+    void r;
+    /* role switching disabled */
   }, []);
 
-  const value = useMemo(() => ({ role, setRole }), [role, setRole]);
+  const value = useMemo(
+    () => ({ role: DEFAULT_ROLE, setRole }),
+    [setRole]
+  );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }

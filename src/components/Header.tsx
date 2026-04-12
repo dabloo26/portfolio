@@ -1,9 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { person, roleLensKeywords } from "../data/profile";
-import { useRole } from "../hooks/useRole";
-import { RoleLens } from "./RoleLens";
+import { person, siteTagline } from "../data/profile";
 
 const links = [
   ["ABOUT", "about"],
@@ -15,7 +13,6 @@ const links = [
 ] as const;
 
 export function Header() {
-  const { role } = useRole();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -30,7 +27,7 @@ export function Header() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed inset-x-0 top-0 z-[60] border-b transition-[background,border-color,backdrop-filter] duration-300 ${
+      className={`pointer-events-auto fixed inset-x-0 top-0 z-[60] border-b transition-[background,border-color,backdrop-filter] duration-300 ${
         scrolled
           ? "border-white/[0.06] bg-base/25 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-2xl supports-[backdrop-filter]:bg-base/20"
           : "border-white/[0.04] bg-base/20 backdrop-blur-xl supports-[backdrop-filter]:bg-base/15"
@@ -73,13 +70,9 @@ export function Header() {
         </nav>
       </div>
       <div className="border-t border-white/[0.04] bg-base/15 px-4 py-2 backdrop-blur-xl supports-[backdrop-filter]:bg-base/10 sm:px-6">
-        <div className="mx-auto flex max-w-6xl flex-col items-end gap-1.5">
-          <RoleLens />
-          <p
-            key={role}
-            className="max-w-full text-right font-mono text-[10px] text-white/75 drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] sm:text-[11px]"
-          >
-            {roleLensKeywords[role]}
+        <div className="mx-auto flex max-w-6xl justify-end">
+          <p className="max-w-full text-right font-mono text-[10px] text-white/75 drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] sm:text-[11px]">
+            {siteTagline}
           </p>
         </div>
       </div>

@@ -1,29 +1,20 @@
 import { motion } from "framer-motion";
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import type { Role } from "../data/profile";
 import { heroCopy, person } from "../data/profile";
-import { useRole } from "../hooks/useRole";
 import { HeroInteractiveHeading, HeroInteractiveParagraph } from "./HeroInteractiveText";
 import { HeroTicker } from "./HeroTicker";
 import { InlinePlanetMobile } from "./scene/PlanetScene";
 
-const ROLE_ORB: Record<Role, string> = {
-  analyst: "#38bdf8",
-  scientist: "#e879f9",
-  engineer: "#4ade80",
-};
+const ACCENT_ORB = "#34d399";
 
 export function Hero() {
-  const { role } = useRole();
-  const copy = heroCopy[role];
-  const orbHue = useMemo(() => ROLE_ORB[role], [role]);
+  const copy = heroCopy;
 
   return (
     <>
       <section
         id="top"
-        className="relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-visible bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
+        className="pointer-events-none relative z-10 flex min-h-[100dvh] flex-col justify-center overflow-visible bg-transparent px-4 pb-24 pt-[max(8.5rem,env(safe-area-inset-top,0px))] sm:px-6 sm:pb-32 sm:pt-[9rem] md:px-8 md:pb-28"
         style={{
           paddingLeft: "max(1rem, env(safe-area-inset-left))",
           paddingRight: "max(1rem, env(safe-area-inset-right))",
@@ -59,7 +50,6 @@ export function Hero() {
                 <HeroTicker />
 
                 <motion.div
-                  key={role + "-headline"}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: 0.12 }}
@@ -68,7 +58,6 @@ export function Hero() {
                   <HeroInteractiveParagraph>{copy.headline}</HeroInteractiveParagraph>
                 </motion.div>
                 <motion.div
-                  key={role + "-sub"}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: 0.18 }}
@@ -90,11 +79,7 @@ export function Hero() {
                   </Link>
                   <a
                     href={copy.ctaSecondaryHref}
-                    {...(role === "analyst"
-                      ? {
-                          download: "Abhyansh_Anand_Resume.pdf",
-                        }
-                      : {})}
+                    download="Abhyansh_Anand_Resume.pdf"
                     className="inline-flex min-h-[48px] min-w-[min(100%,200px)] touch-manipulation items-center justify-center rounded-sm border border-white/15 bg-[#111118]/90 px-6 py-3 text-center text-sm font-medium text-white transition hover:border-accent-violet/50 sm:min-h-[44px] sm:min-w-0 sm:py-2.5"
                   >
                     {copy.ctaSecondary}
@@ -103,8 +88,8 @@ export function Hero() {
               </div>
             </motion.div>
 
-            <div className="relative z-[15] flex w-full justify-center md:hidden">
-              <InlinePlanetMobile accent={orbHue} />
+            <div className="pointer-events-auto relative z-[15] flex w-full justify-center md:hidden">
+              <InlinePlanetMobile accent={ACCENT_ORB} />
             </div>
           </div>
         </div>

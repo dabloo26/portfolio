@@ -1,10 +1,5 @@
 import { motion } from "framer-motion";
-import { useRole } from "../hooks/useRole";
-import {
-  experience,
-  experienceBullets,
-  experienceTitle,
-} from "../data/profile";
+import { experience, experienceBullets, experienceTitle } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 
@@ -16,8 +11,6 @@ const fade = {
 };
 
 export function Experience() {
-  const { role } = useRole();
-
   return (
     <section
       id="experience"
@@ -67,13 +60,13 @@ export function Experience() {
                     ) : null}
                   </div>
                   <h3 className="mt-2 text-base font-semibold leading-snug text-white sm:text-lg">
-                    {experienceTitle(job, role)}
+                    {experienceTitle(job)}
                   </h3>
                   <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.12em] text-white/70">
                     {job.company}
                   </p>
                   <ul className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3 text-[13px] leading-relaxed text-meta sm:text-sm">
-                    {experienceBullets(job, role).map((b, j) => (
+                    {experienceBullets(job).map((b, j) => (
                       <li key={j} className="flex gap-2">
                         <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent-violet/60" />
                         <span className="text-white/85">{b}</span>

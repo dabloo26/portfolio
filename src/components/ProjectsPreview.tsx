@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
-import { useRole } from "../hooks/useRole";
-import { projects, sortByRole } from "../data/profile";
+import { projects, sortByPrimaryFocus } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 import { ProjectCard } from "./ProjectCard";
@@ -15,10 +14,18 @@ const fade = {
 };
 
 const TOP = 3;
+const FEATURED_GITHUB_ID = "resume-chat";
 
 export function ProjectsPreview() {
-  const { role } = useRole();
-  const top = useMemo(() => sortByRole(projects, role).slice(0, TOP), [role]);
+  const top = useMemo(() => {
+    const sorted = sortByPrimaryFocus(projects);
+    const featured = projects.find((p) => p.id === FEATURED_GITHUB_ID);
+    const rest = sorted.filter((p) => p.id !== FEATURED_GITHUB_ID);
+    if (!featured) return sorted.slice(0, TOP);
+    return [featured, ...rest.slice(0, TOP - 1)];
+  }, []);
+
+  const featuredRepo = projects.find((p) => p.id === FEATURED_GITHUB_ID);
 
   return (
     <section
@@ -32,8 +39,23 @@ export function ProjectsPreview() {
             <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
               Projects
             </h2>
-            <p className="mt-2 max-w-lg font-mono text-sm text-meta">
-              Role Lens ranks the full list; this row is the top {TOP}.
+            <p className="mt-2 max-w-2xl font-mono text-sm leading-relaxed text-meta">
+              I care about work that ships: reliable pipelines, clear analytics, and UIs that make models usable. Below
+              are three builds I stand behind;{" "}
+              {featuredRepo?.link ? (
+                <a
+                  href={featuredRepo.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-accent-violet underline decoration-accent-violet/35 underline-offset-[3px] transition hover:text-accent-acid hover:decoration-accent-acid"
+                >
+                  {featuredRepo.title}
+                </a>
+              ) : (
+                featuredRepo?.title
+              )}{" "}
+              (serverless FastAPI, React on CloudFront, DynamoDB + S3 session recovery) is public on GitHub if you want
+              to read the implementation.
             </p>
           </div>
           <Link
