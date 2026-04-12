@@ -5,6 +5,7 @@ import {
   keyImpactEyebrow,
   keyImpactTitle,
 } from "../data/profile";
+import { routerToFromHref } from "../nav/routerTo";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
 
@@ -129,7 +130,7 @@ export function KeyImpact() {
                 transition={{ ...fade.transition, delay: 0.08 + i * 0.06 }}
               >
                 <Link
-                  to={c.href}
+                  to={routerToFromHref(c.href)}
                   title={c.detail}
                   className="key-impact-card group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-white/[0.1] bg-[#0a1020]/75 px-5 pb-9 pt-8 text-center shadow-[0_8px_40px_rgba(0,0,0,0.35)] transition duration-300 hover:border-sky-400/25 hover:bg-[#0c1228]/85 hover:shadow-[0_12px_48px_rgba(56,189,248,0.08)]"
                 >

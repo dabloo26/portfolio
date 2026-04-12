@@ -6,11 +6,11 @@ import { useRole } from "../hooks/useRole";
 import { RoleLens } from "./RoleLens";
 
 const links = [
-  ["ABOUT", "/#about"],
-  ["EXPERIENCE", "/#experience"],
-  ["IMPACT", "/#impact"],
-  ["PROJECTS", "/#projects"],
-  ["CONTACT", "/#contact"],
+  ["ABOUT", "about"],
+  ["EXPERIENCE", "experience"],
+  ["IMPACT", "impact"],
+  ["PROJECTS", "projects"],
+  ["CONTACT", "contact"],
 ] as const;
 
 export function Header() {
@@ -51,10 +51,10 @@ export function Header() {
           className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wider text-meta sm:gap-x-4 sm:text-xs"
           aria-label="Primary"
         >
-          {links.map(([label, to]) => (
+          {links.map(([label, hash]) => (
             <Link
-              key={to}
-              to={to}
+              key={hash}
+              to={{ pathname: "/", hash }}
               className="transition-colors duration-150 hover:text-accent-acid hover:underline"
             >
               {label}

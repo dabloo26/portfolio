@@ -35,7 +35,7 @@ export function HeroInteractiveHeading({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="font-display text-5xl leading-[0.95] text-white sm:text-6xl md:text-7xl"
+      className="font-display text-[clamp(2rem,calc(5vw+1.25rem),4.5rem)] leading-[0.95] text-white sm:text-6xl md:text-7xl"
     >
       <span className="block">
         {nameWords.map((w, i) => (

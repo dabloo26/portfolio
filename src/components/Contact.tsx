@@ -1,8 +1,23 @@
 import { motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { person } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
 import { sectionViewport } from "../motion/section";
+
+const WireCircleAccent = lazy(() =>
+  import("./scene/WireCircleAccent").then((m) => ({ default: m.WireCircleAccent }))
+);
+
+const CONTACT_ORB = "#22d3ee";
+
+function ContactCircleFallback() {
+  return (
+    <div
+      className="h-full min-h-[200px] w-full bg-[radial-gradient(circle_at_50%_45%,rgba(34,211,238,0.1),transparent_68%)] md:min-h-[260px]"
+      aria-hidden
+    />
+  );
+}
 
 const githubHandle = (() => {
   try {
@@ -36,79 +51,101 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/58 px-4 py-24 sm:px-6 sm:pb-32 sm:pt-20"
+      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/58 px-4 py-20 sm:px-6 sm:pb-28 sm:pt-16 md:py-24"
+      style={{
+        paddingLeft: "max(1rem, env(safe-area-inset-left))",
+        paddingRight: "max(1rem, env(safe-area-inset-right))",
+        paddingBottom: "max(5rem, env(safe-area-inset-bottom))",
+      }}
     >
       <SectionBackdropLayer variant="contact" />
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <motion.div {...fade}>
-          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
-            Contact
-          </h2>
-          <p className="mt-3 max-w-lg font-mono text-sm text-meta">
-            Copy-friendly — same details as my resume header.
-          </p>
-          <div className="mt-10 space-y-3 font-mono text-sm">
-            <div className="flex flex-col gap-1 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
-              <span className="shrink-0 text-meta">$ email</span>
-              <button
-                type="button"
-                onClick={() => copy("email", person.email)}
-                className="text-left text-white transition hover:text-accent-acid"
-              >
-                {person.email}
-              </button>
-              {copied === "email" ? (
-                <span className="text-xs text-accent-acid">✓ copied</span>
-              ) : (
-                <span className="text-xs text-meta">click to copy</span>
-              )}
-            </div>
-            <div className="flex flex-col gap-1 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
-              <span className="shrink-0 text-meta">$ phone</span>
-              <button
-                type="button"
-                onClick={() => copy("phone", person.phone.replace(/\s/g, ""))}
-                className="text-left text-white transition hover:text-accent-acid"
-              >
-                {person.phone}
-              </button>
-              {copied === "phone" ? (
-                <span className="text-xs text-accent-acid">✓ copied</span>
-              ) : (
-                <span className="text-xs text-meta">click to copy</span>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-white/[0.06] py-3">
-              <span className="text-meta">$ open</span>
-              <a
-                href={person.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="text-accent-violet transition hover:text-accent-acid"
-              >
-                LinkedIn ↗
-              </a>
-              <a
-                href={person.github}
-                target="_blank"
-                rel="noreferrer"
-                className="text-accent-violet transition hover:text-accent-acid"
-              >
-                GitHub (@{githubHandle}) ↗
-              </a>
-            </div>
-            <div className="py-3">
-              <span className="text-meta">$ cat </span>
-              <a
-                href={person.resumeUrl}
-                className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
-                download="Abhyansh_Anand_Resume.pdf"
-              >
-                resume.pdf
-              </a>
+      <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(240px,38%)] lg:items-stretch lg:gap-12 xl:gap-16">
+        <motion.div
+          {...fade}
+          className="order-1 flex flex-col justify-center lg:order-1"
+        >
+          <div className="rounded-2xl border border-white/[0.12] bg-gradient-to-br from-[#0a0d18]/95 via-[#06080f]/96 to-[#04050a]/98 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_24px_80px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-7 md:p-8">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-400/90 sm:text-[11px]">
+              Get in touch
+            </p>
+            <h2 className="mt-3 font-condensed text-3xl font-bold uppercase tracking-[0.12em] text-white sm:text-4xl md:text-5xl">
+              Contact
+            </h2>
+            <p className="mt-3 max-w-lg font-mono text-sm leading-relaxed text-meta">
+              Copy-friendly — same details as my resume header.
+            </p>
+            <div className="mt-8 space-y-1 font-mono text-sm md:mt-10">
+              <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
+                <span className="shrink-0 text-meta">$ email</span>
+                <button
+                  type="button"
+                  onClick={() => copy("email", person.email)}
+                  className="min-h-[44px] touch-manipulation text-left text-white transition hover:text-accent-acid sm:min-h-0"
+                >
+                  {person.email}
+                </button>
+                {copied === "email" ? (
+                  <span className="text-xs text-accent-acid">✓ copied</span>
+                ) : (
+                  <span className="text-xs text-meta">tap to copy</span>
+                )}
+              </div>
+              <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
+                <span className="shrink-0 text-meta">$ phone</span>
+                <button
+                  type="button"
+                  onClick={() => copy("phone", person.phone.replace(/\s/g, ""))}
+                  className="min-h-[44px] touch-manipulation text-left text-white transition hover:text-accent-acid sm:min-h-0"
+                >
+                  {person.phone}
+                </button>
+                {copied === "phone" ? (
+                  <span className="text-xs text-accent-acid">✓ copied</span>
+                ) : (
+                  <span className="text-xs text-meta">tap to copy</span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-white/[0.06] py-3">
+                <span className="text-meta">$ open</span>
+                <a
+                  href={person.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-h-[44px] touch-manipulation text-accent-violet transition hover:text-accent-acid sm:min-h-0"
+                >
+                  LinkedIn ↗
+                </a>
+                <a
+                  href={person.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-h-[44px] touch-manipulation text-accent-violet transition hover:text-accent-acid sm:min-h-0"
+                >
+                  GitHub (@{githubHandle}) ↗
+                </a>
+              </div>
+              <div className="py-3">
+                <span className="text-meta">$ cat </span>
+                <a
+                  href={person.resumeUrl}
+                  className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
+                  download="Abhyansh_Anand_Resume.pdf"
+                >
+                  resume.pdf
+                </a>
+              </div>
             </div>
           </div>
         </motion.div>
+
+        <div className="order-2 flex min-h-[220px] w-full items-center justify-center lg:order-2 lg:min-h-[320px] lg:justify-end">
+          <Suspense fallback={<ContactCircleFallback />}>
+            <WireCircleAccent
+              color={CONTACT_ORB}
+              className="h-[min(48vw,300px)] w-[min(88vw,340px)] md:h-[min(36vw,340px)] md:w-full md:max-w-[400px] lg:h-[min(42vh,400px)] lg:max-w-none"
+            />
+          </Suspense>
+        </div>
       </div>
     </section>
   );
