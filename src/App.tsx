@@ -17,7 +17,7 @@ function Shell({ children }: { children: ReactNode }) {
         <Header />
         <ScrollToTop />
         {children}
-        <footer className="border-t border-white/[0.06] bg-base/80 px-4 py-8 text-center text-xs text-meta backdrop-blur-md sm:px-6">
+        <footer className="border-t border-white/[0.06] bg-base/65 px-4 py-8 text-center text-xs text-meta sm:px-6">
           © 2026 Abhyansh Anand
         </footer>
       </div>

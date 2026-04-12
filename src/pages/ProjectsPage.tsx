@@ -26,7 +26,7 @@ export function ProjectsPage() {
   return (
     <main className="relative pt-[7.5rem]">
       <SectionBackdropLayer variant="projects" />
-      <div className="relative z-10 border-b border-white/[0.06] bg-base/72 px-4 py-10 backdrop-blur-md sm:px-6">
+      <div className="relative z-10 border-b border-white/[0.06] bg-base/58 px-4 py-10 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Link
@@ -46,7 +46,7 @@ export function ProjectsPage() {
         </div>
       </div>
 
-      <section className="relative z-10 border-t border-white/[0.05] bg-base/72 px-4 py-14 backdrop-blur-md sm:px-6">
+      <section className="relative z-10 border-t border-white/[0.05] bg-base/58 px-4 py-14 sm:px-6">
         <div className="relative z-10 mx-auto max-w-6xl">
           <motion.div {...fade}>
             <h2 className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
@@ -78,7 +78,7 @@ export function ProjectsPage() {
         </div>
       </section>
 
-      <section className="relative z-10 border-t border-white/[0.06] bg-base/72 px-4 py-14 backdrop-blur-md sm:px-6">
+      <section className="relative z-10 border-t border-white/[0.06] bg-base/58 px-4 py-14 sm:px-6">
         <div className="relative z-10 mx-auto max-w-6xl">
           <motion.h2 {...fade} className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
             Portfolio builds

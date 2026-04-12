@@ -21,7 +21,7 @@ export function Experience() {
   return (
     <section
       id="experience"
-      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/72 px-4 py-24 backdrop-blur-md sm:px-6 sm:py-28"
+      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/58 px-4 py-24 sm:px-6 sm:py-28"
     >
       <SectionBackdropLayer variant="experience" />
       <div className="relative z-10 mx-auto max-w-6xl">

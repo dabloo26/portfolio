@@ -83,42 +83,6 @@ function Starfield({
   );
 }
 
-function WireAccent({
-  emissive,
-  position,
-  scale = 0.38,
-}: {
-  emissive: string;
-  position: [number, number, number];
-  scale?: number;
-}) {
-  const mesh = useRef<THREE.Mesh>(null);
-  useFrame((state, delta) => {
-    const m = mesh.current;
-    if (!m) return;
-    m.rotation.x += delta * 0.11;
-    m.rotation.y += delta * 0.16;
-    const t = state.clock.elapsedTime;
-    m.position.y = position[1] + Math.sin(t * 0.55 + position[0]) * 0.05;
-  });
-
-  return (
-    <mesh ref={mesh} position={position} scale={scale}>
-      <icosahedronGeometry args={[1, 1]} />
-      <meshStandardMaterial
-        color={emissive}
-        emissive={emissive}
-        emissiveIntensity={0.45}
-        metalness={0.35}
-        roughness={0.25}
-        wireframe
-        transparent
-        opacity={0.38}
-      />
-    </mesh>
-  );
-}
-
 function ParallaxStage({ children }: { children: ReactNode }) {
   const rig = useRef<THREE.Group>(null);
   const ptr = useRef({ x: 0, y: 0 });
@@ -139,9 +103,9 @@ function ParallaxStage({ children }: { children: ReactNode }) {
     if (!g) return;
     const x = ptr.current.x;
     const y = ptr.current.y;
-    const k = 0.07;
-    g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, y * 0.16, k);
-    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, -x * 0.12, k);
+    const k = 0.09;
+    g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, y * 0.2, k);
+    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, -x * 0.15, k);
   });
   return <group ref={rig}>{children}</group>;
 }
@@ -156,23 +120,13 @@ function SceneContent({
   const cfg = ROLE[role];
   return (
     <ParallaxStage>
-      <group position={[0, 0, 0]} scale={1.78}>
-        <ambientLight intensity={0.28} />
-        <pointLight
-          position={[4, 2.5, 5]}
-          intensity={0.9}
-          color={cfg.emissive}
-        />
-        <pointLight position={[-4, 1.5, 3]} intensity={0.45} color="#a78bfa" />
-        <pointLight position={[0, -2, 2]} intensity={0.25} color={cfg.star} />
+      <group position={[0, 0, 0]} scale={1.85}>
         <Starfield
           count={particleCount}
           color={cfg.star}
           size={cfg.pointSize}
           spin={cfg.spin}
         />
-        <WireAccent emissive={cfg.emissive} position={[0.55, 0.05, 0.15]} scale={0.42} />
-        <WireAccent emissive="#94a3b8" position={[-0.85, -0.08, 0.1]} scale={0.32} />
       </group>
     </ParallaxStage>
   );
@@ -249,15 +203,15 @@ export function HeroSceneCanvas({
       {fixed ?
         <>
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[#030712]/50 via-[#030712]/18 to-[#030712]/28"
+            className="absolute inset-0 bg-gradient-to-r from-[#030712]/28 via-transparent to-[#030712]/18"
             aria-hidden
           />
           <div
-            className="absolute inset-x-0 bottom-0 h-[min(30vh,260px)] bg-gradient-to-t from-base/55 via-base/15 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-[min(28vh,220px)] bg-gradient-to-t from-base/25 via-transparent to-transparent"
             aria-hidden
           />
           <div
-            className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.38)]"
+            className="absolute inset-0 shadow-[inset_0_0_90px_rgba(0,0,0,0.22)]"
             aria-hidden
           />
         </>

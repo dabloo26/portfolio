@@ -38,7 +38,7 @@ export function Skills() {
   return (
     <section
       id="skills"
-      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/72 px-4 py-24 backdrop-blur-md sm:px-6 sm:py-28"
+      className="relative z-10 scroll-mt-32 border-t border-white/[0.05] bg-base/58 px-4 py-24 sm:px-6 sm:py-28"
     >
       <div className="mx-auto max-w-6xl">
         <motion.div {...headerFade}>

@@ -31,8 +31,8 @@ export function Header() {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       className={`fixed inset-x-0 top-[2px] z-50 border-b transition-colors duration-300 md:top-[2px] ${
         scrolled
-          ? "border-b border-accent-acid/40 bg-base/75 backdrop-blur-xl"
-          : "border-b border-white/[0.07] bg-base/40 backdrop-blur-md"
+          ? "border-b border-accent-acid/40 bg-base/88"
+          : "border-b border-white/[0.07] bg-base/55"
       }`}
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
