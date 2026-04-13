@@ -41,18 +41,37 @@ export function ProjectsPreview() {
             <p className="mt-2 max-w-2xl font-mono text-sm leading-relaxed text-zinc-400">
               Three builds I reach for first: session recovery on AWS, English–Hindi NMT, and a
               warehouse-backed analytics stack.
-              {featuredRepo?.link ? (
+              {featuredRepo?.liveUrl || featuredRepo?.link ? (
                 <>
                   {" "}
-                  <a
-                    href={featuredRepo.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-accent-violet underline decoration-accent-violet/35 underline-offset-[3px] transition hover:text-accent-acid hover:decoration-accent-acid"
-                  >
-                    The resume app repo
-                  </a>{" "}
-                  is open if you want to poke at the Lambda/React wiring.
+                  {featuredRepo.liveUrl ? (
+                    <>
+                      <a
+                        href={featuredRepo.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-accent-acid underline decoration-accent-acid/35 underline-offset-[3px] transition hover:text-white hover:decoration-white"
+                      >
+                        Live resume session
+                      </a>
+                      {featuredRepo.link ? " · " : null}
+                    </>
+                  ) : null}
+                  {featuredRepo.link ? (
+                    <a
+                      href={featuredRepo.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-accent-violet underline decoration-accent-violet/35 underline-offset-[3px] transition hover:text-accent-acid hover:decoration-accent-acid"
+                    >
+                      {featuredRepo.liveUrl ? "Source on GitHub" : "The resume app repo"}
+                    </a>
+                  ) : null}
+                  {featuredRepo.link && featuredRepo.liveUrl
+                    ? " — open if you want to poke at the Lambda/React wiring."
+                    : featuredRepo.link
+                      ? " is open if you want to poke at the Lambda/React wiring."
+                      : "."}
                 </>
               ) : null}
             </p>

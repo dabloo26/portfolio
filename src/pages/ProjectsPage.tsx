@@ -58,16 +58,30 @@ export function ProjectsPage() {
                 viewport={sectionViewport}
                 transition={{ ...fade.transition, delay: 0.05 + i * 0.04 }}
               >
-                <a
-                  href={repo.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex h-full flex-col rounded-lg border border-white/[0.08] bg-[#111118] p-4 transition hover:border-accent-violet/40"
-                >
+                <div className="flex h-full flex-col rounded-lg border border-white/[0.08] bg-[#111118] p-4 transition hover:border-accent-violet/40">
                   <span className="font-mono text-[11px] text-accent-violet">{repo.name}</span>
-                  <span className="mt-2 text-xs leading-relaxed text-meta">{repo.description}</span>
-                  <span className="mt-3 font-mono text-[11px] text-accent-acid">Open repository →</span>
-                </a>
+                  <span className="mt-2 text-xs leading-relaxed text-zinc-400">{repo.description}</span>
+                  <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2 pt-4">
+                    {repo.liveUrl ? (
+                      <a
+                        href={repo.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-mono text-[11px] text-accent-acid hover:underline"
+                      >
+                        Live app →
+                      </a>
+                    ) : null}
+                    <a
+                      href={repo.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-[11px] text-accent-violet hover:text-accent-acid"
+                    >
+                      {repo.liveUrl ? "Repository →" : "Open repository →"}
+                    </a>
+                  </div>
+                </div>
               </motion.li>
             ))}
           </ul>

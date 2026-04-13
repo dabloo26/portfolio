@@ -19,7 +19,10 @@ export type Project = {
   analyst: number;
   scientist: number;
   engineer: number;
+  /** Primary link (often GitHub). */
   link?: string;
+  /** Deployed app / demo (e.g. CloudFront). */
+  liveUrl?: string;
 };
 
 export type ExperienceItem = {
@@ -70,6 +73,8 @@ export type GithubRepoHighlight = {
   name: string;
   description: string;
   url: string;
+  /** Optional deployed URL (same project as repo). */
+  liveUrl?: string;
   analyst: number;
   scientist: number;
   engineer: number;
@@ -94,6 +99,7 @@ export const githubHighlights: GithubRepoHighlight[] = [
     description:
       "UMD DATA650 — serverless resume editor on AWS (FastAPI/Lambda, React on CloudFront, DynamoDB + S3 session recovery, debounced autosave).",
     url: "https://github.com/dabloo26/resume-chat-fast-recovery",
+    liveUrl: "https://dvxexndtccpr9.cloudfront.net",
     analyst: 55,
     scientist: 72,
     engineer: 100,
@@ -313,6 +319,7 @@ export const projects: Project[] = [
     scientist: 70,
     engineer: 100,
     link: "https://github.com/dabloo26/resume-chat-fast-recovery",
+    liveUrl: "https://dvxexndtccpr9.cloudfront.net",
   },
   {
     id: "rate-limit",

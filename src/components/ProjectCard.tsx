@@ -14,6 +14,13 @@ function linkLabel(url: string) {
   return url.includes("github.com") ? "View on GitHub →" : "View details →";
 }
 
+function projectLinks(p: Project) {
+  const out: { href: string; label: string }[] = [];
+  if (p.liveUrl) out.push({ href: p.liveUrl, label: "Open live app →" });
+  if (p.link) out.push({ href: p.link, label: linkLabel(p.link) });
+  return out;
+}
+
 const walkthroughMail = `mailto:${person.email}?subject=${encodeURIComponent("Portfolio walkthrough request")}`;
 
 export function ProjectCard({
@@ -51,15 +58,20 @@ export function ProjectCard({
             </span>
           ))}
         </div>
-        {p.link ? (
-          <a
-            href={p.link}
-            target="_blank"
-            rel="noreferrer"
-            className="relative mt-6 inline-flex font-mono text-xs font-medium text-accent-violet hover:text-accent-acid"
-          >
-            {linkLabel(p.link)}
-          </a>
+        {projectLinks(p).length > 0 ? (
+          <div className="relative mt-6 flex flex-wrap gap-x-5 gap-y-2">
+            {projectLinks(p).map(({ href, label }) => (
+              <a
+                key={href + label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex font-mono text-xs font-medium text-accent-violet hover:text-accent-acid"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
         ) : (
           <a
             href={walkthroughMail}
