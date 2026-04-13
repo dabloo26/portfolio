@@ -140,7 +140,7 @@ export function Contact() {
             aria-label="Closing"
           >
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-meta">Thank you</p>
-            <p className="font-signature mt-3 text-[2.925rem] text-white/95 sm:text-[3.9rem]">
+            <p className="font-signature mt-3 text-[3.375rem] text-white/95 sm:text-[4.5rem]">
               {person.name}
             </p>
           </motion.div>
