@@ -87,8 +87,9 @@ export function Header() {
           </span>
         </Link>
         <a
-          href={person.resumeUrl}
-          download="Abhyansh_Anand_Resume.pdf"
+          href={person.resumeViewUrl}
+          target="_blank"
+          rel="noreferrer"
           className="shrink-0 rounded-sm border border-accent-violet/55 bg-[#111118]/80 px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-wider text-accent-violet transition hover:border-accent-acid hover:text-accent-acid md:hidden"
         >
           Résumé
@@ -107,6 +108,14 @@ export function Header() {
               {label}
             </button>
           ))}
+          <a
+            href={person.resumeViewUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="transition-colors duration-150 hover:text-accent-acid hover:underline"
+          >
+            RESUME
+          </a>
           <a
             href={person.github}
             target="_blank"

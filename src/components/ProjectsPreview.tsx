@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { projects, sortByPrimaryFocus } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
+import { SectionHeadingIntro } from "./SectionHeadingIntro";
 import { sectionViewport } from "../motion/section";
 import { ProjectCard } from "./ProjectCard";
 
@@ -34,11 +35,12 @@ export function ProjectsPreview() {
       <SectionBackdropLayer variant="projects" />
       <div className="relative z-10 mx-auto w-full min-w-0 max-w-6xl">
         <motion.div {...fade} className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
-              Projects
-            </h2>
-            <p className="mt-2 max-w-2xl font-mono text-sm leading-relaxed text-zinc-400">
+          <div className="min-w-0 flex-1">
+            <SectionHeadingIntro>
+              <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
+                Projects
+              </h2>
+              <p className="section-heading-intro__lede mt-2 max-w-2xl font-mono text-sm leading-relaxed text-zinc-200">
               Three builds I reach for first: session recovery on AWS, English–Hindi NMT, and a
               warehouse-backed analytics stack.
               {featuredRepo?.liveUrl || featuredRepo?.link ? (
@@ -74,7 +76,8 @@ export function ProjectsPreview() {
                       : "."}
                 </>
               ) : null}
-            </p>
+              </p>
+            </SectionHeadingIntro>
           </div>
           <Link
             to="/projects"

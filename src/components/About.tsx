@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { aboutParagraphMobile, aboutParagraphs, person } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
+import { SectionHeadingIntro, SectionHeadingLede } from "./SectionHeadingIntro";
 import { sectionViewport } from "../motion/section";
 
 const fade = {
@@ -59,13 +60,15 @@ export function About() {
       <SectionBackdropLayer variant="about" />
       <div className="relative z-10 mx-auto w-full min-w-0 max-w-6xl overflow-x-clip">
         <motion.div {...fade} className="max-w-3xl min-w-0">
-          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
-            About
-          </h2>
-          <p className="mt-3 font-mono text-sm uppercase tracking-wider text-zinc-400">
-            <span aria-hidden>📍 </span>
-            {person.location}
-          </p>
+          <SectionHeadingIntro>
+            <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
+              About
+            </h2>
+            <SectionHeadingLede className="mt-3 uppercase tracking-wider">
+              <span aria-hidden>📍 </span>
+              {person.location}
+            </SectionHeadingLede>
+          </SectionHeadingIntro>
         </motion.div>
         <div className="mt-12 grid min-w-0 gap-8 md:grid-cols-[1.1fr_0.9fr] md:items-start md:gap-10">
           <motion.div

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useCallback, useState } from "react";
 import { person } from "../data/profile";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
+import { SectionHeadingIntro, SectionHeadingLede } from "./SectionHeadingIntro";
 import { sectionViewport } from "../motion/section";
 
 const githubHandle = (() => {
@@ -48,15 +49,17 @@ export function Contact() {
         <div className="relative z-10 mx-auto max-w-3xl lg:max-w-4xl">
           <motion.div {...fade}>
             <div className="rounded-2xl border border-white/[0.14] bg-[#060a12]/65 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_24px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl sm:rounded-3xl sm:p-7 md:p-8">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-400/90 sm:text-[11px]">
-                Get in touch
-              </p>
-              <h2 className="mt-3 font-condensed text-3xl font-bold uppercase tracking-[0.12em] text-white sm:text-4xl md:text-5xl">
-                Contact
-              </h2>
-              <p className="mt-3 max-w-lg font-mono text-sm leading-relaxed text-zinc-400">
-                Copy-friendly — same details as my resume header.
-              </p>
+              <SectionHeadingIntro className="border-white/[0.06] bg-[#040508]/90">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-300 [text-shadow:0_1px_3px_rgba(0,0,0,0.85)] sm:text-[11px]">
+                  Get in touch
+                </p>
+                <h2 className="mt-3 font-condensed text-3xl font-bold uppercase tracking-[0.12em] text-white sm:text-4xl md:text-5xl">
+                  Contact
+                </h2>
+                <SectionHeadingLede className="mt-3 max-w-lg">
+                  Copy-friendly — same details as my resume header.
+                </SectionHeadingLede>
+              </SectionHeadingIntro>
               <div className="mt-8 space-y-1 font-mono text-sm md:mt-10">
                 <div className="flex flex-col gap-2 border-b border-white/[0.06] py-3 sm:flex-row sm:items-center sm:gap-6">
                   <span className="shrink-0 text-meta">$ email</span>
@@ -107,14 +110,24 @@ export function Contact() {
                     GitHub (@{githubHandle}) ↗
                   </a>
                 </div>
-                <div className="py-3">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-3">
                   <span className="text-meta">$ cat </span>
                   <a
-                    href={person.resumeUrl}
+                    href={person.resumeViewUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     className="text-accent-acid underline decoration-accent-acid/40 underline-offset-4 hover:decoration-accent-acid"
-                    download="Abhyansh_Anand_Resume.pdf"
                   >
                     resume.pdf
+                  </a>
+                  <a
+                    href={person.resumeDownloadUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    download={person.resumeDownloadFilename}
+                    className="inline-flex min-h-[40px] items-center rounded-sm border border-accent-violet/45 bg-[#0c1018]/80 px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-accent-violet transition hover:border-accent-acid hover:text-accent-acid sm:min-h-0"
+                  >
+                    Download
                   </a>
                 </div>
               </div>

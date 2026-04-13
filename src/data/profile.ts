@@ -90,6 +90,14 @@ export const person = {
   location: "College Park, MD",
   /** Served from `public/resume.pdf`; path respects Vite `base` (e.g. GitHub Pages project sites). */
   resumeUrl: `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}resume.pdf`,
+  /** Google Drive — open PDF in browser. */
+  resumeViewUrl:
+    "https://drive.google.com/file/d/1hGrSMSyIVpUUVCgJqpe1qjtwA86YiJS8/view?usp=sharing",
+  /** Google Drive — direct download (`uc?export=download`). */
+  resumeDownloadUrl:
+    "https://drive.google.com/uc?export=download&id=1hGrSMSyIVpUUVCgJqpe1qjtwA86YiJS8",
+  /** Suggested filename when saving the Drive export. */
+  resumeDownloadFilename: "Abhyansh_Anand_Resume_Data_Science.pdf",
 };
 
 export const githubHighlights: GithubRepoHighlight[] = [

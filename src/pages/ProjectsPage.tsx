@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { githubHighlights, projects, sortByPrimaryFocus } from "../data/profile";
 import { SectionBackdropLayer } from "../components/ambient/SectionBackdrop";
+import { SectionHeadingIntro, SectionHeadingLede } from "../components/SectionHeadingIntro";
 import { sectionViewport } from "../motion/section";
 import { ProjectCard } from "../components/ProjectCard";
 import { Skills } from "../components/Skills";
@@ -26,18 +27,20 @@ export function ProjectsPage() {
           <div>
             <Link
               to="/"
-              className="font-mono text-[11px] uppercase tracking-wider text-meta transition hover:text-accent-acid"
+              className="font-mono text-[11px] uppercase tracking-wider text-zinc-400 transition hover:text-accent-acid"
             >
               ← Back to home
             </Link>
-            <h1 className="mt-4 font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
-              All projects
-            </h1>
-            <p className="mt-2 max-w-xl font-mono text-sm text-zinc-400">
-              I usually lead with analytics and ML, then the platform pieces that make them stick. If
-              something here looks familiar, we have probably complained about the same bad join or
-              the same flaky pipeline.
-            </p>
+            <SectionHeadingIntro className="mt-4">
+              <h1 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
+                All projects
+              </h1>
+              <SectionHeadingLede className="max-w-xl">
+                I usually lead with analytics and ML, then the platform pieces that make them stick. If
+                something here looks familiar, we have probably complained about the same bad join or
+                the same flaky pipeline.
+              </SectionHeadingLede>
+            </SectionHeadingIntro>
           </div>
         </div>
       </div>
@@ -45,9 +48,11 @@ export function ProjectsPage() {
       <section className="relative z-10 bg-gradient-to-b from-base/25 via-base/48 to-base/55 px-4 py-14 sm:px-6">
         <div className="relative z-10 mx-auto max-w-6xl">
           <motion.div {...fade}>
-            <h2 className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
-              GitHub repositories
-            </h2>
+            <SectionHeadingIntro compact>
+              <h2 className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
+                GitHub repositories
+              </h2>
+            </SectionHeadingIntro>
           </motion.div>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {topRepos.map((repo, i) => (
@@ -90,9 +95,13 @@ export function ProjectsPage() {
 
       <section className="relative z-10 bg-gradient-to-b from-base/30 via-base/50 to-base/58 px-4 py-14 sm:px-6">
         <div className="relative z-10 mx-auto max-w-6xl">
-          <motion.h2 {...fade} className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
-            Portfolio builds
-          </motion.h2>
+          <motion.div {...fade}>
+            <SectionHeadingIntro compact>
+              <h2 className="font-condensed text-xl font-bold uppercase tracking-[0.14em] text-white">
+                Portfolio builds
+              </h2>
+            </SectionHeadingIntro>
+          </motion.div>
           <div className="mt-10 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
             {ordered.map((p, i) => (
               <ProjectCard key={p.id} p={p} delayIndex={i} />

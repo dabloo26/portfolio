@@ -8,6 +8,7 @@ import {
 import { hashIdFromProfileHref, routerToFromHref } from "../nav/routerTo";
 import { useScrollToSection } from "../hooks/useScrollToSection";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
+import { SectionHeadingIntro } from "./SectionHeadingIntro";
 import { sectionViewport } from "../motion/section";
 
 const fade = {
@@ -114,12 +115,14 @@ export function KeyImpact() {
 
       <div className="relative z-10 mx-auto w-full min-w-0 max-w-6xl">
         <motion.div {...fade} className="text-center sm:text-left">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-400 sm:text-xs">
-            {keyImpactEyebrow}
-          </p>
-          <h2 className="mt-3 font-display text-4xl italic text-white sm:text-5xl md:text-6xl">
-            {keyImpactTitle}
-          </h2>
+          <SectionHeadingIntro className="mx-auto w-full max-w-4xl sm:mx-0">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300 [text-shadow:0_1px_4px_rgba(0,0,0,0.88)] sm:text-xs">
+              {keyImpactEyebrow}
+            </p>
+            <h2 className="mt-3 font-display text-4xl italic text-white sm:text-5xl md:text-6xl">
+              {keyImpactTitle}
+            </h2>
+          </SectionHeadingIntro>
         </motion.div>
 
         <ul className="mt-12 grid min-w-0 grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">

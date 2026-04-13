@@ -16,6 +16,17 @@ html {
   overflow-x: clip;
 }
 
+/* Section title blocks: legible over animated / gradient backdrops */
+.section-heading-intro h1,
+.section-heading-intro h2 {
+  text-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.92),
+    0 1px 3px rgba(0, 0, 0, 0.85);
+}
+.section-heading-intro__lede {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.88);
+}
+
 /* Avoid UA default heading color (often near-black) on dark sections. */
 #experience h3 {
   color: #fafafa;

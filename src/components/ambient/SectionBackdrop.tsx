@@ -28,7 +28,7 @@ export function SectionBackdropLayer({ variant }: { variant: SectionBackdropVari
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
       aria-hidden
     >
-      <div className={`absolute inset-0 opacity-50 md:opacity-[0.58] ${css}`} />
+      <div className={`absolute inset-0 opacity-[0.34] md:opacity-[0.42] ${css}`} />
     </div>
   );
 }

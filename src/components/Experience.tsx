@@ -6,6 +6,7 @@ import {
 } from "../data/profile";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { SectionBackdropLayer } from "./ambient/SectionBackdrop";
+import { SectionHeadingIntro, SectionHeadingLede } from "./SectionHeadingIntro";
 import { sectionViewport } from "../motion/section";
 
 const fade = {
@@ -26,12 +27,14 @@ export function Experience() {
       <SectionBackdropLayer variant="experience" />
       <div className="relative z-10 mx-auto w-full min-w-0 max-w-4xl">
         <motion.div {...fade} className="min-w-0">
-          <h2 className="font-condensed text-[clamp(1.75rem,4vw+0.5rem,3rem)] font-bold uppercase tracking-[0.12em] text-white">
-            Experience
-          </h2>
-          <p className="mt-2 hidden max-w-lg font-mono text-xs text-zinc-400 md:block md:text-sm">
-            Timeline — most recent first.
-          </p>
+          <SectionHeadingIntro>
+            <h2 className="font-condensed text-[clamp(1.75rem,4vw+0.5rem,3rem)] font-bold uppercase tracking-[0.12em] text-white">
+              Experience
+            </h2>
+            <SectionHeadingLede size="sm" className="hidden max-w-lg md:block">
+              Timeline — most recent first.
+            </SectionHeadingLede>
+          </SectionHeadingIntro>
         </motion.div>
 
         <div className="relative mt-8 min-w-0 pl-1 sm:mt-10 sm:pl-2">

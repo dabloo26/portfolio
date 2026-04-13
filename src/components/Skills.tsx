@@ -7,6 +7,7 @@ import {
   type SkillCategory,
 } from "../data/profile";
 import { sectionViewport } from "../motion/section";
+import { SectionHeadingIntro, SectionHeadingLede } from "./SectionHeadingIntro";
 
 const CATEGORY_META: Record<
   SkillCategory,
@@ -65,12 +66,14 @@ export function Skills() {
     >
       <div className="mx-auto max-w-6xl">
         <motion.div {...headerFade}>
-          <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
-            Skills
-          </h2>
-          <p className="mt-3 max-w-xl font-mono text-sm text-zinc-400">
-            Grouped by practice area — scores blend analytics, ML, and engineering emphasis.
-          </p>
+          <SectionHeadingIntro>
+            <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
+              Skills
+            </h2>
+            <SectionHeadingLede className="max-w-xl">
+              Grouped by practice area — scores blend analytics, ML, and engineering emphasis.
+            </SectionHeadingLede>
+          </SectionHeadingIntro>
         </motion.div>
 
         <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -86,7 +89,7 @@ export function Skills() {
               <h3 className="font-condensed text-lg font-bold uppercase tracking-[0.14em] text-white sm:text-xl">
                 {title}
               </h3>
-              <p className="mt-1 font-mono text-[11px] leading-snug text-zinc-400 sm:text-xs">
+              <p className="mt-1 font-mono text-[11px] leading-snug text-zinc-300 sm:text-xs">
                 {subtitle}
               </p>
               <ul className="mt-5 flex flex-1 flex-col gap-3.5">
