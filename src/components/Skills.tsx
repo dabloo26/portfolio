@@ -68,7 +68,7 @@ export function Skills() {
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             Skills
           </h2>
-          <p className="mt-3 max-w-xl font-mono text-sm text-meta">
+          <p className="mt-3 max-w-xl font-mono text-sm text-zinc-400">
             Grouped by practice area — scores blend analytics, ML, and engineering emphasis.
           </p>
         </motion.div>
@@ -86,7 +86,7 @@ export function Skills() {
               <h3 className="font-condensed text-lg font-bold uppercase tracking-[0.14em] text-white sm:text-xl">
                 {title}
               </h3>
-              <p className="mt-1 font-mono text-[11px] leading-snug text-meta sm:text-xs">
+              <p className="mt-1 font-mono text-[11px] leading-snug text-zinc-400 sm:text-xs">
                 {subtitle}
               </p>
               <ul className="mt-5 flex flex-1 flex-col gap-3.5">

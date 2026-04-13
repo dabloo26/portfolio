@@ -38,7 +38,7 @@ export function ProjectsPreview() {
             <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
               Projects
             </h2>
-            <p className="mt-2 max-w-2xl font-mono text-sm leading-relaxed text-meta">
+            <p className="mt-2 max-w-2xl font-mono text-sm leading-relaxed text-zinc-400">
               Three builds I reach for first: session recovery on AWS, English–Hindi NMT, and a
               warehouse-backed analytics stack.
               {featuredRepo?.link ? (

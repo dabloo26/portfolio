@@ -54,7 +54,7 @@ export function Contact() {
               <h2 className="mt-3 font-condensed text-3xl font-bold uppercase tracking-[0.12em] text-white sm:text-4xl md:text-5xl">
                 Contact
               </h2>
-              <p className="mt-3 max-w-lg font-mono text-sm leading-relaxed text-meta">
+              <p className="mt-3 max-w-lg font-mono text-sm leading-relaxed text-zinc-400">
                 Copy-friendly — same details as my resume header.
               </p>
               <div className="mt-8 space-y-1 font-mono text-sm md:mt-10">

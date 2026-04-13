@@ -16,6 +16,11 @@ html {
   overflow-x: clip;
 }
 
+/* Avoid UA default heading color (often near-black) on dark sections. */
+#experience h3 {
+  color: #fafafa;
+}
+
 body {
   @apply bg-base font-sans text-white antialiased;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";

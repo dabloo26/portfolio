@@ -62,7 +62,7 @@ export function About() {
           <h2 className="font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
             About
           </h2>
-          <p className="mt-3 font-mono text-sm uppercase tracking-wider text-meta">
+          <p className="mt-3 font-mono text-sm uppercase tracking-wider text-zinc-400">
             <span aria-hidden>📍 </span>
             {person.location}
           </p>

@@ -33,7 +33,7 @@ export function ProjectsPage() {
             <h1 className="mt-4 font-condensed text-4xl font-bold uppercase tracking-[0.12em] text-white sm:text-5xl">
               All projects
             </h1>
-            <p className="mt-2 max-w-xl font-mono text-sm text-meta">
+            <p className="mt-2 max-w-xl font-mono text-sm text-zinc-400">
               I usually lead with analytics and ML, then the platform pieces that make them stick. If
               something here looks familiar, we have probably complained about the same bad join or
               the same flaky pipeline.
