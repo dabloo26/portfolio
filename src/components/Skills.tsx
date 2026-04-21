@@ -54,7 +54,11 @@ export function Skills() {
       return {
         key,
         ...CATEGORY_META[key],
-        items: sorted.map((s) => ({ skill: s, score: primaryFocusScore(s) })),
+        items: sorted.map((s) => {
+          const baseScore = primaryFocusScore(s);
+          const score = key === "ml" ? Math.max(80, baseScore) : baseScore;
+          return { skill: s, score };
+        }),
       };
     });
   }, []);
