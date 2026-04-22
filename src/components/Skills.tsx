@@ -34,6 +34,14 @@ const headerFade = {
   transition: { duration: 0.4 },
 };
 
+function scoreJitter(name: string): number {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = (hash * 31 + name.charCodeAt(i)) % 997;
+  }
+  return hash % 8;
+}
+
 function MiniBar({ score }: { score: number }) {
   return (
     <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.08]">
@@ -56,8 +64,9 @@ export function Skills() {
         ...CATEGORY_META[key],
         items: sorted.map((s) => {
           const baseScore = primaryFocusScore(s);
-          const score =
-            key === "ml" ? Math.max(80, Math.min(95, Math.round(0.55 * baseScore + 42))) : baseScore;
+          const boosted = Math.round(0.45 * baseScore + 55) + scoreJitter(s.name);
+          let score = Math.max(80, Math.min(98, boosted));
+          if (/sql|relational|stored procedures/i.test(s.name)) score = Math.max(score, 92);
           return { skill: s, score };
         }),
       };
