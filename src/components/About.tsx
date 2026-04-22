@@ -16,6 +16,10 @@ const fade = {
 const cardShell =
   "rounded-2xl border border-white/[0.12] bg-[#070a12]/65 shadow-[0_12px_48px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:rounded-3xl";
 
+function stripDashes(text: string): string {
+  return text.replace(/[—–]/g, ",").replace(/·/g, ",");
+}
+
 function AnimatedGpa() {
   const [v, setV] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -77,12 +81,12 @@ export function About() {
             className={`min-w-0 max-w-full ${cardShell} p-5 sm:p-8`}
           >
             <p className="text-[clamp(15px,3.5vw,18px)] leading-relaxed text-white/90 md:hidden">
-              {aboutParagraphMobile}
+              {stripDashes(aboutParagraphMobile)}
             </p>
             <div className="hidden space-y-6 text-[17px] leading-relaxed text-white/90 sm:text-lg md:block">
               {aboutParagraphs.map((p, i) => (
                 <motion.p key={i} {...fade} transition={{ ...fade.transition, delay: i * 0.06 }}>
-                  {p}
+                  {stripDashes(p)}
                 </motion.p>
               ))}
             </div>
