@@ -56,7 +56,8 @@ export function Skills() {
         ...CATEGORY_META[key],
         items: sorted.map((s) => {
           const baseScore = primaryFocusScore(s);
-          const score = key === "ml" ? Math.max(80, baseScore) : baseScore;
+          const score =
+            key === "ml" ? Math.max(80, Math.min(95, Math.round(0.55 * baseScore + 42))) : baseScore;
           return { skill: s, score };
         }),
       };
