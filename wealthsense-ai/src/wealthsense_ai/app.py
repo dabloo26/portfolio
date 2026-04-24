@@ -10,15 +10,9 @@ import plotly.graph_objects as go
 import streamlit as st
 from dotenv import load_dotenv
 
-try:
-    from .config import PathsConfig
-    from .simulation import run_goal_monte_carlo
-    from .strategy import summarize_forecasts
-except ImportError:
-    # Support direct script execution via `streamlit run .../app.py`.
-    from wealthsense_ai.config import PathsConfig
-    from wealthsense_ai.simulation import run_goal_monte_carlo
-    from wealthsense_ai.strategy import summarize_forecasts
+from .config import PathsConfig
+from .simulation import run_goal_monte_carlo
+from .strategy import summarize_forecasts
 
 load_dotenv()
 
