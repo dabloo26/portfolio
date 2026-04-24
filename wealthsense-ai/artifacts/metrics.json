@@ -77,7 +77,7 @@
       "ticker": "MSFT",
       "model": "lstm",
       "mae": 261.2568063812256,
-      "rmse": 264.43793878923356,
+      "rmse": 264.4379387892336,
       "mape": 0.8290312025251507,
       "directional_accuracy": 0.18473895582329317,
       "interval_coverage": 0.316
@@ -104,7 +104,7 @@
       "ticker": "MSFT",
       "model": "ensemble",
       "mae": 164.295788317536,
-      "rmse": 169.308261874414,
+      "rmse": 169.30826187441403,
       "mape": 0.5144373397811669,
       "directional_accuracy": 0.5421686746987951,
       "interval_coverage": 0.316
@@ -139,7 +139,7 @@
     {
       "ticker": "NVDA",
       "model": "ensemble",
-      "mae": 12.217297315100058,
+      "mae": 12.217297315100057,
       "rmse": 15.141752138282477,
       "mape": 0.28158972361412354,
       "directional_accuracy": 0.4538152610441767,
@@ -149,8 +149,8 @@
       "ticker": "TSLA",
       "model": "lstm",
       "mae": 171.84156199645997,
-      "rmse": 176.860146626461,
-      "mape": 0.7805271445523198,
+      "rmse": 176.86014662646096,
+      "mape": 0.7805271445523196,
       "directional_accuracy": 0.3172690763052209,
       "interval_coverage": 1.0
     },
@@ -175,7 +175,7 @@
     {
       "ticker": "TSLA",
       "model": "ensemble",
-      "mae": 64.01195166582647,
+      "mae": 64.01195166582649,
       "rmse": 71.28948682098158,
       "mape": 0.2761130140804552,
       "directional_accuracy": 0.46987951807228917,

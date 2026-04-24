@@ -1,104 +1,60 @@
 # WealthSense AI
 
-Working end-to-end implementation of the proposal: deep-learning stock forecasting + strategy benchmarking + goal simulation + dashboard + optional AI explanation.
+End-to-end deep learning financial advisor platform implementing the proposal:
 
-## What Was Built
+- Data ingestion from Yahoo Finance (`2015-2023`) for `AAPL`, `MSFT`, `NVDA`, `TSLA`, `SPY`
+- Feature engineering (SMA, EMA, RSI, returns, volatility)
+- Model comparison: `LSTM`, `GRU`, `Transformer` (PyTorch)
+- Ensemble model using inverse-RMSE weighting on validation split
+- Conformal prediction intervals (`90%`) + interval coverage tracking
+- Evaluation metrics: `MAE`, `RMSE`, `MAPE`, directional accuracy
+- Trading strategy simulation vs model signals
+- Baseline benchmark: buy-and-hold strategy
+- Goal planner via Monte Carlo simulation
+- Streamlit dashboard with optional Claude explanations
 
-- **Data layer**
-  - Pulls Yahoo Finance daily OHLCV data for `AAPL`, `MSFT`, `NVDA`, `TSLA`, `SPY`
-  - Uses fixed range `2015-01-01` to `2023-12-31`
-  - Caches data to `artifacts/data_cache/` for reproducible demos
-- **Feature engineering**
-  - `SMA_10`, `SMA_30`, `EMA_12`, `RSI_14`, `Daily_Return`, `Volatility_10`
-  - 30-day rolling sequence windows for supervised forecasting
-  - Split policy:
-    - Train: `2015-2021`
-    - Validation: `2022`
-    - Test: `2023`
-- **Modeling**
-  - PyTorch implementations of:
-    - `LSTM` (2-layer)
-    - `GRU` (2-layer)
-    - Encoder-only `Transformer` with positional encoding
-  - Early stopping + AdamW optimizer
-- **Evaluation**
-  - `MAE`, `RMSE`, `MAPE`, directional accuracy
-  - Conformal 90% prediction intervals + interval coverage
-  - Inverse-RMSE weighted **ensemble** model
-- **Portfolio strategy simulation**
-  - Model-signal strategy performance
-  - Buy-and-hold baseline
-  - Metrics: cumulative return, Sharpe, max drawdown
-- **Goal-based planning**
-  - Monte Carlo engine for goal success probability
-  - Expected terminal value + suggested monthly contribution
-- **Website (Streamlit app)**
-  - Portfolio Analytics tab
-  - Forecast Comparison tab
-  - Goal Planning tab
-  - AI Chat tab (Claude optional)
-
-## Current Folder Map
-
-- `src/wealthsense_ai/data.py` - download, normalize, feature engineering, sequence creation
-- `src/wealthsense_ai/models.py` - LSTM/GRU/Transformer model classes
-- `src/wealthsense_ai/train.py` - full train/evaluate pipeline, artifact generation
-- `src/wealthsense_ai/strategy.py` - trading + benchmark metrics
-- `src/wealthsense_ai/simulation.py` - Monte Carlo goal engine
-- `src/wealthsense_ai/uncertainty.py` - conformal interval utilities
-- `src/wealthsense_ai/app.py` - Streamlit website/dashboard
-- `artifacts/` - generated trained outputs for demo
-- `run_all.sh` - one command to install, train, and launch
-
-## One-Command Run (Recommended)
-
-From repo root:
+## Quickstart
 
 ```bash
 cd wealthsense-ai
-./run_all.sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-This script:
-1. Installs dependencies
-2. Trains all models
-3. Generates all artifacts
-4. Launches Streamlit website
-
-## Manual Commands
-
-From repo root:
+## Train + Evaluate
 
 ```bash
-npm run wealthsense:train
-npm run wealthsense:dashboard
+PYTHONPATH=src python -m wealthsense_ai.train
 ```
 
-## Artifacts Produced
+Artifacts saved to `wealthsense-ai/artifacts/`:
 
-- `artifacts/metrics.json` - config + per-model metrics
-- `artifacts/forecasts.csv` - predicted vs actual values + intervals
-- `artifacts/strategy_results.csv` - strategy and buy-and-hold results
-- `artifacts/models/*.pt` - trained PyTorch model weights
-- `artifacts/data_cache/*.csv` - cached Yahoo Finance data
+- `metrics.json`
+- `forecasts.csv`
+- `strategy_results.csv`
+- `models/*.pt`
 
-## Optional AI Chat Setup
+## Launch Dashboard
+
+```bash
+PYTHONPATH=src streamlit run src/wealthsense_ai/app.py
+```
+
+Optional AI explanation:
 
 ```bash
 export ANTHROPIC_API_KEY=your_key_here
 ```
 
-If no key is set, the dashboard still works and shows all non-LLM features.
+## Included "State-of-the-Art" Components
 
-## Handoff Notes For New Team Members
+1. Multi-architecture benchmark (`LSTM`, `GRU`, `Transformer`, and `ensemble`).
+2. Conformal uncertainty intervals to communicate forecast reliability.
+3. Model strategy vs buy-and-hold performance benchmark.
 
-- Start at `src/wealthsense_ai/train.py` to understand the end-to-end training flow.
-- Use `src/wealthsense_ai/config.py` to adjust tickers, model sizes, epochs, and paths.
-- Do not edit files in `artifacts/` manually; regenerate by rerunning training.
-- For project demos, use cached data in `artifacts/data_cache` to avoid live API risk.
+## Next Upgrades
 
-## What’s Next (If You Want To Improve It Further)
-
-- Add macroeconomic exogenous features (rates, CPI, VIX, earnings events).
-- Add walk-forward validation for stricter time-series rigor.
-- Add drift detection and scheduled retraining jobs.
+1. Add exogenous features (Fed rates, CPI, VIX, earnings events).
+2. Add walk-forward validation and per-regime performance tracking.
+3. Add drift detection + scheduled retraining pipeline.
