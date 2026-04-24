@@ -7,10 +7,21 @@ from pathlib import Path
 @dataclass(slots=True)
 class DataConfig:
     tickers: list[str] = field(
-        default_factory=lambda: ["AAPL", "MSFT", "NVDA", "TSLA", "SPY"]
+        default_factory=lambda: [
+            "AAPL",
+            "MSFT",
+            "NVDA",
+            "TSLA",
+            "SPY",
+            "QQQ",
+            "VOO",
+            "AMZN",
+            "GOOGL",
+            "META",
+        ]
     )
     start_date: str = "2015-01-01"
-    end_date: str = "2023-12-31"
+    end_date: str = "2024-12-31"
     sequence_length: int = 30
     target_column: str = "Close"
     feature_columns: list[str] = field(
