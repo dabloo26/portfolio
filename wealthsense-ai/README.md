@@ -33,12 +33,10 @@ Working end-to-end implementation of the proposal: deep-learning stock forecasti
   - Monte Carlo engine for goal success probability
   - Expected terminal value + suggested monthly contribution
 - **Website (Streamlit app)**
-  - Portfolio Intelligence tab with allocation, sector exposure, rolling VaR
-  - Forecast Lab tab with model diagnostics and strategy leaderboard
-  - Goal Engine tab with stress-tested market regimes (bear/base/bull)
-  - Scenario Studio tab with interactive forward Monte Carlo paths
-  - AI Copilot tab (Claude optional) with live dashboard context
-  - Ops & Downloads tab for artifact export and reproducibility commands
+  - Portfolio Analytics tab
+  - Forecast Comparison tab
+  - Goal Planning tab
+  - AI Chat tab (Claude optional)
 
 ## Current Folder Map
 
