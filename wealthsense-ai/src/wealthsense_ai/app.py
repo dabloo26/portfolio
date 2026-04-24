@@ -28,18 +28,17 @@ def _apply_custom_theme() -> None:
         """
         <style>
         .stApp {
-            background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
-            color: #0f172a;
+            background: radial-gradient(circle at 10% 20%, #0f172a 0%, #020617 55%, #000000 100%);
+            color: #e2e8f0;
         }
         .block-container {padding-top: 1.5rem; padding-bottom: 1.5rem;}
         [data-testid="stMetricValue"] {font-size: 1.4rem;}
         .ws-card {
-            background: #ffffff;
-            border: 1px solid #dbeafe;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.25);
             border-radius: 14px;
             padding: 1rem;
             margin-bottom: 0.75rem;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
         }
         </style>
         """,
@@ -125,24 +124,6 @@ def _portfolio_paths_mc(
     return out
 
 
-def _risk_profile_defaults(risk_profile: str) -> tuple[float, float]:
-    table = {
-        "Conservative": (0.055, 0.10),
-        "Balanced": (0.08, 0.16),
-        "Growth": (0.11, 0.24),
-    }
-    return table[risk_profile]
-
-
-def _goal_templates() -> dict[str, tuple[float, float]]:
-    return {
-        "Emergency Fund": (15000.0, 1.5),
-        "Home Down Payment": (75000.0, 4.0),
-        "Retirement Booster": (500000.0, 15.0),
-        "Child Education": (120000.0, 10.0),
-    }
-
-
 def _portfolio_metrics(returns: pd.Series) -> dict[str, float]:
     if returns.empty:
         return {"cumulative": 0.0, "annualized_vol": 0.0, "sharpe": 0.0, "max_drawdown": 0.0}
@@ -163,8 +144,8 @@ def _portfolio_metrics(returns: pd.Series) -> dict[str, float]:
 def main() -> None:
     st.set_page_config(page_title="WealthSense AI", layout="wide", initial_sidebar_state="expanded")
     _apply_custom_theme()
-    st.title("WealthSense AI")
-    st.caption("A beginner-friendly AI financial copilot for savings, investing, and goals")
+    st.title("WealthSense AI | State-of-the-Art Financial Intelligence")
+    st.caption("Deep forecasting + portfolio intelligence + scenario lab + goal planning + AI explanations")
 
     paths = PathsConfig()
     paths.ensure()
@@ -179,34 +160,25 @@ def main() -> None:
     model_leaderboard = summarize_forecasts(forecasts)
     top_model_global = model_leaderboard.groupby("model", as_index=False)["mape"].mean().sort_values("mape").iloc[0]
 
-    st.sidebar.header("Your Profile")
-    beginner_mode = st.sidebar.toggle("Beginner mode", value=True)
-    selected = st.sidebar.multiselect("Investments you care about", options=all_tickers, default=all_tickers[:4])
+    st.sidebar.header("Control Center")
+    selected = st.sidebar.multiselect("Portfolio tickers", options=all_tickers, default=all_tickers[:4])
     if not selected:
         st.sidebar.warning("Pick at least one ticker.")
         selected = all_tickers[:1]
-    risk_profile = st.sidebar.selectbox("Risk comfort", ["Conservative", "Balanced", "Growth"], index=1)
-    annual_mu_default, annual_sigma_default = _risk_profile_defaults(risk_profile)
-    risk_free_rate = st.sidebar.slider("Savings account / risk-free rate (%)", min_value=0.0, max_value=8.0, value=2.0, step=0.25) / 100.0
+    risk_free_rate = st.sidebar.slider("Risk-free rate (%)", min_value=0.0, max_value=8.0, value=2.0, step=0.25) / 100.0
+    confidence_level = st.sidebar.slider("Prediction interval confidence (%)", 80, 99, 90, 1)
+    sim_paths = st.sidebar.slider("Scenario simulation paths", min_value=200, max_value=5000, value=1200, step=200)
 
-    if beginner_mode:
-        confidence_level = 90
-        sim_paths = 1000
-    else:
-        confidence_level = st.sidebar.slider("Prediction confidence (%)", 80, 99, 90, 1)
-        sim_paths = st.sidebar.slider("Simulation depth", min_value=200, max_value=5000, value=1200, step=200)
-
-    st.sidebar.markdown("### Portfolio mix")
-    weight_cols = st.sidebar.columns(1 if beginner_mode else 2)
+    weight_cols = st.sidebar.columns(2)
     weights: dict[str, float] = {}
     for idx, ticker in enumerate(selected):
-        with weight_cols[idx % len(weight_cols)]:
+        with weight_cols[idx % 2]:
             weights[ticker] = st.slider(
                 f"{ticker}",
                 min_value=0.0,
                 max_value=1.0,
                 value=1.0 / len(selected),
-                step=0.10 if beginner_mode else 0.05,
+                step=0.05,
                 key=f"w_{ticker}",
             )
 
@@ -222,45 +194,19 @@ def main() -> None:
     k5.metric("Best Model", f"{top_model_global['model']} ({top_model_global['mape'] * 100:.2f}% MAPE)")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    tab_start, tab_portfolio, tab_forecast, tab_goal, tab_chat, tab_scenarios, tab_ops = st.tabs(
+    tab_portfolio, tab_forecast, tab_goal, tab_chat, tab_scenarios, tab_ops = st.tabs(
         [
-            "Start Here",
-            "Your Portfolio",
-            "Market Insights",
-            "Goal Planner",
+            "Portfolio Intelligence",
+            "Forecast Lab",
+            "Goal Engine",
             "AI Copilot",
             "Scenario Studio",
             "Ops & Downloads",
         ]
     )
 
-    with tab_start:
-        st.subheader("Start in 60 seconds")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            monthly_income = st.number_input("Monthly income ($)", min_value=0.0, value=6000.0, step=100.0)
-        with c2:
-            monthly_expenses = st.number_input("Monthly expenses ($)", min_value=0.0, value=4200.0, step=100.0)
-        with c3:
-            current_savings = st.number_input("Current savings ($)", min_value=0.0, value=20000.0, step=500.0)
-
-        template = st.selectbox("Pick your main goal", list(_goal_templates().keys()))
-        default_goal, default_years = _goal_templates()[template]
-        monthly_surplus = max(0.0, monthly_income - monthly_expenses)
-        runway_months = 0.0 if monthly_expenses == 0 else current_savings / max(monthly_expenses, 1.0)
-
-        g1, g2, g3 = st.columns(3)
-        g1.metric("Monthly surplus", f"${monthly_surplus:,.0f}")
-        g2.metric("Emergency runway", f"{runway_months:.1f} months")
-        g3.metric("Suggested starter goal", template)
-
-        if monthly_surplus < 300:
-            st.warning("Your current monthly surplus is low. Focus on expenses first, then investing.")
-        else:
-            st.success("You have investable surplus. You're in a good position to start this plan.")
-
     with tab_portfolio:
-        st.subheader("Your Portfolio")
+        st.subheader("Interactive Portfolio Intelligence")
         wdf = pd.DataFrame({"ticker": list(weights.keys()), "weight_raw": list(weights.values())})
         wdf["weight"] = wdf["weight_raw"] / max(wdf["weight_raw"].sum(), 1e-8)
 
@@ -294,12 +240,8 @@ def main() -> None:
         rfig.update_layout(title="Risk Monitor: Return vs Rolling VaR")
         st.plotly_chart(rfig, use_container_width=True)
 
-        with st.expander("Advanced details"):
-            st.write("These numbers are based on ensemble-return simulation from historical test windows.")
-            st.dataframe(wdf, use_container_width=True)
-
     with tab_forecast:
-        st.subheader("Market Insights")
+        st.subheader("Forecast Lab & Model Diagnostics")
         ticker = st.selectbox("Ticker", all_tickers, key="forecast_ticker")
         subset = forecasts[forecasts["ticker"] == ticker].copy()
         best_model_row = summarize_forecasts(subset).iloc[0]
@@ -345,40 +287,30 @@ def main() -> None:
                 st.plotly_chart(band_fig, use_container_width=True)
         with c2:
             summary_table = summarize_forecasts(subset)
-            top_mape = float(summary_table.iloc[0]["mape"] * 100)
-            if top_mape < 5:
-                st.success(f"High forecast confidence for {ticker} (MAPE {top_mape:.2f}%).")
-            elif top_mape < 10:
-                st.info(f"Moderate forecast confidence for {ticker} (MAPE {top_mape:.2f}%).")
-            else:
-                st.warning(f"Low forecast confidence for {ticker} (MAPE {top_mape:.2f}%).")
-
-            st.subheader("What worked best")
+            st.dataframe(summary_table, use_container_width=True)
+            st.subheader("Strategy Leaderboard")
             strat_table = strategy[strategy["ticker"] == ticker].sort_values("sharpe_ratio", ascending=False)
             st.dataframe(strat_table, use_container_width=True)
 
             best = summary_table.iloc[0]
-            st.metric("Forecast error (MAPE)", f"{best['mape'] * 100:.2f}%")
-            st.metric("Direction accuracy", f"{best['directional_accuracy'] * 100:.2f}%")
-
-            with st.expander("Compare all models (advanced)"):
-                st.dataframe(summary_table, use_container_width=True)
+            st.metric("Top model MAPE", f"{best['mape'] * 100:.2f}%")
+            st.metric("Top model Directional Accuracy", f"{best['directional_accuracy'] * 100:.2f}%")
 
     with tab_goal:
-        st.subheader("Goal Planner")
+        st.subheader("Goal Engine with Stress Testing")
         g1, g2, g3, g4, g5, g6 = st.columns(6)
         with g1:
-            current_balance = st.number_input("Current savings ($)", min_value=0.0, value=current_savings if 'current_savings' in locals() else 20000.0, step=500.0)
+            current_balance = st.number_input("Current Balance ($)", min_value=0.0, value=20000.0, step=500.0)
         with g2:
-            monthly_contribution = st.number_input("Monthly contribution ($)", min_value=0.0, value=monthly_surplus if 'monthly_surplus' in locals() else 1200.0, step=50.0)
+            monthly_contribution = st.number_input("Monthly Contribution ($)", min_value=0.0, value=1200.0, step=50.0)
         with g3:
-            target_amount = st.number_input("Goal target ($)", min_value=1000.0, value=default_goal if 'default_goal' in locals() else 60000.0, step=1000.0)
+            target_amount = st.number_input("Goal Target ($)", min_value=1000.0, value=60000.0, step=1000.0)
         with g4:
-            years = st.number_input("Timeline (years)", min_value=0.5, value=default_years if 'default_years' in locals() else 3.0, step=0.5)
+            years = st.number_input("Timeline (Years)", min_value=0.5, value=3.0, step=0.5)
         with g5:
-            annual_mu = st.number_input("Expected annual return", min_value=-0.2, max_value=0.4, value=annual_mu_default, step=0.01)
+            annual_mu = st.number_input("Expected Annual Return", min_value=-0.2, max_value=0.4, value=0.08, step=0.01)
         with g6:
-            annual_sigma = st.number_input("Annual volatility", min_value=0.05, max_value=0.8, value=annual_sigma_default, step=0.01)
+            annual_sigma = st.number_input("Annual Volatility", min_value=0.05, max_value=0.8, value=0.16, step=0.01)
 
         result = run_goal_monte_carlo(
             current_balance=current_balance,
@@ -455,7 +387,7 @@ def main() -> None:
 
     with tab_chat:
         st.subheader("AI Copilot")
-        st.write("Ask plain-English questions about your money plan.")
+        st.write("Ask investment, risk, and goal-planning questions using live dashboard context.")
         question = st.text_input("Ask about your plan", value="I want to buy a home in 3 years. Am I on track?")
         if st.button("Generate explanation"):
             leaderboard = summarize_forecasts(forecasts)
@@ -470,7 +402,7 @@ def main() -> None:
             st.write(_render_chat_summary(prompt=question, context=context))
 
     with tab_scenarios:
-        st.subheader("Scenario Studio")
+        st.subheader("Scenario Studio (Interactive Monte Carlo Paths)")
         start_value = st.number_input("Start Portfolio Value ($)", min_value=1000.0, value=50000.0, step=1000.0)
         horizon = st.slider("Horizon (years)", min_value=1, max_value=15, value=5)
         scen = _portfolio_paths_mc(
@@ -490,7 +422,7 @@ def main() -> None:
         st.plotly_chart(qfig, use_container_width=True)
 
     with tab_ops:
-        st.subheader("Startup Ops & Exports")
+        st.subheader("Operations, Governance, and Export")
         st.code(
             "Training command:\n"
             "PYTHONPATH=wealthsense-ai/src python3 -m wealthsense_ai.train\n\n"
@@ -518,10 +450,6 @@ def main() -> None:
             mime="application/json",
         )
         st.dataframe(model_leaderboard, use_container_width=True)
-        st.info(
-            "Important: WealthSense is educational and planning-oriented, not personalized financial advice. "
-            "For production startup use, add onboarding KYC, advisor review, and compliance checks."
-        )
 
 
 if __name__ == "__main__":

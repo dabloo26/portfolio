@@ -1,6 +1,6 @@
 # WealthSense AI
 
-Working end-to-end implementation of the proposal with a beginner-first UX: deep-learning forecasting + goal planning + portfolio insights + startup-oriented dashboard experience.
+Working end-to-end implementation of the proposal: deep-learning stock forecasting + strategy benchmarking + goal simulation + dashboard + optional AI explanation.
 
 ## What Was Built
 
@@ -33,11 +33,12 @@ Working end-to-end implementation of the proposal with a beginner-first UX: deep
   - Monte Carlo engine for goal success probability
   - Expected terminal value + suggested monthly contribution
 - **Website (Streamlit app)**
-  - Beginner-friendly `Start Here` onboarding flow
-  - Simplified `Your Portfolio` and `Market Insights` views
-  - Goal Planner with plain-language success guidance
-  - Scenario Studio and advanced controls hidden behind simpler defaults
-  - Startup-friendly `Ops & Downloads` module for demos and reporting
+  - Portfolio Intelligence tab with allocation, sector exposure, rolling VaR
+  - Forecast Lab tab with model diagnostics and strategy leaderboard
+  - Goal Engine tab with stress-tested market regimes (bear/base/bull)
+  - Scenario Studio tab with interactive forward Monte Carlo paths
+  - AI Copilot tab (Claude optional) with live dashboard context
+  - Ops & Downloads tab for artifact export and reproducibility commands
 
 ## Current Folder Map
 
