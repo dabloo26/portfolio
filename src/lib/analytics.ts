@@ -29,13 +29,16 @@ export function initGoogleAnalytics(): void {
   document.head.appendChild(script);
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer?.push(args);
+  // Important: push the *arguments object* (gtag.js expects this shape).
+  // Using an array here can prevent queued commands from being processed.
+  window.gtag = function gtag(..._args: unknown[]) {
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer?.push(arguments);
   };
 
   window.gtag("js", new Date());
   // In SPA mode we send page_view manually on route changes.
-  window.gtag("config", GA_ID, { send_page_view: false });
+  window.gtag("config", GA_ID, { send_page_view: false, debug_mode: GA_DEBUG });
   if (GA_DEBUG) {
     // eslint-disable-next-line no-console
     console.info("[ga] initialized", { gaId: GA_ID });
