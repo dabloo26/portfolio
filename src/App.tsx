@@ -12,6 +12,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { Header } from "./components/Header";
 import { HomePage } from "./pages/HomePage";
 import { ProjectsPage } from "./pages/ProjectsPage";
+import { GoogleAnalyticsPageTracker } from "./lib/analytics";
 
 function Shell({ children }: { children: ReactNode }) {
   return (
@@ -51,6 +52,7 @@ function App() {
   return (
     <RoleProvider>
       <BrowserRouter basename={routerBasename()}>
+        <GoogleAnalyticsPageTracker />
         <LandingPlanetProvider>
           <div className="relative min-h-[100dvh] min-h-[100svh] bg-base text-white">
             <AnimatePresence mode="wait">
