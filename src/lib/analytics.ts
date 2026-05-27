@@ -9,12 +9,13 @@ declare global {
 }
 
 const GA_ID = import.meta.env.VITE_GA_ID as string | undefined;
+const GA_DEBUG =
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("ga_debug") === "1";
 
 function canTrack(): boolean {
   if (!GA_ID) return false;
   if (typeof window === "undefined") return false;
-  // Respect explicit do-not-track preference.
-  if (navigator.doNotTrack === "1") return false;
   return true;
 }
 
@@ -35,6 +36,10 @@ export function initGoogleAnalytics(): void {
   window.gtag("js", new Date());
   // In SPA mode we send page_view manually on route changes.
   window.gtag("config", GA_ID, { send_page_view: false });
+  if (GA_DEBUG) {
+    // eslint-disable-next-line no-console
+    console.info("[ga] initialized", { gaId: GA_ID });
+  }
 }
 
 export function GoogleAnalyticsPageTracker() {
@@ -48,6 +53,10 @@ export function GoogleAnalyticsPageTracker() {
       page_path: pagePath,
       page_location: window.location.href,
     });
+    if (GA_DEBUG) {
+      // eslint-disable-next-line no-console
+      console.info("[ga] page_view", { pagePath, title: document.title });
+    }
   }, [pathname, search]);
 
   return null;
