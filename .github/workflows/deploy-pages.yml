@@ -27,6 +27,8 @@ jobs:
         run: npm ci
       # User site (OWNER.github.io) must use base "/" ; project sites use "/<repo>/".
       - name: Build
+        env:
+          VITE_GA_ID: ${{ secrets.VITE_GA_ID }}
         run: |
           NAME="${{ github.event.repository.name }}"
           OWNER="${{ github.repository_owner }}"
